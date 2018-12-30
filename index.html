@@ -866,7 +866,7 @@ function create_option(name, description, start, min=0, max=99, cl=null){
 
 console.log('Document ready...')
 var oReq = new XMLHttpRequest();
-oReq.open("GET", "/patch/smb2-patch.ips", true);
+oReq.open("GET", "patch/smb2-patch.ips", true);
 oReq.responseType = "arraybuffer";
 oReq.onload = function(oEvent) {
     console.log('Patch grabbed')
