@@ -1,0 +1,158 @@
+/* Define the "system" font family */
+@font-face {
+    font-family: system;
+    font-style: normal;
+    font-weight: 300;
+    src: local(".SFNSText-Light"), local(".HelveticaNeueDeskInterface-Light"), local(".LucidaGrandeUI"), local("Ubuntu Light"), local("Segoe UI Light"), local("Roboto-Light"), local("DroidSans"), local("Tahoma");
+}
+
+body{
+    background-color: white;
+    margin: auto;
+    width: 100%;
+    max-width: 512px;
+}
+
+a, button{ 
+    background-color: gray;
+    color: white;
+    padding: 10px;
+    border-radius: 4px 
+}
+
+div {
+    padding: 2px
+}
+
+body {
+    background-color: #112244;
+    image-rendering: pixelated;
+}
+
+img {
+    image-rendering: pixelated;
+}
+
+label {
+    padding: 5px;
+    display: block;
+}
+
+textarea {
+    font-size: x-small;
+}
+
+select{
+    background-color: white;
+    color: black;
+    margin: auto;
+    display: block;
+}
+
+#Mario,#Luigi,#Peach,#Toad {width:48px; height: 48px;display:inline-block;}
+.wide label { width:64px; height: 64px; display:inline-block; }
+
+.sprite{
+    background-color: purple;
+    width: 100%;
+    max-width: 32px
+}
+
+.pad5 {
+    padding: 5px
+}
+
+.map_frame {
+    padding: 0px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    margin: 0 auto;
+}
+
+.summarytext{
+    padding: 10px;
+    width: 512;
+    border: 32px solid transparent;
+    border-image: url(border_page.png) 64 round;
+    background-color: #FCE4A0;
+    text-emphasis: bold;
+    color: brown;
+    padding: 20px;
+    border-radius: 90px;
+    text-align: left;
+    white-space: pre-wrap;
+}
+
+.input{
+    background-color: white;
+    color: black;
+    margin: auto;
+    width: 50%;
+}
+
+.option{
+    background-color: white;
+    color: black;
+    margin: auto;
+    display: inline-block;
+}
+
+.nespalette_select {
+    background-color: black;
+    color: white;
+    display: inline-block;
+}
+
+.option_select{
+    overflow:hidden; border:solid grey 1px; width: 300px;
+}
+
+.char_read{
+    background-color: white;
+    color: black;
+}
+
+.level_read, .level_audit{
+    background-color: white;
+    color: black;
+}
+
+
+.hide_me{
+    display: none;
+}
+
+.option_div{
+    background-color: black;
+    color: white;
+    margin: 0 auto;
+    border: solid 2px;
+    width: 80%
+}
+
+.log{
+    background-color: black;
+    color: white;
+    white-space: pre-wrap;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.center {
+    padding: 10px;
+    width: 100%;
+    max-width: 512px;
+    border: 32px solid transparent;
+    border-image: url(border5.png) 64 round;
+    color: white;
+    background-color: black;
+    background-image: url(curtains.png);
+    background-position: top; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    background-size: 100%; /* Resize the background image to cover the entire container */
+    text-align: center;
+    text-decoration-color: #000000;
+    font-family: "system"
+}

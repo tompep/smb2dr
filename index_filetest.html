@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=640px, initial-scale=1.0">
+
+        <title>SMB2DR</title>
+        <meta name="description" content="Super Mario Brothers 2 Door Randomizer">
+        <meta name="author" content="tom.p">
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="css/styles.css">
+
+        <script
+              src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+        <script>!window.jQuery && document.write('<script src="jquery-3.3.1.min.js"><\/script>')</script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.4/seedrandom.min.js"> </script>
+    </head>
+    <body class='hide_me'>
+        <div class='center'>
+            <img src="css/titletop2.png"></img>
+            </br>
+            </br>
+            <div class="pad5">
+                <a id='start_summary'>About</a>
+                <a id='start_randomizer'>Randomizer</a>
+                <a id='start_map_viewer'>Maps</a>
+                <a id='start_character_viewer'>Characters</a>
+            </div>
+            </br>
+
+            <div id="summary" class="main_item">
+                <div id="summarytext" class="summarytext">                </div>
+            </div>
+                
+            <div id="fileupload" class="main_item">
+                <input type="file" class="input" id="files" name="file"/>
+                <label>Seed <input type="text" class="input" id="seed"/></label>
+            </div>
+
+            <div id="randomizer_body" class="main_item">
+                <div class="" id="randomizer">
+                </div>
+            </div>
+
+            
+            <div class="main_item" id="map_viewer">
+                In Progress
+                <br/>
+                World Select
+                <form class='option_div'>
+                    World
+                    <input id="world" type="number" class="level_read" min="0" max="6" value="0"/>
+                    Level
+                    <input id="level" type="number" class="level_read" min="0" max="2" value="0"/>
+                    Room
+                    <input id="room" type="number" class="level_read" min="0" max="9" value="0"/>
+                </form>
+                Force Info
+                <form class='option_div'>
+                    Orientation
+                    <input id="vert" type="number" class="level_read" min="0" max="1" value="0"/>
+                    Pal A
+                    <input id="pala" type="number" class="level_read" min="-1" max="6" value="-1"/>
+                    Pal B
+                    <input id="palb" type="number" class="level_read" min="-1" max="3" value="-1"/>
+                    Render World
+                    <input id="unk3" type="number" class="level_read" min="-1" max="7" value="-1"/>
+                    Render BX/CX
+                    <input id="unk4" type="number" class="level_read" min="-1" max="3" value="-1"/>
+                    Object Steps 
+                    <input id="steps" type="number" class="level_read" min="-1" max="255" value="-1"/>
+                </form>
+                <div class="map_frame">
+                    <canvas id="myCanvas" width="256" height="256" style="border:1px solid #000000;">
+                    </canvas>
+                </div>
+                <button id="writeJSON"> Output To JSON </button>
+                <button id="readJSON"> Input From JSON </button>
+                <div>
+                <textarea id="info_dump" class='log'>
+                </textarea>
+                </div>
+                Auditing
+                <form class='option_div'>
+                Audit Enemy
+                <select id="a_enemy" class="level_audit">
+                    <option value='-1'>Select Enemy</option>
+                </select>
+                Audit Object
+                <select id="a_object" class="level_audit">
+                    <option value='-1'>Select Object</option>
+                </select>
+                Audit Tile
+                <select id="a_tiles" class="level_audit">
+                    <option value='-1'>Select Tile</option>
+                </select>
+                </form>
+                <button id="auditByRoom"> By Room </button>
+                <button id="auditByLevel">  By Level </button>
+                <button id="auditByWorld"> By World </button>
+                <button id="auditByGame">  By Game </button>
+            </div>
+            <div class="main_item" id="char_viewer">
+                In Progress
+                <div class="option_div"> 
+                Character
+                <input id="a_character" type="number" class="char_read" min="0" max="7" value="0"/>
+                Frame
+                <input id="a_frame" type="number" class="char_read" min="0" max="10" value="0"/>
+                <form id="palette_character">Palette</form>
+                </div>
+                <div id="char_sprites">No sprites read.</div>
+                <button id="writeJSON_char"> Output To JSON </button>
+                <button id="readJSON_char"> Input From JSON </button>
+                <div>
+                <textarea id="info_dump_char" class='log'>
+                </textarea>
+                </div>
+            </div>
+            <div class="main_item" id="sprite_viewer">
+                <div class="map_frame">
+                    <canvas id="myCanvas_sprite" width="256" height="256" style="border:1px solid #000000;">
+                    </canvas>
+                </div>
+            </div>
+
+
+        </div>
+        <pre id="log" class="log"></pre>
+
+
+        <script src="js/bind_console_log.js"></script>
+        <script src="js/patch_ips.js"></script>
+        <script src="js/graphics.js"></script>
+        <script src="js/metadata_obj_tiles.js"></script>
+        <script src="js/render.js"></script>
+        <script src="js/lt_browser.js"></script>
+        <script src="js/randomizer.js"></script>
+        <script>
+// start script
+var startingRom;
+var currentRom;
+var currentPatch;
+var mem_locs = {};
+var info;
+var sprites;
+var currentMap;
+var cursor = [0, 0]
+var player_palettes = [
+    {"name": "festive", "pal": [0xf, 9, 22, 55]}
+]
+
+
+function handleFileSelect(evt) {
+    var file = evt.target.files[0]
+
+    var reader = new FileReader();
+    reader.onload = function(){
+        console.log('Loading file...')
+        var dataURL = reader.result
+        startingRom = new Uint8Array(dataURL)
+        var crc32_rom = decimalToHexString(crc32(startingRom))
+        console.log('CRC32: ' + crc32_rom)
+        if (currentPatch != undefined){
+            startingRom = patch_ips(startingRom, currentPatch)
+        }
+        info = extract_all_info(startingRom, mem_locs)
+        sprites = extract_graphics(startingRom.slice(0x20010))
+        console.normal_log(info)
+        console.normal_log(sprites)
+    }
+    reader.readAsArrayBuffer(file)
+}
+
+function decimalToHexString(number)
+{
+      if (number < 0)
+    {
+            number = 0xFFFFFFFF + number + 1;
+    }
+      return number.toString(16).toUpperCase();
+}
+
+var downloadURL = function(data, fileName) {
+      var a;
+      a = document.createElement('a');
+      a.href = data;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.style = 'display: none';
+      a.click();
+      a.remove();
+};
+
+var character_stats = [
+	"Pick-up Speed, frame 1/6 - pulling",
+	"Pick-up Speed, frame 2/6 - pulling",
+	"Pick-up Speed, frame 3/6 - ducking",
+	"Pick-up Speed, frame 4/6 - ducking",
+	"Pick-up Speed, frame 5/6 - ducking",
+	"Pick-up Speed, frame 6/6 - ducking",
+	"Jump Speed, still - no object",
+	"Jump Speed, still - with object",
+	"Jump Speed, charged - no object",
+	"Jump Speed, charged - with object",
+	"Jump Speed, running - no object",
+	"Jump Speed, running - with object",
+	"Jump Speed - in quicksand",
+	"Floating Time",
+	"Gravity without Jump button pressed",
+	"Gravity with Jump button pressed",
+	"Gravity in quicksand",
+	"Running Speed, right - no object",
+	"Running Speed, right - with object",
+	"Running Speed, right - in quicksand",
+	"Running Speed, left - no object",
+	"Running Speed, left - with object",
+	"Running Speed, left - in quicksand"
+]
+
+var character_frames = [
+]
+
+function show_character(evt) {
+    var a_s = sprites.all_sheets
+    var character = $('#a_character').val() & 0b11
+    var frame = $('#a_frame').val()
+    if (currentRom == undefined)
+        currentRom = startingRom
+    var frame_data = split_em(extract_mem_block(
+        currentRom.slice(0x10), mem_locs, 'CharacterOne_Frames', 44*4), 4)
+    var current_character_frames = frame_data.slice(
+        11*character, 11*character+11).map((x, y) => convert_to_8x16(x, [4, 5, 7].includes(y)))
+    var picked_frame = current_character_frames[frame]
+    var loaded_sheets = [a_s[$('#a_character').val()]]
+    var palette = $('.nespalette_select')
+    palette = palette.map(x => parseInt(palette[x].value))
+    $("#char_sprites").text('')
+    
+    if(frame == -1){
+        for (var index in current_character_frames){
+            var current_frame = current_character_frames[index]
+            var player = bitmap_from_graphics(loaded_sheets,
+                                current_frame, 2, palette, true)
+            var img = $("<img alt='frame' class='sprite'></img>")
+            $("#char_sprites").append(img)
+        }
+    }
+    else {
+        var player = bitmap_from_graphics(loaded_sheets,
+                            picked_frame, 2, palette, true)
+        var img = $("<img alt='frame' class='sprite'></img>")
+        img.attr('src', player.data_url)
+        $("#char_sprites").append(img)
+    }
+    $("#char_sprites").append('</br>')
+    current_character_frames = split_em(Array(32).fill(0).map((x, y) => parseInt(y)*2), 4)
+    console.log(current_character_frames)
+    current_character_frames = current_character_frames.map(x => convert_to_8x16(x))
+    console.log(current_character_frames)
+    for (var current_frame of current_character_frames){
+        var player = bitmap_from_graphics(loaded_sheets,
+                            current_frame, 2, palette, true)
+        var img = $("<img alt='frame' class='sprite'></img>")
+        img.attr('src', player.data_url)
+        $("#char_sprites").append(img)
+    }
+}
+
+function writeJSON_char(evt) {
+}
+
+function readJSON(evt) {
+    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
+    console.log($('#world').val() * 30, $('#level').val() * 10, $('#room').val() * 1)
+    console.log(my_level_index)
+    if (info == undefined){
+        console.log('Cannot render level, no rom loaded')
+        return
+    }
+    var level = JSON.parse(
+        $('#info_dump').val())
+
+    info.my_levels[my_level_index] = level
+
+    show_level(evt)
+}
+
+function writeJSON(evt) {
+    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
+    console.log($('#world').val() * 30, $('#level').val() * 10, $('#room').val() * 1)
+    console.log(my_level_index)
+    if (info == undefined){
+        console.log('Cannot render level, no rom loaded')
+        return
+    }
+    var level = info.my_levels[my_level_index]
+    level.rendered = []
+    level.decoded = []
+    level.objs = level.objs.map(x => {delete x.obj_name; return x})
+    $('#info_dump').val(JSON.stringify(level))
+    show_level(evt)
+}
+
+function readJSON(evt) {
+    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
+    console.log($('#world').val() * 30, $('#level').val() * 10, $('#room').val() * 1)
+    console.log(my_level_index)
+    if (info == undefined){
+        console.log('Cannot render level, no rom loaded')
+        return
+    }
+    var level = JSON.parse(
+        $('#info_dump').val())
+
+    info.my_levels[my_level_index] = level
+
+    show_level(evt)
+}
+
+function draw_cursor(y, x, blank=true) {
+    var canvas = document.getElementById("myCanvas"),
+        ctx = canvas.getContext("2d");
+    if (blank){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.putImageData(currentMap, 0, 0);
+    }
+    x = (x >> 4) << 4
+    y = (y >> 4) << 4
+    ctx.save();
+    ctx.beginPath();
+    ctx.globalAlpha = 0.4;
+    ctx.rect(x, y, 16, 16)
+    ctx.fill(); 
+    ctx.restore();
+    console.log(y, x, blank, 'clicky')
+}
+
+function show_level(evt) {
+    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
+    console.log($('#world').val() * 30, $('#level').val() * 10, $('#room').val() * 1)
+    console.log(my_level_index)
+
+    var canvas = document.getElementById("myCanvas"),
+        ctx = canvas.getContext("2d");
+    ctx.lineWidth=0.2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle='blue'
+    if (info == undefined){
+        console.log('Cannot render level, no rom loaded')
+        return
+    }
+    var page_num = $('#page').val()
+    var step_num = $('#steps').val()
+    var level = info.my_levels[my_level_index]
+    console.log('Rendering Level', 
+        level.world + 1, "-", level.level + 1, "room", level.room)
+    var my_objects = level.objs
+    var enemies = level.enemies
+
+    var render_world = ($('#unk3').val() >= 0) ? $('#unk3').val() : level.header.unk3
+    var render_x = ($('#unk4').val() >= 0) ? $('#unk4').val() : level.header.unk4 
+    var vertical = level.header.vertical
+    render_world = render_world == 7 ? level.world : render_world
+
+    if ($('#vert').val() > 0)
+        vertical = !vertical
+
+    for (var grid=[]; grid.push(Array(16))< 16;);	
+    var a_s = sprites.all_sheets
+    var world_sheet = worldTileset[render_world] 
+    var loaded_sheets = [
+        a_s[0x0], a_s[0x8], a_s[0x9], a_s[0xC],
+        a_s[world_sheet], a_s[world_sheet + 1], a_s[0x18], a_s[0x19]]
+    var background_sheets = loaded_sheets.slice(4)
+    var world_palette = info.meta_info.world_metadata.bpals[render_world]
+    var back_palette = world_palette[level.header.pala]
+    var quads = info.meta_info.world_metadata.tile_quads
+    var quads_2 = info.meta_info.world_metadata.enemy_tilemap_1
+    var rendered_tiles = []
+    var rendered_enemy = []
+
+    back_palette = ($('#pala').val() >= 0) ? world_palette[$('#pala').val()] : back_palette
+
+    var new_header = $.extend(true, {}, level.header)
+    new_header.vertical = vertical
+    new_header.pala = back_palette
+    new_header.unk3 = render_world
+    new_header.unk4 = render_x
+
+    var rendered = render_level(level, new_header, level.enemies, info.meta_info, step_num)
+
+    // fix enemy appearance
+    if (vertical){
+        canvas.height = 240 * (level.header.pages + 1)
+        canvas.width = 256 
+    }
+    else{
+        canvas.height = 256 - 16
+        canvas.width = 256 * (level.header.pages + 1)
+    }
+
+    var map_click = function(event) {
+        var rect = canvas.getBoundingClientRect();
+        var x = event.clientX - rect.left;
+        var y = event.clientY - rect.top;
+        console.log("x: " + x + " y: " + y);
+        var j = x >> 4,
+            i = y >> 4
+        var page_num = !vertical ? Math.floor(j/16) : Math.floor(i/15)
+        var j = (x >> 4) % 16,
+            i = (y >> 4) % 15
+        console.log('clicked once on', x, y, j, i, page_num)
+        var new_enemies = enemies.filter(x => 
+            ((x.pos_y % 15) + (vertical ? x.pos_page : 0)) === i && x.pos_x === j && x.pos_page == page_num)
+
+        var render_tile = rendered[page_num][i][j]
+        console.log(JSON.stringify(render_tile))
+
+        if (render_tile.owner) console.log("Created by:", JSON.stringify(render_tile.owner))
+        console.log("Enemies:", JSON.stringify(new_enemies))
+
+        cursor = [y, x]
+        draw_cursor(y, x)
+    }
+
+    $('#myCanvas').unbind()
+    $('#myCanvas').bind("click", map_click)
+    for (page_num = 0; page_num < level.header.pages + 1; page_num++)
+    for (i=0; i<15; i++){
+        for (j=0; j<16; j++){
+            ctx.fillStyle='brown'
+            var new_x = j*16 + (!vertical ? page_num*256 : 0)
+            var new_y = i*16 + (vertical ? page_num*240 : 0)
+            var tile = rendered[page_num][i][j]
+            if (tile.obj_type != undefined){
+                var index = Math.floor(tile.obj_type/0x40)
+                var sprite_tiles = quads[index][tile.obj_type % 0x40]
+                if (rendered_tiles[tile.obj_type] == undefined)
+                    rendered_tiles[tile.obj_type] = bitmap_from_graphics(background_sheets,
+                        sprite_tiles, 2, back_palette[index], null).image_data
+                ctx.putImageData(rendered_tiles[tile.obj_type], new_x, new_y);
+                if (tile.hotspot){
+                    ctx.fillStyle='green'
+                    ctx.beginPath();
+                    ctx.arc(new_x + 8, new_y + 8, 4, 0, 2 * Math.PI);
+                    ctx.fill(); 
+                }
+            }
+            ctx.fillStyle='blue'
+            var new_objs = my_objects.filter(x => x.pos_y === i && x.pos_x === j && x.pos_page == page_num)
+            if (new_objs.length > 0) ctx.rect(new_x, new_y, 4, 4); 
+            var new_enemies = enemies.filter(x => 
+                ((x.pos_y % 15) + (vertical ? x.pos_page : 0)) === i && x.pos_x === j 
+                && x.pos_page == page_num)
+            ctx.fillStyle='red'
+            if (new_enemies.length > 0) {
+                for (var enemy of new_enemies){
+                    break
+                    var sprite_tiles = convert_to_8x16(quads_2.slice((enemy.obj_type) * 2 - 2, enemy.obj_type * 2 + 2 - 2))
+                    if (rendered_enemy[enemy.obj_type] == undefined)
+                        rendered_enemy[enemy.obj_type] = bitmap_from_graphics(loaded_sheets,
+                            sprite_tiles, 2, back_palette[index], true).image_data
+                    console.log(sprite_tiles, rendered_enemy[enemy.obj_type])
+                    ctx.putImageData(rendered_enemy[enemy.obj_type], new_x, new_y);
+                }
+                ctx.beginPath();
+                ctx.arc(new_x + 8, new_y + 8, 2, 0, 2 * Math.PI);
+                ctx.fill(); 
+            }
+        }
+    }
+    currentMap = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    draw_cursor(...cursor, false)
+}
+
+function randomize_rom(evt) {
+    console.log('Randomizing ROM...')
+    // patch
+    rando_seed = $('#seed').val();
+    currentRom = new Uint8Array(startingRom)
+    if (currentPatch != undefined){
+        patchManipulateable = new Uint8Array(currentPatch)
+        currentRom = patch_ips(currentRom, patchManipulateable)
+    }
+    info = extract_all_info(currentRom, mem_locs)
+
+    // extract
+    var option_tags = $('.option, .option_form, .option_select')
+    var mem_loc_tags = $('.option.mem_location')
+
+    var option_vals = {}
+    option_tags.map(x => 
+        option_vals[option_tags[x].id] = {
+        val: option_tags[x].value, 
+        checked: option_tags[x].checked,
+        my_tag: option_tags[x]
+    })
+
+    Math.seedrandom(rando_seed)
+    var locking = Array(...option_vals['Randomize_World_Appearance'].my_tag.elements).filter(x => x.checked)[0].value
+    if (locking != 'Do Not Randomize'){
+        for(var l of info.my_levels){
+            if (l != undefined){
+                randomize_header(l, info.meta_info.world_metadata)
+            }
+        }
+    }
+
+    Math.seedrandom(rando_seed)
+
+    for(var l of info.my_levels){
+        if (l != undefined){
+            equalize_header(l, info.meta_info.world_metadata)
+            l.objs = l.objs.filter(function(ele){return ele.obj_type != 0x8})
+            if (Math.random() < (option_vals['Curse_Rate_Percent'].val / 255))
+                l.modifiers.push({
+                    loc_l: 0x76, 
+                    loc_r: 0xeb, 
+                    contents: [0x01]}) // curse
+        }
+    }
+
+    Math.seedrandom(rando_seed)
+
+    level_order_randomizer(info.my_levels, currentRom, mem_locs, {
+        'ShuffleType': option_vals["Level_Randomization"].val,
+        'BossOrder': option_vals["Boss_Randomization"].val,
+        'EndWart': option_vals['End_with_Wart'].checked,
+        'ScrambleWorld': option_vals['Scramble_Levels_in_World'].checked,
+        'CloneBoss': option_vals['Randomize_Boss_Arenas'].checked
+    }, info)
+
+    // skipped
+    var level_sets = split_em(info.my_levels, 10).map(x => x.filter(y => y != undefined))
+    var locking = 'Do Not Randomize'
+    if (locking != 'Do Not Randomize'){
+        var world_sets = split_em(level_sets, 3)
+        if (locking == 'Per World')
+            for (var w of world_sets){
+                var new_pal_a = Math.floor(Math.random() * 6)
+                var new_pal_b = Math.floor(Math.random() * 3)
+                var new_music = Math.floor(Math.random() * 2)
+                for (var l of w) {
+                    for (var r of l){
+                        console.log(r)
+                        r.header.pal_a = new_pal_a
+                        r.header.pal_b = new_pal_a
+                    } 
+                }
+            }
+        if (locking == 'Per Level')
+            for (var w of world_sets){
+                for (var l of w){
+                    var new_pal_a = Math.floor(Math.random() * 6)
+                    var new_pal_b = Math.floor(Math.random() * 3)
+                    var new_music = Math.floor(Math.random() * 2)
+                    for (var r of l){
+                        console.log(r)
+                        r.header.pal_a = new_pal_a
+                        r.header.pal_b = new_pal_a
+                    } 
+                } 
+            }
+        if (locking == 'Per Room')
+            for (var w of world_sets){
+                for (var l of w){
+                    for (var r of l){
+                        var new_pal_a = Math.floor(Math.random() * 6)
+                        var new_pal_b = Math.floor(Math.random() * 3)
+                        var new_music = Math.floor(Math.random() * 2)
+                        console.log(r)
+                        r.header.pal_a = new_pal_a
+                        r.header.pal_b = new_pal_a
+                    } 
+                } 
+            }
+    }
+
+    Math.seedrandom(rando_seed)
+
+    item_randomizer(info.my_levels, currentRom, mem_locs, info.meta_info, option_vals)
+
+    Math.seedrandom(rando_seed)
+
+    player_randomizer(info.my_levels, currentRom, mem_locs, info.meta_info, option_vals)
+
+    Math.seedrandom(rando_seed)
+
+    handle_boss_options(info.my_levels, option_vals)
+
+    mem_loc_tags.map(function(ele){
+        var ele = mem_loc_tags[ele]
+        console.debug(ele)
+        var values = [ele.value]
+        if (Array.isArray(ele.value))
+            values = ele.value
+        if (ele.checked)
+            values = [ele.checked]
+        var ele = $(ele)
+        set_memory_location(currentRom, mem_locs,
+            ele.data('mem_loc_name'), values, ele.data('offset'))
+        return ele
+    })
+
+    if (option_vals['End_Game_at_any_Exit'].checked){
+        set_memory_location(currentRom, mem_locs,
+             'WinLevel', [0xFF])
+    }
+
+    console.log(option_vals)
+
+
+    write_to_file(currentRom, info.my_levels, info.meta_info)
+    
+    blob = new Blob([currentRom])
+    url = window.URL.createObjectURL(blob);
+    downloadURL(url, 'smb2-output.nes');
+    setTimeout(function() {
+            return window.URL.revokeObjectURL(url);
+          
+    }, 1000);
+
+} 
+
+function setupLabels (text, num){
+    /*
+        Sets up labels from asm6f Symbol files    
+    */
+    var offset = 0x8000
+    var mem_locs_new = {}
+    if (num == 8) num = 7
+    if (num == 7) offset = 0xC000
+    var true_location = num * 0x4000
+    for (var entry of text.split('\n')){
+        var values = entry.split('#')
+        var location = parseInt(values[0].slice(1), 16)
+        location = true_location + location - offset 
+        var value_name = values[1]
+        if (value_name != undefined && location != NaN)
+            mem_locs_new[value_name] = location
+    }
+    return mem_locs_new
+}
+
+$('#start_summary').click(function(){
+    $('.main_item').fadeOut(0)
+    $('#summary').fadeIn()
+})
+
+$('#start_randomizer').click(function(){
+    $('.main_item').fadeOut(0)
+    $('#fileupload').fadeIn()
+    $('#randomizer_body').fadeIn()
+})
+
+$('#start_map_viewer').click(function(){
+    $('.main_item').fadeOut(0)
+    $('#fileupload').fadeIn()
+    $('#map_viewer').fadeIn()
+})
+
+$('#start_sprite_viewer').click(function(){
+    $('.main_item').fadeOut(0)
+    $('#fileupload').fadeIn()
+    $('#sprite_viewer').fadeIn()
+})
+
+$('#start_character_viewer').click(function(){
+    $('.main_item').fadeOut(0)
+    $('#fileupload').fadeIn()
+    $('#char_viewer').fadeIn()
+})
+
+$('#auditByRoom').click(function(){
+    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
+    var levels = [info.my_levels[my_level_index]]
+    audit_function(levels)
+})
+
+
+$('#auditByLevel').click(function(){
+    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10
+    var levels = info.my_levels.slice(my_level_index, my_level_index + 10).filter(x => x != undefined)
+    audit_function(levels)
+})
+
+$('#auditByWorld').click(function(){
+    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10
+    var levels = info.my_levels.slice(my_level_index, my_level_index + 30).filter(x => x != undefined)
+    audit_function(levels)
+})
+
+$('#auditByGame').click(function(){
+    var levels = info.my_levels.filter(x => x != undefined)
+    audit_function(levels)
+})
+
+function audit_function (levels){
+    console.log('In levels...', levels.length)
+
+    var e = audit_rooms($('#a_enemy').val(), levels.map(x => x.enemies), 'enemy')
+    console.log(e.length, EnemyIds[$('#a_enemy').val()])
+
+    var o = audit_rooms($('#a_object').val(), levels.map(x => x.objs), 'object')
+    console.log(o.length, get_map_obj_id($('#a_object').val()))
+
+    var t = audit_rooms($('#a_tiles').val(), levels.map(x => 
+        render_level(x, x.header, x.enemies, info.meta_info)), 'tile')
+    console.log(t.length, BackgroundTileIds[$('#a_tiles').val()])
+}
+
+function audit_rooms(value, level_info, type='enemy'){
+    if (value == -1)
+        return []
+    if (type == 'enemy')
+        var result = level_info.map(x => x.filter(y => y.obj_type == value))
+    if (type == 'object')
+        var result = level_info.map(x => x.filter(y => y.obj_type >= 0x30 ? 
+            (y.obj_type >> 4 == value >> 4): (y.obj_type == value)))
+    if (type == 'tile'){
+        var result = level_info.reduce((a,page) => a.concat(page))
+        result = result.reduce((a,y) => a.concat(y))
+        result = result.reduce((a,x) => a.concat(x))
+        result = result.filter( x => x.obj_type == value )
+        return result
+    }
+    return result.reduce((a, b) => a.concat(b))
+}
+
+String.prototype.replaceAll = function(find, replace){
+    return this.split(find).join(replace)
+    console.log(find, replace)
+    var str = this
+    newstring = str.replace(new RegExp(find, 'g'), replace)
+    console.log(newstring)
+    return newstring
+}
+
+var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+function rand_seed(){
+    return Array(10).fill(0).map(x => chars[Math.floor(Math.random() * 36)]).join('')
+}
+
+function handle_options (jsn){
+    /*
+     * This function is not well made
+     * is there a gui lib that would just do this for me lmao
+     */
+    var tags = []
+    for (var key in jsn){
+        var option = jsn[key]
+        var title_name = key
+        key = key.replaceAll(' ', '_')
+        // if array, create select out of it (top layer)
+        // this determines different modes of randomization
+        // if only one of it, always use it
+        if (Array.isArray(option)){
+            var tag = $("<select class='option_select' id='" + key + "'></select>")
+            tag.prepend = title_name 
+            var outer_tag = $("<div class='option_div' id='" + key + "_Option'></div>")
+            for (var o of option){
+                var inner_name = o.name.replaceAll(' ', '_')
+                var inner_tag = $("<option value='" + inner_name + "'>" + o.name + "</option>")
+                tag.append(inner_tag)
+                var specific_ops = handle_options(o.options)
+                var specific_tag = $("<div class='hide_me'></div>")
+                specific_tag.attr('id', inner_name)
+                if (o.name == 'Default')
+                    specific_tag.removeClass('hide_me')
+                specific_tag.append(specific_ops)
+                outer_tag.append(specific_tag)
+            }
+            tags.push(title_name)
+            if (option.length > 1){
+                tags.push(tag)
+                tag.change(function(){
+                    var search_target = this.id + "_Option"
+                    var targets = $('.option_div')
+                    var target = targets.filter((x, y) => y.id == search_target)[0]
+                    for (var x of target.childNodes)
+                        if (x.id != 'Default' && x.id != this.value) $(x).addClass('hide_me')
+                        else $(x).removeClass('hide_me')
+
+                })
+            }
+            tags.push(outer_tag)
+        }
+        // otherwise, treat as simple description div or own option
+        // create option itself also takes arrays and turns them into radios
+        else{
+            if (option.tag){
+                var tag = $("<div></div>")
+                if (option.class){
+                    tag.attr('class', option.class)
+                }
+                tag.append(...handle_options(option.options))
+                tags.push(option.tag)
+                tags.push(tag)
+            }
+            else {
+                var tag = create_option(option.name, option.desc, option.val, option.min, option.max, option.class)
+                tag.find('input').attr('data-mem_loc_name', option.mem_loc_name)
+                tag.find('input').attr('data-offset', option.offset)
+                tags.push(tag)
+            }
+        }
+    }
+    return tags
+}
+
+
+function create_option(name, description, start, min=0, max=99, cl=null){
+    var tag = $("<label title='"+ description +"'></label>")
+    var title_name = name
+    name = name.replaceAll(' ','_')
+    var type = 'number'
+    if (typeof start === "boolean"){
+        type = 'checkbox' 
+    }
+    else if (Array.isArray(start)){
+        type = 'form' 
+        var tag_name = $("<div></div>")
+        tag_name.append(title_name)
+        tag.append(tag_name)
+        var form = $("<form class='option_div option_form'></form>")
+        form.attr('id', name)
+        form.attr('name', title_name)
+        tag.append(form)
+        for (var index in start){
+            var o = start[index]
+            var label = $("<label></label>")
+            var innertag = $("<input class='option_radio' type='radio' value='"+o+"'></input>")
+            if (index == 0)
+                innertag.attr('checked', true)
+            innertag.attr('name', name)
+            label.append(innertag)
+            label.append(" ", o)
+            form.append(label)
+        }
+        return tag
+    }
+    var innertag = $("<input class='option' type='"+type+"' id='"+name+"'/>")
+    if (type == 'checkbox')
+        innertag.attr('checked', start)
+    else
+        innertag.attr('value', start)
+    if (cl){
+        innertag.addClass(cl)
+    }
+    innertag.attr('min', min)
+    innertag.attr('max', max)
+    tag.append(innertag)
+    tag.append(' ' + title_name)
+    return tag
+}
+
+console.log('Document ready...')
+var oReq = new XMLHttpRequest();
+oReq.open("GET", "/patch/smb2-patch.ips", true);
+oReq.responseType = "arraybuffer";
+oReq.onload = function(oEvent) {
+    console.log('Patch grabbed')
+    var arrayBuffer = oReq.response;
+    currentPatch = new Uint8Array(arrayBuffer);
+}
+oReq.send();
+for (var i = 0; i < 9; i++){
+    $.ajax({contentType: "text",
+            url: "patch/smb2.nes." + i.toString() + ".nl",
+            success: function(result){
+                console.log(this.url + ' grabbed')
+                mem_locs = Object.assign({}, mem_locs, 
+                        setupLabels(result, parseInt(this.url.split('.')[2])))
+    }});
+}
+
+$.ajax({contentType: "text",
+        url: "README.md",
+        success: function(result){
+            console.log(this.url + ' grabbed')
+            $("#summarytext").text(result)
+}});
+
+
+$.ajax({contentType: "json",
+        url: "smb2dr_config.json",
+        success: function(result){
+            console.log(this.url + ' grabbed')
+            $("#randomizer").text()
+            $("#randomizer").append(...handle_options(result))
+            var start_button = $('<button id="manip">')
+            start_button.click(randomize_rom);
+            start_button.text('Randomize ROM');
+            console.log(start_button)
+
+            $("#randomizer").append(start_button)
+}});
+
+$('#files').change(handleFileSelect);
+$('#writeJSON').click(writeJSON);
+$('#readJSON').click(readJSON);
+$('#seed').keypress(function (evt){
+    if (chars.includes(String.fromCharCode(evt.which).toUpperCase())) {}
+    else if (!chars.includes(String.fromCharCode(evt.which))){
+        evt.preventDefault();
+    }
+});
+$('#seed').val(rand_seed());
+$('#seed').attr('maxlength', 10);
+$('.level_read').change(show_level);
+$('.char_read').change(show_character);
+$('#a_enemy').append(EnemyIds.map((x, y) => 
+    $('<option value="' + y + '">' + x.replace('Enemy_', '') + '</option>')));
+$('#a_tiles').append(BackgroundTileIds.map((x, y) => 
+    $('<option value="' + y + '">' + x.replace('BackgroundTile_', '') + '</option>')));
+$('#a_object').append(MapObjectIds.map((x, y) => 
+    $('<option value="' + y + '">' + x + '</option>')));
+$('#a_object').append(MapObjectIdsExtendable.slice(3).map((x, y) => 
+    $('<option value="' + (y * 0x10 + 0x30) + '">' + x + '</option>')));
+
+var select_color = $('<select class="nespalette_select"></select>')
+select_color.change(function(evt){
+    var x = this.value
+    var color_string = NES_palette[x].toString()
+    color_string = color_string.slice(1, color_string.length)
+    color_string = 'rgba(' + NES_palette[x].toString() + ')'
+    this.style.backgroundColor = color_string
+})
+for (var x in NES_palette){
+    var color_string = NES_palette[x].toString()
+    color_string = color_string.slice(1, color_string.length)
+    color_string = 'rgba(' + NES_palette[x].toString() + ')'
+    var color_option = $('<option style="background-color: '+ color_string +'" val="'+ x +'" > </option>')
+    color_option.text(x)
+    select_color.append(color_option)
+}
+
+$("#palette_character").append(select_color.clone(true))
+$("#palette_character").append(select_color.clone(true))
+$("#palette_character").append(select_color.clone(true))
+$("#palette_character").append(select_color.clone(true))
+
+var canvas = document.getElementById("myCanvas")
+var ctx = canvas.getContext("2d");
+ctx.fillStyle='white'
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+ctx.stroke()
+
+window.onload = function(){
+    $('body').fadeIn()
+    $('.main_item').fadeOut(0)
+    $('#summary').fadeIn()
+}
+
+        </script>
+    </body>
+</html>

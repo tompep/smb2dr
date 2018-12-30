@@ -1,0 +1,165 @@
+{
+    "Objective": [
+        {
+            "name": "Default",
+            "options": [
+                    {"tag": "Defeat Final Boss, and the following objectives", "options": [ ]},
+                    {"name": "Collect X Crystals", "desc": "",
+					"val": 0, "class": "mem_location", "max": 20,
+                        "mem_loc_name": "CrystalCondition"},
+                    {"name": "Defeat X Bosses", "desc": "",
+					"val": 0, "class": "mem_location", "max": 7,
+                        "mem_loc_name": "BossCondition"},
+                    {"name": "Rescue All Characters", "desc": "",
+					"val": false, "class": "mem_location",
+                        "mem_loc_name": "RescueCondition"},
+                    {"name": "End Game at any Exit", "desc": "",
+					"val": false}
+            ]
+        }
+    ],
+    "Level Randomization": [
+        {
+            "name": "Default",
+            "options": [
+                {"name": "Randomize World Appearance", "desc": "",
+					"val": [ "Do Not Randomize", "Per World", "Per Level", "Per Room"
+                ]},
+                {"name": "Curse Rate Percent", "desc": "",
+                "val": "2"}
+            ]
+        },
+        {
+            "name": "World Order Randomizer",
+            "options": [
+                {"name": "Scramble Levels in World", "desc": "",
+					"val": false}
+            ]
+        },
+        {
+            "name": "Level Order Randomizer",
+            "options": []
+        },
+        {
+            "name": "Simple Door Randomizer",
+            "options": []
+        }
+    ],
+    "Character Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"tag": "Starting Characters", "class": "wide", "options": [
+                        {"name": "Mario", "desc": "",
+					"val": true},
+                        {"name": "Luigi", "desc": "",
+					"val": true},
+                        {"name": "Toad", "desc": "",
+					"val": true},
+                        {"name": "Peach", "desc": "",
+					"val": true}
+                    ]},
+                    {"name": "Character Lock", "desc": "",
+                        "val": [ "No locking", "Per World", "Per Level", "Per Room" 
+                    ]},                
+                    {"name": "Change Character on Death", "desc": "",
+					"val": false, "class": "mem_location", "mem_loc_name": "CharSelectDeath"},
+                    {"name": "Elimination Mode", "desc": "",
+					"val": false, "class": "mem_location", "mem_loc_name": "IndependentLives"},
+                    {"name": "Independent Player Powerups", "desc": "",
+					"val": false, "class": "mem_location", "mem_loc_name": "IndependentPlayers"},
+                    {"name": "Add Rescue Items", "desc": "",
+					"val": false},
+                    {"name": "Starting Gift", "desc": "",
+					"val": false}
+                ]
+        }
+    ],
+    "Object Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"name": "Autospawn Potion Door", "desc": "",
+					"val": false},
+                    {"name": "Randomize Mushroom Locations", "desc": "",
+					"val": false},
+                    {"name": "Bosses Drop Mushrooms", "desc": "",
+					"val": false, "class": "mem_location", "mem_loc_name": "BossMushroom"},
+                    {"name": "Mushrooms", "desc": "",
+					"val": "30"},
+                    {"name": "Powerups", "desc": "",
+					"val": "16"},
+                    {"name": "Upgrades", "desc": "",
+					"val": "13"},
+                    {"name": "Common Items", "desc": "",
+					"val": "8"}
+                ]
+        }   
+    ],
+    "Boss Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"name": "Randomize Boss Health", "desc": "",
+					"val": false},
+                    {"name": "Randomize Mini-Boss Health", "desc": "",
+					"val": false},
+                    {"name": "Boss Min Health", "desc": "",
+					"val": "2"},
+                    {"name": "Boss Max Health", "desc": "",
+					"val": "7"},
+                    {"name": "Mini-Boss Min Health", "desc": "",
+					"val": "1"},
+                    {"name": "Mini-Boss Max Health", "desc": "",
+					"val": "5"}
+                ]
+        },
+        {
+            "name": "Randomized",
+            "options": 
+                [
+                    {"name": "Randomize Boss Arenas", "desc": "",
+					"val": false},
+                    {"name": "End with Wart", "desc": "",
+					"val": false}
+                ]
+        }
+    ],
+    "Other Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"name": "Doki Doki Mode", "desc": "",
+					"val": false, "class": "mem_location",
+                        "mem_loc_name": "DokiMode"},
+                    {"name": "Debug (cheat)", "desc": "",
+					"val": false, "class": "mem_location",
+                        "mem_loc_name": "DebugSet"},
+                    {"name": "Ground Breaker (cheat)", "desc": "",
+					"val": false, "class": "mem_location",
+                        "mem_loc_name": "GBreaker"},
+                    {"name": "Maxed Upgrades (cheat)", "desc": "",
+					"val": false}, 
+                    {"name": "Extra Lives", "desc": "",
+					"val": "3", "class": "mem_location",
+                        "mem_loc_name": "ContinueGame", "offset": "1"},
+                    {"name": "Continues", "desc": "",
+					"val": "2", "class": "mem_location",
+                        "mem_loc_name": "SetNumContinues", "offset": "1"},
+                    {"name": "Starting Bonus Health", "desc": "",
+					"val": "0", "class": "mem_location",
+                        "mem_loc_name": "StartHealth", "min": 0, "max": 14},
+                    {"name": "Maxed Health", "desc": "",
+					"val": "14", "class": "mem_location",
+                        "mem_loc_name": "MaxedHealth", "min": 0, "max": 14},
+                    {"name": "Reset Health Cap", "desc": "",
+					"val": "4", "class": "mem_location",
+                        "mem_loc_name": "ResetHealth", "min": 0, "max": 14}
+                ]
+        }
+    ]
+}
