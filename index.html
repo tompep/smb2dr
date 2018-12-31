@@ -39,6 +39,39 @@
 
             <div id="summary" class="main_item">
                 <div id="summarytext" class="summarytext">                </div>
+                <div>
+                New items are available in subspace or blocks!
+                <img src='css/chr000.png'></img>
+                </div>
+                <div>
+                From left to right:
+                <ul>
+                    <li>Power Throw - Charge Crouch then throw items with B</li>
+                    <li>Power Charge - Decreases charge time</li>
+                    <li>Power Walk - Allows retaining charge while moving</li>
+                    <li>Store Item - Store an item with Up + B</li>
+                    <li>Life Vest - Survive a fall with one damage taken</li>
+                    <li>Electric Immunity- Immune to Sparks</li>
+                    <li>Fire Immunity - Immune to fire sources</li>
+                    <li>Magic Mirror - Detect secret items</li>
+                    <li>All-Terrain Boots - Immune to sand, ice and conveyor belts</li>
+                    <li>Jump Boots - Taller jump</li>
+                    <li>Float Boots - Hold A to fall gently</li>
+                    <li>Master Key - Open any locked door</li>
+                    <li>Toss Jump - Double Jump while holding an item</li>
+                    <li>Unimplemented - A Map of the world/game </li>
+                    <li>Unimplemented - Power-up stats </li>
+                    <li>Unimplemented - Luck up, immune to curses </li>
+                </ul>
+                <ul>
+                    <li>Fire Flower - Throw 2 fireballs</li>
+                    <li>Egg Thrower - Toss single straight egg</li>
+                    <li>Bomb Thrower - Throw bombs</li>
+                    <li>Fryguy Buddy - Throw jumping flames</li>
+                    <li>Phanto Buddy - Throw friendly Phanto</li>
+                </ul>
+                Other items include: Continues, Unlocks, and common items
+                </div>
             </div>
                 
             <div id="fileupload" class="main_item">
@@ -546,7 +579,13 @@ function randomize_rom(evt) {
     for(var l of info.my_levels){
         if (l != undefined){
             equalize_header(l, info.meta_info.world_metadata)
-            l.objs = l.objs.filter(function(ele){return ele.obj_type != 0x8})
+            var WarpPipe = l.objs.filter(function(ele){return ele.obj_type == 0x8})
+            if (WarpPipe.length > 0){
+                l.modifiers.push({
+                loc_l: 0x76, 
+                loc_r: 0xcd, 
+                contents: [Math.floor(l.i / 10), l.room, WarpPipe[0].page]}) // pipe loc
+            }
             if (Math.random() * 100< (option_vals['Curse_Rate'].val))
                 l.modifiers.push({
                 loc_l: 0x76, 
@@ -984,6 +1023,7 @@ $('#seed').keypress(function (evt){
         evt.preventDefault();
     }
 });
+Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
 $('#seed').val(rand_seed());
 $('#seed').attr('maxlength', 10);
 $('.level_read').change(show_level);

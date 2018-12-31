@@ -367,6 +367,13 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             mush_counts[l] = my_l.objs.filter(x => (x.obj_type == 43 || x.obj_type == 45)).length
         }
     }
+    else{
+        for (var my_l of horizontal_levels){
+            var l = my_l.i
+            mush_counts[l] = 0
+            my_l.objs = my_l.objs.filter(x => !(x.obj_type == 43 || x.obj_type == 45))
+        }
+    }
 
     var mush_sum = mush_counts.reduce( (a, b) => a + b ) 
     
@@ -416,7 +423,9 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
                     var lx = target.pos_x
                     var ly = target.pos_y - 1
                     var lpage = target.pos_page
-                    var new_door = create_smb_object(43, lx, ly, lpage, 1)
+                    var new_door = create_smb_object(43, lx, ly-1, lpage, 1)
+                    my_l.objs.push(new_door)
+                    new_door = create_smb_object(15, lx, ly, lpage, 1) // rebalance this
                     my_l.objs.push(new_door)
                     my_columns = my_columns.slice(1)
                 }

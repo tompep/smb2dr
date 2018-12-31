@@ -48,7 +48,9 @@
         },
         {
             "name": "Experimental Door Randomizer",
-            "options": []
+            "options": [
+                {"tag": "This mode is a proof of concept and is not updated for the latest code", "options": [ ]}
+            ]
         }
     ],
     "Character Randomization": [
