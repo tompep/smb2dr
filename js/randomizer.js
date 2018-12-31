@@ -140,8 +140,6 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
                 var r_new_door = create_smb_object(0xa, rx, ry, rpage, 1)
                 rl.objs.push(r_new_door)
 
-                console.log(new_door, r_new_door)
-
                 var new_ptr = create_ptr_wlrp(rl.world, rl.level, rl.room, rpage, lpage)
                 var r_new_ptr = create_ptr_wlrp(ll.world, ll.level, ll.room, lpage, rpage)
 
@@ -231,7 +229,7 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
         var target_ptr = -1
         var ptrs = current_level_end.ptrs
         target_ptr = ptrs.findIndex(x => x.pos_page == end_eagle.pos_page)
-        target_ptr = target_ptr > 0 ? target_ptr : ptrs.length
+        target_ptr = target_ptr >= 0 ? target_ptr : ptrs.length
 
 
         if (n % 3 == 2 || n == 0x13){
@@ -257,8 +255,6 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
             boss_room.ptrs[target_ptr].slots_after = true
         }
         else {
-            console.log('no boss')
-
             current_level_end.ptrs[target_ptr] = create_ptr_wlrp(
                 next_level_start.world, next_level_start.level, next_level_start.room,
                 (start_eagle != undefined) ? start_eagle.pos_page : 0, end_eagle.pos_page)
