@@ -189,10 +189,12 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
 
     var last_boss = boss_rooms[boss_rooms.length - 1]
 
+    console.log('Stringing levels together')
     for(var n in level_sets){
-        console.log('level_sets', n)
+        console.debug('level_sets', n)
         n = parseInt(n)
         var set = level_sets[n]
+
 
         if (set[0] == undefined) continue
         var current_level_end = undefined
@@ -217,6 +219,9 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
         if (next_set[0] == undefined){
             next_set = level_sets[n + 2]
         }
+
+        console.log('WorldLevel', set[0].world+1, '-', set[0].level+1)
+        
         var next_level_start = next_set[0]
         var end_eagle = current_level_end.enemies.filter( 
             function(ele){return [0x42, 0x43, 0x2d].includes(ele.obj_type)})[0]
@@ -606,7 +611,7 @@ function shuffle(array) {
 //
 // inverse
 
-function inverse_level(my_l){
+function inverse_level(my_l, all_levels){
     // needs inverse ground_set hack
     var my_level = my_l.objs
     var my_ptrs = my_l.ptrs
@@ -667,16 +672,18 @@ function inverse_level(my_l){
 
     my_l.objs = new_lvl
 
-    // bad
-    while(my_l.ptrs.length < my_h.pages + 1) my_l.ptrs.push(undefined)
-
-    if (!my_h.vertical) my_l.ptrs = my_l.ptrs.reverse()
-
-    for (var index in my_l.ptrs){
-        if (my_l.ptrs[index] != undefined)
-            my_l.ptrs[index].pos_page = index // what about destinations?
-    }
-
+    if (!my_h.vertical){
+        my_l.ptrs.map(x => x.pos_page = Math.abs(x.pos_page - my_l.header.pages))
+        var change_ptrs = all_levels.filter(x => x != undefined).map(x => x.ptrs.filter(y => 
+            y.world == my_l.world &&
+            y.level == my_l.level &&
+            y.room == my_l.room))
+        console.log(change_ptrs)
+        for (var p of change_ptrs){
+            for (var ptr of p)
+                ptr.dest_page = Math.abs(ptr.dest_page - my_l.header.pages)
+        }
+    } 
 
     for (var enemy of my_l.enemies){
         if (!my_h.vertical) {
@@ -921,9 +928,6 @@ function randomize_header(my_l, world_metadata, options){
     my_l.header.pala = new_pal_a
     my_l.header.palb = new_pal_b
     my_l.header.music = new_music
-    var isBoss = my_l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-    if (my_l.is_jar > 0 || isBoss)
-        return
     header_json.unk3 = Math.floor(Math.random() * 6)
     header_json.unk4 = og_unk4[world]
 
@@ -1077,21 +1081,16 @@ function RandomAlgo2(my_levels, meta_info){
             console.log('this is boss')
         }
         else if (oddPath){
-            if (Math.random() > 0.75)
-                inverse_level(my_l)
             var result = create_room_node(my_l, my_h, my_e, meta_info)
             odd_nodes.push(result)
             console.log('this is odd')
         }
         else {
-            if (Math.random() > 0.75)
-                inverse_level(my_l)
             var result = create_room_node(my_l, my_h, my_e, meta_info)
             free_nodes.push(result)
             console.log('this is ok')
             console.log(result.max_doors, my_h.pages + 1)
         }
-        equalize_header(my_l, meta_info.world_metadata)
         modified_my_l.push(my_l)
     }
     extendRandom2(free_nodes, boss_nodes, odd_nodes)
@@ -1217,11 +1216,10 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
             all_new_e_ptrs_l.push(new_ptr % 256)
             continue
         }
-        if (i%30 == 0) console.log("world", i / 30)
-        if (i%10 == 0) console.log("level", (i / 10) % 3)
         var my_l = my_levels[i]
         var my_h = my_l.header
         var my_e = my_l.enemies 
+        console.log(my_l.world, my_l.level, my_l.room)
 
         var header_data = write_header_bytes(my_h)
         var enemy_data = write_enemy_bytes(my_e, my_h.pages + 1) 
@@ -1229,6 +1227,7 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
             enemy_data = [1,1,1,1,1,1,1,1,1,1].concat(enemy_data)
         enemy_data.push(1)
         var level_data = write_level_bytes(my_l, ((i-(i%30))/30))
+        console.log('size of level:', level_data.length, enemy_data.length)
         // fs.writeFileSync("./levels-random/" + (((i-(i%30))/30)).toString() + "/" + i.toString() + ".json", JSON.stringify(my_l, undefined, 4))
 
         var new_ptr_level = 0x8000 + allcnt + all_new_data.length

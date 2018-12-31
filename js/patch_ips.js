@@ -1,6 +1,8 @@
 var PRG0="47ba60fad332fdea5ae44b7979fe1ee78de1d316ee027fea2ad5fe3c0d86f25a"
 var PRG1="6ca47e9da206914730895e45fef4f7393e59772c1c80e9b9befc1a01d7ecf724"
 
+var smb2_crcs = ['7D3F6F3D', 'E0CA425C']
+
 function bit_crush(acc, ele){
     /*
      * (Reduce function)
@@ -15,10 +17,12 @@ function patch_ips (original, patch_data){
      */
 
     // Check magic word "PATCH"
+    var patched_rom = original.slice(0)
     if (patch_data.slice(0,5).reduce(bit_crush) != [0x50, 0x41, 0x54, 0x43, 0x48].reduce(bit_crush)){
         console.log('invalid patch', patch_data.slice(0,5).reduce(bit_crush))
-        return original
+        return patched_rom
     }
+
     patch_data = patch_data.slice(5)
     console.log('Patching...')
     while (patch_data.length > 0) {
@@ -26,7 +30,7 @@ function patch_ips (original, patch_data){
         // Check magic word "END"
         if (pos == 0x454f46){
             console.log('Patch Success')
-            return original
+            return patched_rom
         }
         patch_data = patch_data.slice(3)
         var len = patch_data.slice(0, 2).reduce(bit_crush)
@@ -37,20 +41,20 @@ function patch_ips (original, patch_data){
             patch_data = patch_data.slice(2)
             var byt = patch_data[0]
             for(var i = 0; i < len; i++)
-                original[pos + i] = byt
+                patched_rom[pos + i] = byt
             patch_data = patch_data.slice(1)
         }
         else{
             // RLE Normal
             var data = patch_data.slice(0, len)
             for(var i = 0; i < len; i++){
-                original[pos + i] = data[i]
+                patched_rom[pos + i] = data[i]
             }
             patch_data = patch_data.slice(len)
         }
     }
     console.log('Patch Terminated Unusually')
-    return original
+    return patched_rom
 }
 
 

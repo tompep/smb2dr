@@ -149,16 +149,46 @@
 // start script
 var startingRom;
 var currentRom;
+
 var currentPatch;
+var currentPatch_A;
+
 var mem_locs = {};
+
 var info;
 var sprites;
+
 var currentMap;
 var cursor = [0, 0]
 var player_palettes = [
     {"name": "festive", "pal": [0xf, 9, 22, 55]}
 ]
 
+function read_info_file_info (targetRom){
+    var crc32_rom = decimalToHexString(crc32(targetRom))
+    console.log('CRC32: ' + crc32_rom)
+    if (!smb2_crcs.includes(crc32_rom)){
+        console.log('this rom CANNOT BE PATCHED.  We can however, attempt to extract levels')
+        var new_info = extract_all_info(targetRom, mem_locs)
+        sprites = extract_graphics(targetRom.slice(0x20010))
+        if (info != undefined)
+            info.my_levels = new_info.my_levels
+        return false
+    }
+    else{
+        if (crc32_rom == smb2_crcs[0]){
+            currentRom = patch_ips(targetRom, currentPatch)
+        }
+        else if (crc32_rom == smb2_crcs[1]){
+            currentRom = patch_ips(targetRom, currentPatch_A)
+        }
+        info = extract_all_info(currentRom, mem_locs)
+        sprites = extract_graphics(currentRom.slice(0x20010))
+        console.normal_log(info)
+        console.normal_log(sprites)
+        return true
+    }
+}
 
 function handleFileSelect(evt) {
     var file = evt.target.files[0]
@@ -168,15 +198,9 @@ function handleFileSelect(evt) {
         console.log('Loading file...')
         var dataURL = reader.result
         startingRom = new Uint8Array(dataURL)
-        var crc32_rom = decimalToHexString(crc32(startingRom))
-        console.log('CRC32: ' + crc32_rom)
-        if (currentPatch != undefined){
-            startingRom = patch_ips(startingRom, currentPatch)
+        if (!read_info_file_info(startingRom)){
+            return
         }
-        info = extract_all_info(startingRom, mem_locs)
-        sprites = extract_graphics(startingRom.slice(0x20010))
-        console.normal_log(info)
-        console.normal_log(sprites)
     }
     reader.readAsArrayBuffer(file)
 }
@@ -279,7 +303,7 @@ function show_character(evt) {
 function writeJSON_char(evt) {
 }
 
-function readJSON(evt) {
+function readJSON_char(evt) {
     var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
     console.log($('#world').val() * 30, $('#level').val() * 10, $('#room').val() * 1)
     console.log(my_level_index)
@@ -488,11 +512,9 @@ function randomize_rom(evt) {
     // patch
     rando_seed = $('#seed').val();
     currentRom = new Uint8Array(startingRom)
-    if (currentPatch != undefined){
-        patchManipulateable = new Uint8Array(currentPatch)
-        currentRom = patch_ips(currentRom, patchManipulateable)
+    if (!read_info_file_info(currentRom)){
+        return
     }
-    info = extract_all_info(currentRom, mem_locs)
 
     // extract
     var option_tags = $('.option, .option_form, .option_select')
@@ -507,10 +529,13 @@ function randomize_rom(evt) {
     })
 
     Math.seedrandom(rando_seed)
-    var locking = Array(...option_vals['Randomize_World_Appearance'].my_tag.elements).filter(x => x.checked)[0].value
-    if (locking != 'Do Not Randomize'){
+
+    var r_header = Array(...option_vals['Randomize_World_Appearance'].my_tag.elements).filter(x => x.checked)[0].value
+    if (r_header != 'Do Not Randomize'){
         for(var l of info.my_levels){
             if (l != undefined){
+                var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+                if (l.is_jar > 0 || isBoss) continue
                 randomize_header(l, info.meta_info.world_metadata)
             }
         }
@@ -522,11 +547,17 @@ function randomize_rom(evt) {
         if (l != undefined){
             equalize_header(l, info.meta_info.world_metadata)
             l.objs = l.objs.filter(function(ele){return ele.obj_type != 0x8})
-            if (Math.random() < (option_vals['Curse_Rate_Percent'].val / 255))
+            if (Math.random() * 100< (option_vals['Curse_Rate'].val))
                 l.modifiers.push({
-                    loc_l: 0x76, 
-                    loc_r: 0xeb, 
-                    contents: [0x01]}) // curse
+                loc_l: 0x76, 
+                loc_r: 0xeb, 
+                contents: [0x01]}) // curse
+            var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+            if (Math.random() * 100 < (option_vals['Inverted_Rate'].val) && !isBoss){
+                console.log('inverted...')
+                inverse_level(l, info.my_levels)
+
+            }
         }
     }
 
@@ -539,6 +570,12 @@ function randomize_rom(evt) {
         'ScrambleWorld': option_vals['Scramble_Levels_in_World'].checked,
         'CloneBoss': option_vals['Randomize_Boss_Arenas'].checked
     }, info)
+
+
+    if (option_vals["Level_Randomization"].val == 'Experimental_Door_Randomizer'){
+        RandomAlgo2(info.my_levels, info.meta_info)
+        set_memory_location(currentRom, mem_locs, 'Data_StartLevel', [0, 2, 0, 0], offset=0)
+    }
 
     // skipped
     var level_sets = split_em(info.my_levels, 10).map(x => x.filter(y => y != undefined))
@@ -616,6 +653,24 @@ function randomize_rom(evt) {
         set_memory_location(currentRom, mem_locs,
              'WinLevel', [0xFF])
     }
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock2', convertByTbl('seed-' + rando_seed), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock3', convertByTbl(' '), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock4', convertByTbl(' '), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock5', convertByTbl(' '), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock6', convertByTbl(' '), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock7', convertByTbl(' '), 3)
 
     console.log(option_vals)
 
@@ -819,8 +874,8 @@ function handle_options (jsn){
 }
 
 
-function create_option(name, description, start, min=0, max=99, cl=null){
-    var tag = $("<label title='"+ description +"'></label>")
+function create_option(name, description, start, min=0, max=100, cl=null){
+    var tag = $('<label title="'+ description +'"></label>')
     var title_name = name
     name = name.replaceAll(' ','_')
     var type = 'number'
@@ -852,8 +907,11 @@ function create_option(name, description, start, min=0, max=99, cl=null){
     var innertag = $("<input class='option' type='"+type+"' id='"+name+"'/>")
     if (type == 'checkbox')
         innertag.attr('checked', start)
-    else
+    else{
         innertag.attr('value', start)
+        innertag.attr('step', start % 1 == 0 ? 1 : 0.1)
+
+    }
     if (cl){
         innertag.addClass(cl)
     }
@@ -869,11 +927,22 @@ var oReq = new XMLHttpRequest();
 oReq.open("GET", "patch/smb2-patch.ips", true);
 oReq.responseType = "arraybuffer";
 oReq.onload = function(oEvent) {
-    console.log('Patch grabbed')
     var arrayBuffer = oReq.response;
     currentPatch = new Uint8Array(arrayBuffer);
+    console.log('Patch grabbed', currentPatch.length)
 }
 oReq.send();
+
+var oReq_A = new XMLHttpRequest();
+oReq_A.open("GET", "patch/smb2-patch-reva.ips", true);
+oReq_A.responseType = "arraybuffer";
+oReq_A.onload = function(oEvent) {
+    var arrayBuffer = oReq_A.response;
+    currentPatch_A = new Uint8Array(arrayBuffer);
+    console.log('Patch smb2 REVA grabbed length:', currentPatch_A.length)
+}
+oReq_A.send();
+
 for (var i = 0; i < 9; i++){
     $.ajax({contentType: "text",
             url: "patch/smb2.nes." + i.toString() + ".nl",

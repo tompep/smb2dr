@@ -543,9 +543,9 @@ var tbl= {
     ' ':0xFB
 }
 
-function convertByTbl(string){
+function convertByTbl(string, minlength=0xF){
     string = string.toUpperCase().split('')
-    return string.map(x => tbl[x])
+    return string.map(x => x in tbl ? tbl[x] : 0xF5).concat(Array(Math.max(minlength - string.length, 0)).fill(0xFB))
 }
 
 var const_special_bytes = 0xF0
