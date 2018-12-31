@@ -76,10 +76,11 @@
                 
             <div id="fileupload" class="main_item">
                 <input type="file" class="input" id="files" name="file"/>
-                <label>Seed <input type="text" class="input" id="seed"/></label>
             </div>
 
             <div id="randomizer_body" class="main_item">
+                <label>Seed <input type="text" class="input" id="seed"/></label>
+                <button id="random_seed" onclick="$('#seed').val(rand_seed(Math.seedrandom()))">Generate Random Seed </button>
                 <div class="" id="randomizer">
                 </div>
             </div>
