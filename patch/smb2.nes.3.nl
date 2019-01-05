@@ -11,8 +11,8 @@ $9A80#CreateMushroomObject#
 $8C91#CreateObject_BigCloud#
 $9031#CreateObject_Door#
 $9061#CreateObject_Door_Exit#
-$911D#CreateObject_DrawBridgeChain#
-$911F#CreateObject_DrawBridgeChain_Loop#
+$911A#CreateObject_DrawBridgeChain#
+$911C#CreateObject_DrawBridgeChain_Loop#
 $8F26#CreateObject_FrozenRocks#
 $8B9F#CreateObject_GreenJumpthroughPlatform#
 $8A53#CreateObject_HorizontalBlocks#
@@ -26,7 +26,7 @@ $8F94#CreateObject_HorizontalPlatform_World5CheckOverlap#
 $8F9E#CreateObject_HorizontalPlatform_World5CheckOverlap_Exit#
 $8F88#CreateObject_HorizontalPlatform_World5_Exit#
 $8F7B#CreateObject_HorizontalPlatform_World5_Loop#
-$9102#CreateObject_Horn#
+$90FF#CreateObject_Horn#
 $8ABF#CreateObject_LightEntranceLeft#
 $8ADF#CreateObject_LightEntranceLeft_World6or7Exit#
 $8A61#CreateObject_LightEntranceRight#
@@ -39,7 +39,7 @@ $8AAB#CreateObject_LightEntranceRight_World6_TrailRight#
 $8A8A#CreateObject_LightEntranceRight_World6or7Exit#
 $9097#CreateObject_MushroomJumpthroughPlatform#
 $90DB#CreateObject_Pillar#
-$9101#CreateObject_Pillar_Exit#
+$90FE#CreateObject_Pillar_Exit#
 $90E5#CreateObject_Pillar_Loop#
 $8EC5#CreateObject_Platform_BX#
 $8B91#CreateObject_Platform_CX#

@@ -10,7 +10,7 @@ body{
     background-color: white;
     margin: auto;
     width: 100%;
-    max-width: 512px;
+    max-width: 540px;
 }
 
 a, button{ 
@@ -34,12 +34,16 @@ img {
 }
 
 label {
-    padding: 5px;
+    padding: 2px;
     display: block;
 }
 
 textarea {
     font-size: x-small;
+}
+
+input[type="number"]{
+    width:48px
 }
 
 select{
@@ -51,6 +55,8 @@ select{
 
 #Mario,#Luigi,#Peach,#Toad {width:48px; height: 48px;display:inline-block;}
 .wide label { width:64px; height: 64px; display:inline-block; }
+
+#random_seed  { padding: 5px; }
 
 .sprite{
     background-color: purple;
@@ -143,7 +149,7 @@ select{
 .center {
     padding: 10px;
     width: 100%;
-    max-width: 512px;
+    max-width: 540px;
     border: 32px solid transparent;
     border-image: url(border5.png) 64 round;
     color: white;

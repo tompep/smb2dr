@@ -2,27 +2,6 @@
                         
 var rando_seed = ''
 
-function set_memory_location(my_rom, mem_locs, name, values, offset=0){
-    console.debug(name, values.length, values, offset)
-    if (!offset)
-        offset = 0
-
-    var Location = mem_locs[name]
-    if (Location){
-        Location = Location + 0x10 + offset
-        console.debug(Location)
-        for(var i = 0; i < values.length; i++){
-            values[i] = values[i] === true ? 1 : (values[i] === false ? 0 : parseInt(values[i]))
-            console.debug(my_rom[Location + i])
-            my_rom[Location + i] = values[i]
-            console.debug(my_rom[Location + i])
-        }
-    }
-    else {
-        console.error('Mem loc not found for writing', name)
-    }
-}
-
 function handle_boss_options(my_levels, options){
     console.log('Boss Health Randomizer')
     var rboss = options['Randomize_Boss_Health'].checked
@@ -143,8 +122,6 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
                 var new_ptr = create_ptr_wlrp(rl.world, rl.level, rl.room, rpage, lpage)
                 var r_new_ptr = create_ptr_wlrp(ll.world, ll.level, ll.room, lpage, rpage)
 
-                console.log(new_ptr, r_new_ptr)
-
                 ll.ptrs.push(new_ptr)
                 rl.ptrs.push(r_new_ptr)
             }
@@ -245,7 +222,7 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
 
             var ptrs = boss_room.ptrs
             target_ptr = boss_room.ptrs.findIndex(x => x.pos_page == boss.pos_page)
-            target_ptr = target_ptr > 0 ? target_ptr : ptrs.length
+            target_ptr = target_ptr >= 0 ? target_ptr : ptrs.length
 
             boss_room.ptrs[target_ptr] = create_ptr_wlrp(
                 next_level_start.world, next_level_start.level, next_level_start.room, 
@@ -273,7 +250,7 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
 
 }
 
-var upgrade_names = [
+var all_item_names = [
         'Mushroom', 
         'Power Beet', 
         'Power Charge', 
@@ -288,36 +265,20 @@ var upgrade_names = [
         'Float Boots', 
         'Master Key', 
         'Carry Jump', 
-]
-
-var power_up_start = upgrade_names.length + 3
-
-var powerup_names = [
+        "Unimplemented",
+        "Unimplemented",
+        "Unimplemented",
         'Fire Flower', 
         'Egg Thrower', 
         'Bomb Thrower', 
         'Phanto Buddy', 
         'Fry Buddy', 
-]
-
-var cont_start = power_up_start + powerup_names.length
-
-var continue_names = [
-        'Continue Up'
-]
-
-var lock_start = cont_start + 1
-
-var unlock_names = [
+        'Continue Up',
         'Unlock Mario', 
         'Unlock Luigi', 
         'Unlock Toad', 
         'Unlock Peach',
-]
-
-var junk_start = unlock_names.length + lock_start
-
-var junk_items = [
+        'Mushroom Fragment',
         'Key', 
         'Coin', 
         'Shell', 
@@ -327,23 +288,42 @@ var junk_items = [
         'Crystals' 
 ]
 
+
+
+var upgrade_names = all_item_names.slice(1, 14)
+
+var powerup_names = all_item_names.slice(17, 22)
+
+var continue_names = all_item_names.slice(22, 23) 
+
+var unlock_names = all_item_names.slice(23, 27) 
+
+var fragment_names = all_item_names.slice(27, 28) 
+
+var junk_items = all_item_names.slice(28, 33)
+
+var power_up_start = 17 
+var cont_start = 22
+var lock_start = 23 
+var frag_start = 27 
+var junk_start = 28
+
 function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     console.log('Item Randomizer')
     var inventory = Array(parseInt(options['Mushrooms'].val)).fill(0)
 
     var upgrades = shuffle([...upgrade_names.keys()])
     while (upgrades.length < options['Upgrades'].val)
-        upgrades = upgrades.concat(shuffle(upgrades))
-    upgrades = upgrades.slice(0, options['Upgrades'].val)
+        upgrades = upgrades.concat(shuffle([...upgrade_names.keys()]))
+    upgrades = upgrades.slice(0, options['Upgrades'].val).map(x => x + 1)
 
     var powerups = Array(parseInt(options['Powerups'].val)).fill(0).map(
         (x, y) => Math.floor(Math.random() * powerup_names.length) + power_up_start)
     var common = Array(parseInt(options['Common_Items'].val)).fill(0).map(
-        (x, y) => Math.floor(Math.random() * (junk_items.length - 1)) + junk_start)
+        (x, y) => Math.floor(Math.random() * (junk_items.length)) + junk_start)
 
     if(options['Add_Rescue_Items'].checked || options['Rescue_All_Characters'].checked){
         var unlocks = shuffle([...unlock_names.keys()]).map(x => x + lock_start)
-        console.log(unlocks)
         inventory = inventory.concat(unlocks)
     }
 
@@ -351,10 +331,10 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     inventory = inventory.concat(powerups)
     inventory = inventory.concat(common)
 
-    console.log(inventory, upgrades, powerups, common)
+    console.log(inventory.map(x => all_item_names[x]))
     
     var horizontal_levels = my_levels.filter(x => (x != undefined && !x.header.vertical &&
-        (x => !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0))))
+        !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0)))
     var mush_counts = Array(my_levels.length).fill(0)
 
     if (!options['Randomize_Mushroom_Locations'].checked){
@@ -394,7 +374,6 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             }
         }
     }
-    console.log(horizontal_levels, inventory, mush_counts, mush_sum)
 
     inventory = shuffle(inventory)
 
@@ -423,7 +402,9 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
                     my_l.objs.push(new_door)
                     new_door = create_smb_object(15, lx, ly, lpage, 1) // rebalance this
                     my_l.objs.push(new_door)
-                    my_columns = my_columns.slice(1)
+                    my_columns = shuffle(my_columns.slice(1))
+                    for (var em of my_l.enemies.filter(x => x.pos_x == lx && x.pos_page == lpage))
+                        em.pos_x = em.pos_x + (Math.random() > 0.50 ? -1 : 1)
                 }
             }
         }
@@ -510,15 +491,14 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         }
     }
     if (inventory.length > 0)
-        console.log('Inventory still present', inventory)
+        console.log('Inventory still present', inventory.map(x => all_item_names[x]))
 }
 
-var player_table = [1, 8, 2, 4]
+var player_table = [1, 8, 4, 2]
+var player_order = [0, 3, 2, 1]
 
 function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
     console.log('Player Randomizer')
-    console.log(option_vals['Character_Lock'])
-    console.log(option_vals['Mario'], option_vals['Luigi'], option_vals['Toad'], option_vals['Peach'])
     var character_pool = []
     if (option_vals['Mario'].checked) character_pool.push(0)
     if (option_vals['Peach'].checked) character_pool.push(1)
@@ -530,14 +510,13 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
     var lock_var = character_pool.reduce((a, b) => a ^ player_table[b], 0xF)
     // lord please just use react or something else why is getting form elements so confusing
     // abstract this by making form objects modify an options JSON on change rather than on commit
-    var locking = Array(...option_vals['Character_Lock'].my_tag.elements).filter(x => x.checked)[0].value
+    var locking = option_vals['Character_Lock'].radio
     set_memory_location(my_rom, mem_locs,
         'CharLockVar', [lock_var], 0)
-    console.log(character_pool, lock_var, locking)
     var level_sets = split_em(my_levels, 10).map(x => x.filter(y => y != undefined))
     
     var starting_gift = option_vals['Starting_Gift'].checked
-    var maxed_up = option_vals['Maxed_Upgrades_(cheat)'].checked
+    var maxed_up = option_vals['Maxed_Upgrades_cheat'].checked
 
     if (maxed_up){
         set_memory_location(my_rom, mem_locs,
@@ -551,10 +530,11 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
         if (starting_gift)
             for(var i = 0; i < 4; i++){
                 var powerup = Math.floor(Math.random() * 13)
+                console.log('Character', i, 'acquired', all_item_names[powerup + 1])
                 set_memory_location(my_rom, mem_locs,
                     'StartingInventory',
                     [1 << (powerup % 8)],
-                    i + 4 * (powerup >> 3))
+                    player_order[i] + 4 * (powerup >> 3))
             }
     }
 
@@ -683,7 +663,6 @@ function inverse_level(my_l, all_levels){
             y.world == my_l.world &&
             y.level == my_l.level &&
             y.room == my_l.room))
-        console.log(change_ptrs)
         for (var p of change_ptrs){
             for (var ptr of p)
                 ptr.dest_page = Math.abs(ptr.dest_page - my_l.header.pages)
@@ -1042,71 +1021,6 @@ function equalize_header(my_l, world_metadata){
     }
 }
 
-function write_header_bytes(h){
-    var byte1 = (h.horizontal << 7) + (h.unk1 << 6) + (h.pala << 3)
-    byte1 += (h.unk2 << 2) + (h.palb)
-    var byte2 = (h.unk3 << 5) + h.ground_set
-    var byte3 = (h.pages << 4) + h.exterior_type
-    if (!Array.isArray(h.ground_type))
-        var byte4 = (h.unk4 << 6) + (h.ground_type << 3) 
-    else
-        var byte4 = (h.unk4 << 6) + (0 << 3) 
-    byte4 += (h.unk5 << 2) + (h.music)
-    
-    return [byte1, byte2, byte3, byte4]
-}
-    
-function RandomAlgo2(my_levels, meta_info){
-    var modified_my_l = []
-    var free_nodes = []
-    var odd_nodes = []
-    var boss_nodes = []
-    for (var pos = 0; pos < my_levels.length; pos++){
-        if (my_levels[pos] === undefined || pos >= 200){
-            modified_my_l.push(undefined)
-            continue
-        }
-        var my_l = my_levels[pos]
-        var my_h = my_l.header
-        var my_e = my_l.enemies
-        var world = my_l.world
-        var level = my_l.level
-        var room = my_l.room
-        var code = "" + world + "," + level + "," + room 
-        // handle world stuff in another not crappy function
-        console.log(code)
-        var isBoss = my_e.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-        var oddPath = code in metadata
-        if (my_l.is_jar){
-            console.log('this is jar')
-        }
-        else if (isBoss){
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            boss_nodes.push(result)
-            console.log('this is boss')
-        }
-        else if (oddPath){
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            odd_nodes.push(result)
-            console.log('this is odd')
-        }
-        else {
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            free_nodes.push(result)
-            console.log('this is ok')
-            console.log(result.max_doors, my_h.pages + 1)
-        }
-        modified_my_l.push(my_l)
-    }
-    extendRandom2(free_nodes, boss_nodes, odd_nodes)
-    
-    return {
-        my_l: modified_my_l,
-        f_n: free_nodes,
-        b_n: boss_nodes,
-        o_n: odd_nodes
-    }
-}
 
 function connect_nodes(l, r, one_way=false){
     l.out.push(r)
@@ -1196,123 +1110,3 @@ function extendRandom2(free_nodes, boss_nodes, odd_nodes){
 }
 
 
-function write_to_file (og_rom, my_levels, my_world_metadata){
-    /*
-     * Write level data to original ROM
-     * Parameters: rom data, level js objects, world_metadata
-     */
-    var all_new_ptrs_l = [] 
-    var all_new_ptrs_h = [] 
-    var all_new_e_ptrs_l = [] 
-    var all_new_e_ptrs_h = [] 
-    var all_new_data = []
-    var all_new_enmy = []
-    var allcnt = 21 + 420
-    var ecnt = 0xa500 + 84 + 420 - 0x8000
-    var ptr_order = my_world_metadata.level_ptr_order
-    var eptr_order = my_world_metadata.enemy_ptr_order
-    for (var i = 0; i < my_levels.length + 10; i++){
-        if (my_levels[i] === undefined || i >= 200){
-            var new_ptr = 0x8000 + allcnt
-            all_new_ptrs_h.push(new_ptr >> 8)
-            all_new_ptrs_l.push(new_ptr % 256)
-            var new_ptr = 0x8000 + allcnt
-            all_new_e_ptrs_h.push(new_ptr >> 8)
-            all_new_e_ptrs_l.push(new_ptr % 256)
-            continue
-        }
-        var my_l = my_levels[i]
-        var my_h = my_l.header
-        var my_e = my_l.enemies 
-        console.log(my_l.world, my_l.level, my_l.room)
-
-        var header_data = write_header_bytes(my_h)
-        var enemy_data = write_enemy_bytes(my_e, my_h.pages + 1) 
-        if (my_l.is_jar == 1)
-            enemy_data = [1,1,1,1,1,1,1,1,1,1].concat(enemy_data)
-        enemy_data.push(1)
-        var level_data = write_level_bytes(my_l, ((i-(i%30))/30))
-        console.log('size of level:', level_data.length, enemy_data.length)
-        // fs.writeFileSync("./levels-random/" + (((i-(i%30))/30)).toString() + "/" + i.toString() + ".json", JSON.stringify(my_l, undefined, 4))
-
-        var new_ptr_level = 0x8000 + allcnt + all_new_data.length
-        if (new_ptr_level + level_data.length + header_data.length > 0xa500){
-            new_ptr_level = 0x8000 + ecnt + all_new_enmy.length 
-            all_new_enmy.push(...header_data)
-            all_new_enmy.push(...level_data)
-        }
-        else{
-            all_new_data.push(...header_data)
-            all_new_data.push(...level_data)
-        } 
-        all_new_ptrs_h.push(new_ptr_level >> 8)
-        all_new_ptrs_l.push(new_ptr_level % 256)
-
-        var new_ptr_enemy = 0x8000 + allcnt + all_new_data.length
-        if (new_ptr_enemy + enemy_data.length  > 0xa500){
-            new_ptr_enemy = 0x8000 + ecnt + all_new_enmy.length 
-            all_new_enmy.push(...enemy_data)
-        }
-        else{
-            all_new_data.push(...enemy_data)
-        } 
-        all_new_e_ptrs_h.push(new_ptr_enemy >> 8)
-        all_new_e_ptrs_l.push(new_ptr_enemy % 256)
-        
-    }
-
-
-    var final_bytes = [...ptr_order]
-    console.log('len-og-s', final_bytes.length)
-    final_bytes.push(...all_new_ptrs_l)
-    console.log('len-og-s', final_bytes.length)
-    while(final_bytes.length < allcnt - 210){
-        final_bytes.push(0xFF)
-    }
-    final_bytes.push(...all_new_ptrs_h)
-    console.log('len-og-s', final_bytes.length)
-    while(final_bytes.length < allcnt){
-        final_bytes.push(0xFF)
-    }
-    final_bytes.push(...all_new_data)
-    console.log('padding', 0xa500 - final_bytes.length - 0x8000)
-    console.log('len-og-s', final_bytes.length)
-    console.log('len-level', final_bytes.length.toString(16))
-    while(final_bytes.length < 0xa500 - 0x8000){
-        final_bytes.push(0xFF)
-    }
-    console.log('len-og-s', final_bytes.length.toString(16))
-    final_bytes.push(...eptr_order)
-    console.log('len-og', final_bytes.length.toString(16))
-    var h_pieces = []
-    var l_pieces = []
-    for(var i = 0; i < 210; i++) h_pieces.push(all_new_e_ptrs_h.slice(10*i, 10*i+10))
-    for(var i = 0; i < 210; i++) l_pieces.push(all_new_e_ptrs_l.slice(10*i, 10*i+10))
-    for(var i = 0; i < 21; i++){
-        final_bytes.push(...h_pieces[i])
-        final_bytes.push(...l_pieces[i])
-    }
-    console.log('len-lptr', final_bytes.length.toString(16))
-    while(final_bytes.length < 0xa500 - 0x8000 + 420){
-        final_bytes.push(0xFF)
-    }
-    console.log('len-ptr-pad', final_bytes.length.toString(16))
-    final_bytes.push(...all_new_enmy)
-    console.log('lenfinal', final_bytes.length.toString(16))
-    while(final_bytes.length < 0x4000){
-        final_bytes.push(0xFF)
-    }
-    console.log('lenfinal', final_bytes.length.toString(16))
-
-    // bugs to fix
-    // no doors on page0 column0
-    // no doors on waterfalls/nonrocks
-    // asm: rocket transitions
-    // asm: pipes
-
-    var offset = 0x10000 + 0x10
-    for (var i = 0; i < final_bytes.length; i++) {
-        og_rom[offset + i] = final_bytes[i]
-    }
-
-}

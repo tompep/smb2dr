@@ -371,16 +371,17 @@ function extract_graphics(current_char, sheets = 0x80){
 
 function convert_to_8x16(frame, mirror){
     var sprite_tiles = []
+    frame = [...frame]
     if(!mirror)
         for (var i = 0; i < frame.length; i+=2){
-            sprite_tiles.push(...frame.slice(i, i+2).map(x => (x % 2 == 0) ? x : 0x100 + x))
-            sprite_tiles.push(...frame.slice(i, i+2).map(x => (x % 2 == 0) ? x + 1 : 0x100 + x + 1))
+            sprite_tiles.push(...frame.slice(i, i+2).map(x => ((x % 2) == 0) ? (x) : (x + 0xFF)))
+            sprite_tiles.push(...frame.slice(i, i+2).map(x => ((x % 2) == 0) ? (x + 1) : (x + 0x100)))
             if (mirror)
                 sprite_tiles.push(...sprite_tiles.slice(sprite_tiles.length - 2).map(x => x + 0x200))
         }
     else
         for (var i = 0; i < frame.length; i+=2){
-            sprite_tiles.push((frame[i] % 2 == 0) ? frame[i] : 0x100 + frame[i])
+            sprite_tiles.push((frame[i] % 2 == 0) ? (frame[i]) : (0x100 + frame[i] - 1))
             sprite_tiles.push(sprite_tiles[sprite_tiles.length - 1] + 0x200)
             sprite_tiles.push(sprite_tiles[sprite_tiles.length - 2] + 1)
             sprite_tiles.push(sprite_tiles[sprite_tiles.length - 2] + 1)
@@ -388,7 +389,7 @@ function convert_to_8x16(frame, mirror){
     return sprite_tiles
 }
 
-function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute){
+function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute, layer){
     /*
      *  Create temporary canvas element and draw bitmap
      */
@@ -397,7 +398,12 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute)
     m_canvas.height = 8 * Math.ceil(sprites.length/width)
     var m_context = m_canvas.getContext("2d")
     m_context.fillStyle='white'
-    m_context.fillRect(0, 0, m_canvas.width, m_canvas.height);
+    m_context.clearRect(0, 0, m_canvas.width, m_canvas.height);
+
+    var m_spr_canvas = new OffscreenCanvas(m_canvas.width, m_canvas.height)
+    
+    if (layer)
+        m_context.putImageData(layer, 0, 0)
 
     for (var index in sprites){
         var spr_index = sprites[index]
@@ -421,7 +427,7 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute)
                     if (pixel == 1) pixel = 2
                     else if (pixel == 2) pixel = 1
                     var pal_color = palette[pixel]
-                    var nes_color = NES_palette[pal_color] 
+                    var nes_color = NES_palette[pal_color % 64] 
                     var color = {
                         r: nes_color[0],
                         g: nes_color[1],
@@ -432,11 +438,17 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute)
             }
         }
         var bitmap = new ImageData(new Uint8ClampedArray(bitmap_sprite), 8)
-        m_context.putImageData(bitmap, (index % width) * 8, (parseInt(index / width) * 8))
+        m_spr_canvas.getContext("2d").putImageData(bitmap, (index % width) * 8, (parseInt(index / width) * 8))
     }
+
+    m_context.drawImage(m_spr_canvas, 0, 0)
+
+    var m_spr_canvas = new OffscreenCanvas(m_canvas.width, m_canvas.height)
+    m_spr_canvas.getContext("2d").drawImage(m_canvas, 0, 0)
 
     return {
         image_data: m_context.getImageData(0, 0, m_canvas.width, m_canvas.height),
-        data_url: m_canvas.toDataURL()
+        data_url: m_canvas.toDataURL(),
+        off_canvas: m_spr_canvas
     }
 }

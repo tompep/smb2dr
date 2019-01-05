@@ -1,10 +1,14 @@
 
 // Function to write bytes to output
 
-function write_enemy_bytes(enemies, page_cnt){
+function write_enemy_bytes(enemies, page_cnt, vertical){
     var output = []
+    var converted_enemies = enemies.map(function(ele){
+        var conv_pos = convert_coords_obj_to_item(ele.pos_page, ele.pos_y, ele.pos_x, vertical)
+        return create_smb_enemy(ele.obj_type, conv_pos.y, conv_pos.x, conv_pos.page)
+    })
     for (var i = 0; i < page_cnt; i++){
-        var enemy_by_page = enemies.filter(function page_sort(p){ return p.pos_page === i })
+        var enemy_by_page = converted_enemies.filter(function page_sort(p){ return p.pos_page === i })
         var cnt = 1 + 2 * enemy_by_page.length
         output.push(cnt)
         for (var index in enemy_by_page){
@@ -14,6 +18,97 @@ function write_enemy_bytes(enemies, page_cnt){
         }
     }
     return output
+}
+
+function write_characters (my_rom, characters){
+    
+}
+
+function set_memory_location(my_rom, mem_locs, name, values, offset=0){
+    console.debug(name, values.length, values, offset)
+    if (!offset)
+        offset = 0
+
+    var Location = mem_locs[name]
+    if (Location){
+        Location = Location + 0x10 + offset
+        console.debug(Location)
+        for(var i = 0; i < values.length; i++){
+            values[i] = values[i] === true ? 1 : (values[i] === false ? 0 : parseInt(values[i]))
+            console.debug(my_rom[Location + i])
+            my_rom[Location + i] = values[i]
+            console.debug(my_rom[Location + i])
+        }
+    }
+    else {
+        console.error('Mem loc not found for writing', name)
+    }
+}
+
+function write_header_bytes(h){
+    var byte1 = (h.horizontal << 7) + (h.unk1 << 6) + (h.pala << 3)
+    byte1 += (h.unk2 << 2) + (h.palb)
+    var byte2 = (h.unk3 << 5) + h.ground_set
+    var byte3 = (h.pages << 4) + h.exterior_type
+    if (!Array.isArray(h.ground_type))
+        var byte4 = (h.unk4 << 6) + (h.ground_type << 3) 
+    else
+        var byte4 = (h.unk4 << 6) + (0 << 3) 
+    byte4 += (h.unk5 << 2) + (h.music)
+    
+    return [byte1, byte2, byte3, byte4]
+}
+    
+function RandomAlgo2(my_levels, meta_info){
+    var modified_my_l = []
+    var free_nodes = []
+    var odd_nodes = []
+    var boss_nodes = []
+    for (var pos = 0; pos < my_levels.length; pos++){
+        if (my_levels[pos] === undefined || pos >= 200){
+            modified_my_l.push(undefined)
+            continue
+        }
+        var my_l = my_levels[pos]
+        var my_h = my_l.header
+        var my_e = my_l.enemies
+        var world = my_l.world
+        var level = my_l.level
+        var room = my_l.room
+        var code = "" + world + "," + level + "," + room 
+        // handle world stuff in another not crappy function
+        console.log(code)
+        var isBoss = my_e.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+        var oddPath = code in metadata
+        if (my_l.is_jar){
+            console.log('this is jar')
+        }
+        else if (isBoss){
+            var result = create_room_node(my_l, my_h, my_e, meta_info)
+            boss_nodes.push(result)
+            console.log('this is boss')
+        }
+        else if (oddPath){
+            var result = create_room_node(my_l, my_h, my_e, meta_info)
+            odd_nodes.push(result)
+            console.log('this is odd')
+        }
+        else {
+            var result = create_room_node(my_l, my_h, my_e, meta_info)
+            free_nodes.push(result)
+            console.log('this is ok')
+            console.log(result.max_doors, my_h.pages + 1)
+        }
+        modified_my_l.push(my_l)
+    }
+    extendRandom2(free_nodes, boss_nodes, odd_nodes)
+    
+    return {
+        my_l: modified_my_l,
+        f_n: free_nodes,
+        b_n: boss_nodes,
+        o_n: odd_nodes
+    }
 }
 
 function create_ground_modifier(data){
@@ -206,10 +301,9 @@ function convert_coords(page, y, x, vertical){
 }
 
 function convert_coords_obj_to_item(page, y, x, vertical){
-    //unused
-    y = vertical ? y + page : y
-    page = page + Math.floor(y / 15)
-    y = y % 15
+    y = vertical ? (y + 15 * page) : y
+    page = vertical ? Math.floor(y / 16) : page
+    y = y % 16
     return {
         page: page,
         x: x,
@@ -282,14 +376,14 @@ function create_smb_object(type, x, y, page, layer=0, param=0){
     }
 }
 
-function create_smb_enemy(type, y, x, page){
+function create_smb_enemy(type, y, x, page, vertical){
     var obj_name = EnemyIds[type]
     return {
         obj_name: obj_name,
         obj_type: type,
         pos_x: x,
-        pos_y: y,
-        pos_page: page
+        pos_y: vertical ? (y + 16 * page) % 15 : y,
+        pos_page: vertical ? Math.floor((y + 16 * page) / 15) : page
     }
 }
 
@@ -370,8 +464,8 @@ function extract_tile_bytes(contents, mem_locs={}){
     var bytes = contents.slice(tile_block)
     // 8000, 16 * 7, 12 * 3
     var backgr_pal_ptrs = extract_ptrs(bytes, 14).map(x => x - bank_offset)
-    var background_pals = backgr_pal_ptrs.slice(0,7).map(x => split_em(split_em(bytes.slice(x, x+4*4*7), 4), 4))
-    var sprite_pals = backgr_pal_ptrs.slice(7,14).map(x => split_em(split_em(bytes.slice(x, x+3*4*3), 3), 4))
+    var background_pals = backgr_pal_ptrs.slice(0,7).map(x => split_em(split_em(bytes.slice(x, x+4*4*8), 4), 4))
+    var sprite_pals = backgr_pal_ptrs.slice(7,14).map(x => split_em(split_em(bytes.slice(x, x+3*4*4), 4), 3))
 
     //
     var remainder = bytes.slice(14*2 + 7*16*7 + 7*12*3)
@@ -391,9 +485,6 @@ function extract_tile_bytes(contents, mem_locs={}){
     var obj_tiles = extract_ptr_mem_block(contents, mem_locs, 'WorldObjectTilePointersLo', 7, 0xFF)
     var tileq = extract_ptr_mem_block(contents, mem_locs, 'TileQuadPointersLo', 4, 0xFF) 
     for (q in tileq) tileq[q] = split_em(tileq[q], 4)
-    var enemy_1 = extract_mem_block(contents, mem_locs, 'EnemyTilemap1', 0xFF)
-    var enemy_2 = extract_mem_block(contents, mem_locs, 'EnemyTilemap2', 0xFF)
-    var player_pals = extract_mem_block(contents, mem_locs, 'EnemyTilemap2', 0xFF)
 
     return {
         bpals: background_pals,
@@ -404,8 +495,8 @@ function extract_tile_bytes(contents, mem_locs={}){
         vset: vert_set,
         obj_tiles: obj_tiles,
         tile_quads: tileq,
-        enemy_tilemap_1: enemy_1,
-        enemy_tilemap_2: enemy_2
+        world_single: split_em(extract_mem_block(contents, mem_locs, 'World1thru6SingleBlocks', 14), 7),
+        object_tiles: split_em(split_em(extract_mem_block(contents, mem_locs, 'World1ObjectTiles', 9*7*4), 4), 9)
     }
     
 }
@@ -472,9 +563,14 @@ function extract_all_info (contents_full, mem_locs={}){
 
     // extract player info
     // 3c9 bank a-b
-    var character_stats = extract_mem_block(contents, mem_locs, 'CharacterStats', 22*4)
-    var level_start = extract_mem_block(contents, mem_locs, 'Data_LevelStart', 4)
+    var level_start = extract_mem_block(contents, mem_locs, 'Data_StartLevel', 4)
     var char_start = extract_mem_block(contents, mem_locs, 'CharLockVar', 1)
+
+    var enemy_1 = split_em(extract_mem_block(contents, mem_locs, 'EnemyTilemap1', 0xFF), 2)
+    var enemy_2 = split_em(extract_mem_block(contents, mem_locs, 'EnemyTilemap2', 0xFF), 2)
+    var a_tiles = extract_mem_block(contents, mem_locs, 'EnemyAnimationTable', 0xFF)
+    var data_46e = extract_mem_block(contents, mem_locs, 'EnemyArray_46E_Data', 0xFF)
+    var obj_attr_data = extract_mem_block(contents, mem_locs, 'ObjectAttributeTable', 0xFF)
 
     // extract only good levels
     var real_my_og_levels = []
@@ -520,7 +616,7 @@ function extract_all_info (contents_full, mem_locs={}){
         if (i%10 == 0) level = (i / 10) % 3
         var my_l = read_object(real_my_og_levels[i], i / 30)
         var my_h = read_header(my_og_headers[i])
-        var my_e = read_enemies(my_og_enemies[i], my_h.pages)
+        var my_e = read_enemies(my_og_enemies[i], my_h.pages, my_h.vertical)
         my_l.world = world
         my_l.level = level
         my_l.room = i % 10
@@ -539,12 +635,36 @@ function extract_all_info (contents_full, mem_locs={}){
         character_stats: character_stats,
         level_start: level_start,
         char_start: char_start,
-        mem_locs: mem_locs
+        enemy_tilemap_1: enemy_1,
+        enemy_tilemap_2: enemy_2,
+        a_tiles: a_tiles,
+        mem_locs: mem_locs,
+        data_46e: data_46e,
+        obj_attr_data: obj_attr_data,
+        characters: extract_characters(contents_full, mem_locs)
     }
     return {
         my_levels: modified_my_l, 
         meta_info: additional_rom_info
     }
+}
+
+var char_names = ['MARIO', 'PRINCESS', 'TOAD', 'LUIGI']
+function extract_characters(my_rom, mem_locs){
+    var character_stats = extract_mem_block(my_rom, mem_locs, 'CharacterStats', 22*4)
+    var character_pals = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterPalette', 16), 4)
+    var character_pals = split_em(extract_mem_block(my_rom, mem_locs, 'EndingCelebrationText_MARIO', 16), 4)
+    var stats_offset = extract_mem_block(my_rom, mem_locs, 'StatOffsets', 4)
+    var characters = []
+    for(var i = 0; i < 4; i++){
+        characters.push({
+            stats: character_stats.slice(stats_offset[i]*22, stats_offset[i]*22 + 22 ),
+            stats_offset: stats_offset[i],
+            name: char_names[i],
+            name_credits: char_names[i]
+        })
+    }
+    return characters
 }
 
 
@@ -676,7 +796,7 @@ function read_object(level_bytes, world=0) {
     }
 }
 
-function read_enemies(enemy_bytes, pages){
+function read_enemies(enemy_bytes, pages, vertical){
     var xpage = 0
     var enemies = []
     for (var i = 0; i < enemy_bytes.length; i++) {
@@ -690,7 +810,7 @@ function read_enemies(enemy_bytes, pages){
                 new_x: p & 0xF,
                 new_page: xpage
             } 
-            enemies.push(create_smb_enemy(obj_type, new_pos.new_x, new_pos.new_y, xpage))
+            enemies.push(create_smb_enemy(obj_type, new_pos.new_x, new_pos.new_y, xpage, vertical))
         }
         i += cnt - 1
         if (++xpage > pages) break
@@ -718,3 +838,123 @@ function read_header(header_bytes){
     return header_json
 }
 
+function write_to_file (og_rom, my_levels, my_world_metadata){
+    /*
+     * Write level data to original ROM
+     * Parameters: rom data, level js objects, world_metadata
+     */
+    var all_new_ptrs_l = [] 
+    var all_new_ptrs_h = [] 
+    var all_new_e_ptrs_l = [] 
+    var all_new_e_ptrs_h = [] 
+    var all_new_data = []
+    var all_new_enmy = []
+    var allcnt = 21 + 420
+    var ecnt = 0xa500 + 84 + 420 - 0x8000
+    var ptr_order = my_world_metadata.level_ptr_order
+    var eptr_order = my_world_metadata.enemy_ptr_order
+    for (var i = 0; i < my_levels.length + 10; i++){
+        if (my_levels[i] === undefined || i >= 200){
+            var new_ptr = 0x8000 + allcnt
+            all_new_ptrs_h.push(new_ptr >> 8)
+            all_new_ptrs_l.push(new_ptr % 256)
+            var new_ptr = 0x8000 + allcnt
+            all_new_e_ptrs_h.push(new_ptr >> 8)
+            all_new_e_ptrs_l.push(new_ptr % 256)
+            continue
+        }
+        var my_l = my_levels[i]
+        var my_h = my_l.header
+        var my_e = my_l.enemies 
+        console.debug(my_l.world, my_l.level, my_l.room)
+
+        var header_data = write_header_bytes(my_h)
+        var enemy_data = write_enemy_bytes(my_e, my_h.pages + 1, my_h.vertical) 
+        if (my_l.is_jar == 1)
+            enemy_data = [1,1,1,1,1,1,1,1,1,1].concat(enemy_data)
+        enemy_data.push(1)
+        var level_data = write_level_bytes(my_l, ((i-(i%30))/30))
+        console.debug('size of level:', level_data.length, enemy_data.length)
+        // fs.writeFileSync("./levels-random/" + (((i-(i%30))/30)).toString() + "/" + i.toString() + ".json", JSON.stringify(my_l, undefined, 4))
+
+        var new_ptr_level = 0x8000 + allcnt + all_new_data.length
+        if (new_ptr_level + level_data.length + header_data.length > 0xa500){
+            new_ptr_level = 0x8000 + ecnt + all_new_enmy.length 
+            all_new_enmy.push(...header_data)
+            all_new_enmy.push(...level_data)
+        }
+        else{
+            all_new_data.push(...header_data)
+            all_new_data.push(...level_data)
+        } 
+        all_new_ptrs_h.push(new_ptr_level >> 8)
+        all_new_ptrs_l.push(new_ptr_level % 256)
+
+        var new_ptr_enemy = 0x8000 + allcnt + all_new_data.length
+        if (new_ptr_enemy + enemy_data.length  > 0xa500){
+            new_ptr_enemy = 0x8000 + ecnt + all_new_enmy.length 
+            all_new_enmy.push(...enemy_data)
+        }
+        else{
+            all_new_data.push(...enemy_data)
+        } 
+        all_new_e_ptrs_h.push(new_ptr_enemy >> 8)
+        all_new_e_ptrs_l.push(new_ptr_enemy % 256)
+        
+    }
+
+
+    var final_bytes = [...ptr_order]
+    console.log('len-og-s', final_bytes.length)
+    final_bytes.push(...all_new_ptrs_l)
+    console.log('len-og-s', final_bytes.length)
+    while(final_bytes.length < allcnt - 210){
+        final_bytes.push(0xFF)
+    }
+    final_bytes.push(...all_new_ptrs_h)
+    console.log('len-og-s', final_bytes.length)
+    while(final_bytes.length < allcnt){
+        final_bytes.push(0xFF)
+    }
+    final_bytes.push(...all_new_data)
+    console.log('padding', 0xa500 - final_bytes.length - 0x8000)
+    console.log('len-og-s', final_bytes.length)
+    console.log('len-level', final_bytes.length.toString(16))
+    while(final_bytes.length < 0xa500 - 0x8000){
+        final_bytes.push(0xFF)
+    }
+    console.log('len-og-s', final_bytes.length.toString(16))
+    final_bytes.push(...eptr_order)
+    console.log('len-og', final_bytes.length.toString(16))
+    var h_pieces = []
+    var l_pieces = []
+    for(var i = 0; i < 210; i++) h_pieces.push(all_new_e_ptrs_h.slice(10*i, 10*i+10))
+    for(var i = 0; i < 210; i++) l_pieces.push(all_new_e_ptrs_l.slice(10*i, 10*i+10))
+    for(var i = 0; i < 21; i++){
+        final_bytes.push(...h_pieces[i])
+        final_bytes.push(...l_pieces[i])
+    }
+    console.log('len-lptr', final_bytes.length.toString(16))
+    while(final_bytes.length < 0xa500 - 0x8000 + 420){
+        final_bytes.push(0xFF)
+    }
+    console.log('len-ptr-pad', final_bytes.length.toString(16))
+    final_bytes.push(...all_new_enmy)
+    console.log('lenfinal', final_bytes.length.toString(16))
+    while(final_bytes.length < 0x4000){
+        final_bytes.push(0xFF)
+    }
+    console.log('lenfinal', final_bytes.length.toString(16))
+
+    // bugs to fix
+    // no doors on page0 column0
+    // no doors on waterfalls/nonrocks
+    // asm: rocket transitions
+    // asm: pipes
+
+    var offset = 0x10000 + 0x10
+    for (var i = 0; i < final_bytes.length; i++) {
+        og_rom[offset + i] = final_bytes[i]
+    }
+
+}

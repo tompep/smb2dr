@@ -3,7 +3,8 @@
 
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=640px, initial-scale=1.0">
+        <meta name="viewport" content="width=540px, initial-scale=1.0">
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 
         <title>SMB2DR</title>
         <meta name="description" content="Super Mario Brothers 2 Door Randomizer">
@@ -34,11 +35,12 @@
                 <a id='start_randomizer'>Randomizer</a>
                 <a id='start_map_viewer'>Maps</a>
                 <a id='start_character_viewer'>Characters</a>
+                <a id='start_changelog'>Change Log</a>
             </div>
             </br>
 
             <div id="summary" class="main_item">
-                <div id="summarytext" class="summarytext">                </div>
+                <div id="summarytext" class="summarytext">Failed to grab README.md                </div>
                 <div>
                 <img src="css/smb2-output-5.png"> </img>
                 <img src="css/smb2-output-0.png"> </img>
@@ -81,14 +83,31 @@
                 Other items include: Continues, Unlocks, and common items
                 </div>
             </div>
+
+            <div id="changelog" class="main_item">
+                <div id="changelogtext" class="summarytext">Failed to grab CHANGELOG.md                </div>
+            </div>
                 
             <div id="fileupload" class="main_item">
-                <input type="file" class="input" id="files" name="file"/>
+                <label><input type="file" class="input" id="files" name="file"/></label>
             </div>
 
             <div id="randomizer_body" class="main_item">
-                <label>Seed <input type="text" class="input" id="seed"/></label>
-                <button id="random_seed" onclick="$('#seed').val(rand_seed(Math.seedrandom()))">Generate Random Seed </button>
+                <label style="display: block">Seed <input type="text" class="input" id="seed"/></label>
+                <button id="random_seed" onclick="$('#seed').val(rand_seed(Math.seedrandom()))">Random Seed </button>
+                <br/>
+                <br/>
+                <div class='option_div'>
+                    <select id="preset_game" class="a_preset" oninput="reload_options(presets[this.value].config, '#randomizer_body')">
+                        <option value='-1'>Select Preset</option>
+                    </select>
+                    <button onclick="$('#option_load').trigger('click')">Load Preset </button>
+                    <div class="hide_me">
+                        <input type="file" id="option_load" class="hide_me" name="files[]"
+                            onchange="load_options(event.target.files, '#randomizer_body')"></input>
+                    </div>
+                    <button onclick="save_options('#randomizer_body', 'smb2dr_options.json')">Save Preset </button>
+                </div>
                 <div class="" id="randomizer">
                 </div>
             </div>
@@ -111,9 +130,10 @@
                     Orientation
                     <input id="vert" type="number" class="level_read" min="0" max="1" value="0"/>
                     Pal A
-                    <input id="pala" type="number" class="level_read" min="-1" max="6" value="-1"/>
+                    <input id="pala" type="number" class="level_read" min="-1" max="7" value="-1"/>
                     Pal B
                     <input id="palb" type="number" class="level_read" min="-1" max="3" value="-1"/>
+                    <br/>
                     Render World
                     <input id="unk3" type="number" class="level_read" min="-1" max="7" value="-1"/>
                     Render BX/CX
@@ -155,12 +175,21 @@
                 In Progress
                 <div class="option_div"> 
                 Character
-                <input id="a_character" type="number" class="char_read" min="0" max="7" value="0"/>
+                <input id="a_character" type="number" class="char_read" min="0" max="3" value="0"/>
                 Frame
                 <input id="a_frame" type="number" class="char_read" min="0" max="10" value="0"/>
-                <form id="palette_character">Palette</form>
+                <label>
+                <input id="a_size" type="checkbox" class="char_read"/>
+                Small
+                </label>
+                <select id="a_char_pal" class="level_audit hide_me">
+                    <option value='-1'>Select Palette</option>
+                </select>
+                <form id="palette_character"></form>
+                <button id="writeJSON_char"> Random Player Palette </button>
                 </div>
                 <div id="char_sprites">No sprites read.</div>
+                <div id="char_stats"></div>
                 <button id="writeJSON_char"> Output To JSON </button>
                 <button id="readJSON_char"> Input From JSON </button>
                 <div>
@@ -202,9 +231,18 @@ var sprites;
 
 var currentMap;
 var cursor = [0, 0]
-var player_palettes = [
+
+var presets = []
+
+var current_palettes = [
+
+]
+
+var custom_palettes = [
     {"name": "festive", "pal": [0xf, 9, 22, 55]}
 ]
+
+function populate_palettes(){}
 
 function read_info_file_info (targetRom){
     var crc32_rom = decimalToHexString(crc32(targetRom))
@@ -232,21 +270,6 @@ function read_info_file_info (targetRom){
     }
 }
 
-function handleFileSelect(evt) {
-    var file = evt.target.files[0]
-
-    var reader = new FileReader();
-    reader.onload = function(){
-        console.log('Loading file...')
-        var dataURL = reader.result
-        startingRom = new Uint8Array(dataURL)
-        if (!read_info_file_info(startingRom)){
-            return
-        }
-    }
-    reader.readAsArrayBuffer(file)
-}
-
 function decimalToHexString(number)
 {
       if (number < 0)
@@ -268,12 +291,12 @@ var downloadURL = function(data, fileName) {
 };
 
 var character_stats = [
-	"Pick-up Speed, frame 1/6 - pulling",
-	"Pick-up Speed, frame 2/6 - pulling",
-	"Pick-up Speed, frame 3/6 - ducking",
-	"Pick-up Speed, frame 4/6 - ducking",
-	"Pick-up Speed, frame 5/6 - ducking",
-	"Pick-up Speed, frame 6/6 - ducking",
+	"Pick-up Speed, frame 1 (pulling)",
+	"Pick-up Speed, frame 2 (pulling)",
+	"Pick-up Speed, frame 3 (ducking)",
+	"Pick-up Speed, frame 4 (ducking)",
+	"Pick-up Speed, frame 5 (ducking)",
+	"Pick-up Speed, frame 6 (ducking)",
 	"Jump Speed, still - no object",
 	"Jump Speed, still - with object",
 	"Jump Speed, charged - no object",
@@ -294,21 +317,67 @@ var character_stats = [
 ]
 
 var character_frames = [
+    "Walk1",
+    "Carry1",
+    "Walk2",
+    "Carry2",
+    "Duck",
+    "DuckCarry",
+    "Jump",
+    "Death",
+    "Lift",
+    "Throw",
+    "Climb"
+]
+
+var char_lookup_sprite_table = [
+    0, // mario
+    3, // luigi
+    1,
+    2
+]
+
+var char_lookup_bit = [
+    0b0001, // mario
+    0b0100, // luigi
+    0b0010,
+    0b1000
 ]
 
 function show_character(evt) {
     var a_s = sprites.all_sheets
     var character = $('#a_character').val() & 0b11
+    console.log(this)
     var frame = $('#a_frame').val()
+    var c_size = $('#a_size')[0].checked ? 4 : 0
+    console.log(character, frame, c_size)
+
     if (currentRom == undefined)
         currentRom = startingRom
+
     var frame_data = split_em(extract_mem_block(
         currentRom.slice(0x10), mem_locs, 'CharacterOne_Frames', 44*4), 4)
+    var eye_frame_data = extract_mem_block(
+        currentRom.slice(0x10), mem_locs, 'CharacterFrameEyeTiles', 11)
+    var eye_frame_tiles = extract_mem_block(
+        currentRom.slice(0x10), mem_locs, 'CharacterEyeTiles', 4)
+
     var current_character_frames = frame_data.slice(
         11*character, 11*character+11).map((x, y) => convert_to_8x16(x, [4, 5, 7].includes(y)))
     var picked_frame = current_character_frames[frame]
-    var loaded_sheets = [a_s[$('#a_character').val()]]
+    var loaded_sheets = [a_s[parseInt($('#a_character').val()) + c_size], a_s[0x8], a_s[0x9], a_s[0xC],
+        a_s[0xD], a_s[0xD + 1], a_s[0x18], a_s[0x19]]
+
     var palette = $('.nespalette_select')
+    var pal_name = $('#a_char_pal').val()
+    if (this.id == 'a_character' || this.id == 'a_char_pal') {
+        if (pal_name < 0){
+        var player_pal = split_em(extract_mem_block(
+        currentRom.slice(0x10), mem_locs, 'CharacterPalette', 16), 4)[char_lookup_sprite_table[character]]
+            palette.map(x => palette[x].value = player_pal[x])
+            palette.trigger('input')
+        }
+    }
     palette = palette.map(x => parseInt(palette[x].value))
     $("#char_sprites").text('')
     
@@ -322,17 +391,20 @@ function show_character(evt) {
         }
     }
     else {
+        var player_eyes = bitmap_from_graphics(loaded_sheets,
+            convert_to_8x16(
+                [eye_frame_data[frame] > 0 ? eye_frame_data[frame] : eye_frame_tiles[char_lookup_sprite_table[character]]
+                , 0xDF, 0xDF, 0xDF]),
+            2, [0x32, 0x32, 0x32, 0x32], true)
         var player = bitmap_from_graphics(loaded_sheets,
-                            picked_frame, 2, palette, true)
+            picked_frame, 2, palette, true, player_eyes.image_data)
         var img = $("<img alt='frame' class='sprite'></img>")
         img.attr('src', player.data_url)
         $("#char_sprites").append(img)
     }
     $("#char_sprites").append('</br>')
     current_character_frames = split_em(Array(32).fill(0).map((x, y) => parseInt(y)*2), 4)
-    console.log(current_character_frames)
     current_character_frames = current_character_frames.map(x => convert_to_8x16(x))
-    console.log(current_character_frames)
     for (var current_frame of current_character_frames){
         var player = bitmap_from_graphics(loaded_sheets,
                             current_frame, 2, palette, true)
@@ -346,19 +418,6 @@ function writeJSON_char(evt) {
 }
 
 function readJSON_char(evt) {
-    var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
-    console.log($('#world').val() * 30, $('#level').val() * 10, $('#room').val() * 1)
-    console.log(my_level_index)
-    if (info == undefined){
-        console.log('Cannot render level, no rom loaded')
-        return
-    }
-    var level = JSON.parse(
-        $('#info_dump').val())
-
-    info.my_levels[my_level_index] = level
-
-    show_level(evt)
 }
 
 function writeJSON(evt) {
@@ -444,18 +503,23 @@ function show_level(evt) {
     for (var grid=[]; grid.push(Array(16))< 16;);	
     var a_s = sprites.all_sheets
     var world_sheet = worldTileset[render_world] 
+    var world_sheet_enemy = worldTileset_enemy[render_world] 
     var loaded_sheets = [
-        a_s[0x0], a_s[0x8], a_s[0x9], a_s[0xC],
+        a_s[0x0], a_s[0x8], a_s[0x9], a_s[world_sheet_enemy],
         a_s[world_sheet], a_s[world_sheet + 1], a_s[0x18], a_s[0x19]]
     var background_sheets = loaded_sheets.slice(4)
     var world_palette = info.meta_info.world_metadata.bpals[render_world]
     var back_palette = world_palette[level.header.pala]
+    var s_pals = info.meta_info.world_metadata.spals[render_world]
+    var s_pal = s_pals[level.header.palb]
     var quads = info.meta_info.world_metadata.tile_quads
-    var quads_2 = info.meta_info.world_metadata.enemy_tilemap_1
+    var quads_2 = info.meta_info.enemy_tilemap_1
+    var quads_3 = info.meta_info.enemy_tilemap_2
     var rendered_tiles = []
     var rendered_enemy = []
 
     back_palette = ($('#pala').val() >= 0) ? world_palette[$('#pala').val()] : back_palette
+    s_pal = ($('#palb').val() >= 0) ? s_pals[$('#palb').val()] : s_pal
 
     var new_header = $.extend(true, {}, level.header)
     new_header.vertical = vertical
@@ -505,8 +569,10 @@ function show_level(evt) {
     for (i=0; i<15; i++){
         for (j=0; j<16; j++){
             ctx.fillStyle='brown'
+
             var new_x = j*16 + (!vertical ? page_num*256 : 0)
             var new_y = i*16 + (vertical ? page_num*240 : 0)
+
             var tile = rendered[page_num][i][j]
             if (tile.obj_type != undefined){
                 var index = Math.floor(tile.obj_type/0x40)
@@ -522,26 +588,35 @@ function show_level(evt) {
                     ctx.fill(); 
                 }
             }
+
             ctx.fillStyle='blue'
             var new_objs = my_objects.filter(x => x.pos_y === i && x.pos_x === j && x.pos_page == page_num)
             if (new_objs.length > 0) ctx.rect(new_x, new_y, 4, 4); 
-            var new_enemies = enemies.filter(x => 
-                ((x.pos_y % 15) + (vertical ? x.pos_page : 0)) === i && x.pos_x === j 
-                && x.pos_page == page_num)
+
+            var new_enemies = enemies.filter(x => x.pos_y === i && x.pos_x === j && x.pos_page == page_num)
             ctx.fillStyle='red'
+
             if (new_enemies.length > 0) {
                 for (var enemy of new_enemies){
-                    break
-                    var sprite_tiles = convert_to_8x16(quads_2.slice((enemy.obj_type) * 2 - 2, enemy.obj_type * 2 + 2 - 2))
-                    if (rendered_enemy[enemy.obj_type] == undefined)
+                    var obj_sprite_loc = info.meta_info.a_tiles[enemy.obj_type]
+                    var obj_attr = info.meta_info.obj_attr_data[enemy.obj_type]
+                    var my_pal = obj_attr & 0x3 - 1
+                    var mirrored = (obj_attr & 0b10000) > 0
+                    var obj_46e = info.meta_info.data_46e[enemy.obj_type]
+                    var tilemap2 = (obj_46e & 0b10000) > 0
+                    if (tilemap2)
+                        var sprite_tiles = convert_to_8x16(quads_3[obj_sprite_loc >> 1].slice(0, mirrored ? 1 : 2), mirrored)
+                    else
+                        var sprite_tiles = convert_to_8x16(quads_2[obj_sprite_loc >> 1].slice(0, mirrored ? 1 : 2), mirrored)
+                    if (rendered_enemy[enemy.obj_type] == undefined) {
                         rendered_enemy[enemy.obj_type] = bitmap_from_graphics(loaded_sheets,
-                            sprite_tiles, 2, back_palette[index], true).image_data
-                    console.log(sprite_tiles, rendered_enemy[enemy.obj_type])
-                    ctx.putImageData(rendered_enemy[enemy.obj_type], new_x, new_y);
+                            sprite_tiles, 2, s_pal[my_pal], true).off_canvas
+                    }
+                    ctx.beginPath();
+                    ctx.arc(new_x + 8, new_y + 8, 2, 0, 2 * Math.PI);
+                    ctx.fill(); 
+                    ctx.drawImage(rendered_enemy[enemy.obj_type], new_x, new_y);
                 }
-                ctx.beginPath();
-                ctx.arc(new_x + 8, new_y + 8, 2, 0, 2 * Math.PI);
-                ctx.fill(); 
             }
         }
     }
@@ -567,12 +642,12 @@ function randomize_rom(evt) {
         option_vals[option_tags[x].id] = {
         val: option_tags[x].value, 
         checked: option_tags[x].checked,
-        my_tag: option_tags[x]
+        radio: $(option_tags[x]).find('input:checked').val()
     })
 
     Math.seedrandom(rando_seed)
 
-    var r_header = Array(...option_vals['Randomize_World_Appearance'].my_tag.elements).filter(x => x.checked)[0].value
+    var r_header = option_vals['Randomize_World_Appearance'].radio
     if (r_header != 'Do Not Randomize'){
         for(var l of info.my_levels){
             if (l != undefined){
@@ -760,6 +835,11 @@ $('#start_summary').click(function(){
     $('#summary').fadeIn()
 })
 
+$('#start_changelog').click(function(){
+    $('.main_item').fadeOut(0)
+    $('#changelog').fadeIn()
+})
+
 $('#start_randomizer').click(function(){
     $('.main_item').fadeOut(0)
     $('#fileupload').fadeIn()
@@ -863,7 +943,7 @@ function handle_options (jsn){
     for (var key in jsn){
         var option = jsn[key]
         var title_name = key
-        key = key.replaceAll(' ', '_')
+        key = key.replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')
         // if array, create select out of it (top layer)
         // this determines different modes of randomization
         // if only one of it, always use it
@@ -872,7 +952,7 @@ function handle_options (jsn){
             tag.prepend = title_name 
             var outer_tag = $("<div class='option_div' id='" + key + "_Option'></div>")
             for (var o of option){
-                var inner_name = o.name.replaceAll(' ', '_')
+                var inner_name = o.name.replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')
                 var inner_tag = $("<option value='" + inner_name + "'>" + o.name + "</option>")
                 tag.append(inner_tag)
                 var specific_ops = handle_options(o.options)
@@ -886,7 +966,7 @@ function handle_options (jsn){
             tags.push(title_name)
             if (option.length > 1){
                 tags.push(tag)
-                tag.change(function(){
+                tag.on('input', function(){
                     var search_target = this.id + "_Option"
                     var targets = $('.option_div')
                     var target = targets.filter((x, y) => y.id == search_target)[0]
@@ -925,10 +1005,35 @@ function handle_options (jsn){
 function create_option(name, description, start, min=0, max=100, cl=null){
     var tag = $('<label title="'+ description +'"></label>')
     var title_name = name
-    name = name.replaceAll(' ','_')
+    name = name.replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')
     var type = 'number'
     if (typeof start === "boolean"){
         type = 'checkbox' 
+    }
+    else if (typeof start === "string" && isNaN(start)){
+        type = 'text' 
+    }
+    else if (Array.isArray(start) && cl == 'mem_array'){
+        type = 'form' 
+        var tag_name = $("<label></label>")
+        tag_name.append(title_name)
+        tag.append(tag_name)
+        var form = tag
+        form.attr('id', name)
+        form.attr('name', title_name)
+        tag.append(form)
+        for (var index in start){
+            var o = start[index]
+            var label = $("<label></label>")
+            var innertag = $("<input class='option' style='width: 48px;' type='number' value='0'> </input>")
+            innertag.attr('name', name)
+            innertag.attr('min', min)
+            innertag.attr('max', max)
+            label.append(innertag)
+            label.append(" ", o)
+            form.append(label)
+        }
+        return tag
     }
     else if (Array.isArray(start)){
         type = 'form' 
@@ -965,9 +1070,82 @@ function create_option(name, description, start, min=0, max=100, cl=null){
     }
     innertag.attr('min', min)
     innertag.attr('max', max)
+    innertag.attr('maxlength', max);
     tag.append(innertag)
     tag.append(' ' + title_name)
     return tag
+}
+
+function handleFileSelect(evt) {
+    var file = evt.target.files[0]
+
+    var reader = new FileReader();
+    reader.onload = function(){
+        console.log('Loading file...')
+        var dataURL = reader.result
+        startingRom = new Uint8Array(dataURL)
+        if (!read_info_file_info(startingRom)){
+            return
+        }
+    }
+    reader.readAsArrayBuffer(file)
+}
+
+function load_options(files, id){
+    var reader = new FileReader();
+    reader.onload = function(e){
+        console.log('Loading config...')
+        var result = JSON.parse(e.target.result);
+        var my_name = file.name.replace('.json', '')
+        $('#preset_game').append('<option value="' + presets.length + '">' + my_name + '</option>')
+        presets.push({'name': my_name, 'config': result})
+        reload_options(result, id)
+    }
+
+    for (var file of files){
+        reader.readAsText(file)
+        console.log(file)
+    }
+}
+
+function reload_options(json, tag_id){
+    for (var json_id in json) {
+        var option = json[json_id]
+        var option_tag = $('.option, .option_form, .option_select'.replaceAll('.', tag_id + ' #' + json_id + '.'))
+        option_tag[0].checked = option.checked
+        option_tag[0].value = option.val
+        if (option.radio){
+            option_tag.find('input').attr('checked', false)
+            option_tag.find('input[value="' + option.radio + '"]').attr('checked', true)
+        }
+    }
+
+}
+
+function save_options(tag_id, filename){
+    var option_vals = {}
+    var option_tags = $('.option, .option_form, .option_select'.replaceAll('.', tag_id + ' .'))
+
+    option_tags.each( function(x){
+        var opt_val = {}
+        option_vals[option_tags[x].id] = opt_val
+
+        if (option_tags[x].value == "on")
+            opt_val.checked = option_tags[x].checked
+        else if (option_tags[x].value == undefined)
+            opt_val.radio = $(option_tags[x]).find('input:checked').val()
+        else 
+            opt_val.val = option_tags[x].value
+    })
+    console.log(JSON.stringify(option_vals))
+    var data = new Blob([JSON.stringify(option_vals)], {
+            type: 'application/json',
+            name: filename
+
+    });
+    blob = new Blob([JSON.stringify(option_vals)])
+    url = window.URL.createObjectURL(blob);
+    downloadURL(url, filename)
 }
 
 console.log('Document ready...')
@@ -1001,11 +1179,36 @@ for (var i = 0; i < 9; i++){
     }});
 }
 
+var preset_names = ['Sample Config.json', 'Adventure.json']
+
+for (var i in preset_names){
+    var filename = preset_names[i]
+    $.ajax({contentType: "json",
+            url: "presets/" + filename,
+            indexValue: i,
+            success: function(result){
+                console.log(this.url + ' grabbed')
+                var my_name = this.url.replace('.json', '').replace('presets/', '')
+                presets.push({'name': my_name, 'config': result})
+                $('#preset_game').append('<option value="' + this.indexValue + '">' + my_name + '</option>')
+
+    }});
+}
+
 $.ajax({contentType: "text",
         url: "README.md",
         success: function(result){
             console.log(this.url + ' grabbed')
+            $("#summarytext").text()
             $("#summarytext").text(result)
+}});
+
+$.ajax({contentType: "text",
+        url: "CHANGELOG.md",
+        success: function(result){
+            console.log(this.url + ' grabbed')
+            $("#changelogtext").text()
+            $("#changelogtext").text(result)
 }});
 
 
@@ -1023,9 +1226,14 @@ $.ajax({contentType: "json",
             $("#randomizer").append(start_button)
 }});
 
-$('#files').change(handleFileSelect);
-$('#writeJSON').click(writeJSON);
-$('#readJSON').click(readJSON);
+$.ajax({contentType: "json",
+        url: "character_config.json",
+        success: function(result){
+            console.log(this.url + ' grabbed')
+            $("#char_stats").text()
+            $("#char_stats").append(...handle_options(result))
+}});
+
 $('#seed').keypress(function (evt){
     if (chars.includes(String.fromCharCode(evt.which).toUpperCase())) {}
     else if (!chars.includes(String.fromCharCode(evt.which))){
@@ -1035,8 +1243,6 @@ $('#seed').keypress(function (evt){
 Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
 $('#seed').val(rand_seed());
 $('#seed').attr('maxlength', 10);
-$('.level_read').change(show_level);
-$('.char_read').change(show_character);
 $('#a_enemy').append(EnemyIds.map((x, y) => 
     $('<option value="' + y + '">' + x.replace('Enemy_', '') + '</option>')));
 $('#a_tiles').append(BackgroundTileIds.map((x, y) => 
@@ -1047,7 +1253,7 @@ $('#a_object').append(MapObjectIdsExtendable.slice(3).map((x, y) =>
     $('<option value="' + (y * 0x10 + 0x30) + '">' + x + '</option>')));
 
 var select_color = $('<select class="nespalette_select"></select>')
-select_color.change(function(evt){
+select_color.on('input', function(evt){
     var x = this.value
     var color_string = NES_palette[x].toString()
     color_string = color_string.slice(1, color_string.length)
@@ -1067,6 +1273,14 @@ $("#palette_character").append(select_color.clone(true))
 $("#palette_character").append(select_color.clone(true))
 $("#palette_character").append(select_color.clone(true))
 $("#palette_character").append(select_color.clone(true))
+
+$('#files').on('input', handleFileSelect);
+$('.level_read').on('input', show_level);
+$('.char_read').on('input', show_character);
+$('#writeJSON').click(writeJSON);
+$('#readJSON').click(readJSON);
+
+$("#palette_character .nespalette_select").on('input', show_character)
 
 var canvas = document.getElementById("myCanvas")
 var ctx = canvas.getContext("2d");

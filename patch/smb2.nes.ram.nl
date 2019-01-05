@@ -10,8 +10,8 @@ $06F8#BackgroundCHR2#
 $06FD#BackgroundCHR2Timer#
 $0098#BackgroundTile_BreakBlock1#
 $009A#BackgroundTile_BreakBlock2#
-$0098#BackgroundTile_Subdetected1#
-$009A#BackgroundTile_Subdetected2#
+$007B#BackgroundTile_LockBlock#
+$00AD#BackgroundTile_TreasureBlock#
 $04C5#BackgroundYOffset#
 $062C#BigVeggiesPulled#
 $7400#BonusChanceLayoutRAM#
@@ -185,7 +185,6 @@ $0551#JumpHeightRunningCarrying#
 $054C#JumpHeightStanding#
 $054D#JumpHeightStandingCarrying#
 $04B0#KeyUsed#
-$004A#LastEnemySlot#
 $0633#LevelObjectMode#
 $7300#Level_Bit_Flags#
 $73E3#Level_Count_1ups#
@@ -216,6 +215,8 @@ $76F6#Mook_HP#
 $04FB#Mushroom1Pulled#
 $0620#Mushroom1upPulled#
 $04FC#Mushroom2Pulled#
+$7610#MushroomEffect#
+$76F9#MushroomFragments#
 $05FA#MusicDPCMNoteLength#
 $05FB#MusicDPCMNoteStartLength#
 $061E#MusicNoiseNoteLength#

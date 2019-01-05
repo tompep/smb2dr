@@ -2,10 +2,7 @@
 // enum definitions (rewrite to consts)
 
 var worldTileset = [0x10, 0x12, 0x10, 0x14, 0x10, 0x12, 0x16]
-
-
-
-
+var worldTileset_enemy = [0xC, 0xD, 0xC, 0xE, 0xC, 0xD, 0xF]
 
 var BackgroundTileIds = [
     "BackgroundTile_Black", // $00
@@ -544,6 +541,11 @@ var tbl= {
 }
 
 function convertByTbl(string, minlength=0xF){
+    string = string.toUpperCase().split('')
+    return string.map(x => x in tbl ? tbl[x] : 0xF5).concat(Array(Math.max(minlength - string.length, 0)).fill(0xFB))
+}
+
+function invertByTbl(string, minlength=0xF){
     string = string.toUpperCase().split('')
     return string.map(x => x in tbl ? tbl[x] : 0xF5).concat(Array(Math.max(minlength - string.length, 0)).fill(0xFB))
 }

@@ -52,23 +52,23 @@ var render_object = [
    function(w, r, m) { return render_vert_tiles([0xc1, 0xc2], 'extend')}, // "Vine, extends to ground",
    function(w, r, m) { return render_vert_tiles([0xc2, 0xc2], 'extend')}, // "Vine, extends to ground (no top)",
    function(w, r, m) { return render_single_tile(0x69)}, // "Star background",
-   function(w, r, m) { return render_vert_tiles([ 0x79, 0x7a ], 'extend')}, // "Red pillar, extends to ground",
+   function(w, r, m) { return render_column(w)}, // "Red pillar, extends to ground",
    function(w, r, m) { return render_horiz_tiles([0x1, 0x2])}, // "Cloud",
    function(w, r, m) { return render_single_tile([0x3])}, // "Small cloud",
    function(w, r, m) { return render_vert_tiles([0xc2, 0xc3], 'extend_up')}, // "Vine, extends to top",
    function(w, r, m) { return render_vert_tiles([ 0x52, 0x52 ])}, // "Entrance/exit (light right)",
    function(w, r, m) { return render_vert_tiles([ 0x52, 0x52 ])}, // "Entrance/exit (light left)",
-   function(w, r, m) { return render_vert_tiles([0x69], 'extend')}, // "White entrance, extends to ground",
+   function(w, r, m) { return render_vert_tiles([0x52], 'extend')}, // "White entrance, extends to ground",
    function(w, r, m) { return render_vert_tiles([0xc0, 0x82], 'extend')}, // "Tree, extends to ground",
-   function(w, r, m) { return render_single_tile(0x69)}, // "Pyramid",
-   function(w, r, m) { return render_single_tile(0x69)}, // "Brick background, extends to ground",
-   function(w, r, m) { return render_single_tile(0x69)}, // "Brick wall, extends to ground",
-   function(w, r, m) { return render_single_tile(0x69)}, // "Vegetable thrower (used in Wart's room)",
-   function(w, r, m) { return render_single_tile(0x69)}, // "???",
+   function(w, r, m) { return render_single_tile(0x54)}, // "Pyramid",
+   function(w, r, m) { return render_single_tile(0x54)}, // "Brick background, extends to ground",
+   function(w, r, m) { return render_single_tile(0x54)}, // "Brick wall, extends to ground",
+   function(w, r, m) { return render_single_tile(0x54)}, // "Vegetable thrower (used in Wart's room)",
+   function(w, r, m) { return render_single_tile(0x54)}, // "???",
    function(w, r, m) { return render_vert_tiles([0xa8, 0x83])}, // "Castle entrance 1",
    function(w, r, m) { return render_vert_tiles([0xa9, 0x83])}, // "Castle entrance 2",
-   function(w, r, m) { return render_single_tile(0x69)}, // "Big mouth entrance used in desert",
-   function(w, r, m) { return render_single_tile(0x69)}, // "Large red platform background, extends to ground",
+   function(w, r, m) { return render_single_tile(0x54)}, // "Big mouth entrance used in desert",
+   function(w, r, m) { return render_single_tile(0x54)}, // "Large red platform background, extends to ground",
    function(w, r, m) { return render_single_tile(0x43)}, // "Herb with coin",
    function(w, r, m) { return render_single_tile(0x44)}, // "Herb with fresh vegetable",
    function(w, r, m) { return render_single_tile(0x45)}, // "Herb with small vegetable",
@@ -80,28 +80,32 @@ var render_object = [
    function(w, r, m) { return render_single_tile(0x4b)}, // "Herb with POW",
    function(w, r, m) { return render_single_tile(0x4e)}, // "Cherry",
    function(w, r, m) { return render_single_tile(0x4c)}, // "Herb with Bob-omb",
-   function(w, r, m) { return render_single_tile(0x5b)}, // "1st sub-space Mushroom",
+   function(w, r, m) { return render_single_tile(0x54)}, // "1st sub-space Mushroom",
    function(w, r, m) { return render_single_tile(0x5b)}, // "White/red evil head",
-   function(w, r, m) { return render_single_tile(0x5b)}, // "2nd sub-space Mushroom",
+   function(w, r, m) { return render_single_tile(0x54)}, // "2nd sub-space Mushroom",
    function(w, r, m) { return render_single_tile(0x5a)}, // "Whale eye",
    function(w, r, m) { return render_single_tile(0xa4)} // "Wood wall, 1 square"
 ]
 
 var render_length = [
     null, null, null,
-   function(w, r, m, len) { return render_horiz_tiles([0x76], 'fixed', len)}, // "xb1",
-   function(w, r, m, len) { return render_horiz_tiles([0x76], 'fixed', len)}, // "xb2",
-   function(w, r, m, len) { return render_horiz_tiles([0x45], 'fixed', len)}, // "veg",
-   function(w, r, m, len) { return render_horiz_tiles([0x75, 0x76, 0x77], 'fixed', len)}, // "bridge",
-   function(w, r, m, len) { return render_horiz_tiles([0x1a], 'fixed', len)}, // "spikes",
-   function(w, r, m, len) { return render_vert_tiles([0x9D], 'fixed', len)}, // "bom",
-   function(w, r, m, len) { return render_vert_tiles([0x9C], 'fixed', len)}, // "brown",
-   function(w, r, m, len) { return render_vert_tiles([0x80], 'fixed', len)}, // "ladder",
+   function(w, r, m, len) { return render_horiz_meta(0, w, r, m, len)}, // "xb1",
+   function(w, r, m, len) { return render_horiz_meta(1, w, r, m, len)}, // "xb2",
+   function(w, r, m, len) { return render_horiz_meta(2, w, r, m, len)}, // "veg",
+   function(w, r, m, len) { return render_horiz_meta(3, w, r, m, len)}, // "bridge",
+   function(w, r, m, len) { return render_horiz_meta(4, w, r, m, len)}, // "spikes",
+   function(w, r, m, len) { return render_vert_meta(5, w, r, m, len)}, // "bom",
+   function(w, r, m, len) { return render_vert_meta(6, w, r, m, len)}, // "brown",
+   function(w, r, m, len) { return render_vert_meta(7, w, r, m, len)}, // "ladder",
    function(w, r, m, len) { return render_platform_b(w, r, m, len)}, // "BX",
    function(w, r, m, len) { return render_platform_c(w, r, m, len)}, // "CX",
    function(w, r, m, len) { return render_horiz_tiles([0x75, 0x76, 0x77], 'fixed', len)}, // "red",
    function(w, r, m, len) { return render_horiz_tiles([0x13, 0x14, 0x15], 'fixed', len)}, // "cloud",
    function(w, r, m, len) { return render_waterfall(w, r, m, len)}, // "water",
+]
+
+var render_enemy = [
+    function(sheets) { }
 ]
 
 /* TODO:
@@ -112,9 +116,40 @@ var render_length = [
  */
 
 var meta_tile_types = [0x69, 0x6c, 0x9d, 0xc2, 0x72, 0x80]
+var column_types = [[ 0x79, 0x7a ], [0x1d, 0x1e], [0xAA, 0xAB]]
+var world_to_column = [0, 1, 0, 0, 0, 1, 2]
+
+function render_column(w){
+    w = world_to_column[w]
+    tile_type = column_types[w]
+    return render_vert_tiles(tile_type, 'extend')
+}
+
+function render_ladder(w){
+    tile_type = w < 6 ? 0x80 : 0x07
+    return render_vert_tiles(tile_type, 'extend')
+}
+
+function render_horiz_meta(tile_type, w, r, m, len){
+    var new_r = r % 4
+    tile_type = m.object_tiles[w][tile_type][new_r]
+
+    return render_horiz_tiles([tile_type], 'fixed', len)
+}
+
+function render_vert_meta(tile_type, w, r, m, len){
+    var new_r = r % 4
+    tile_type = m.object_tiles[w][tile_type][new_r]
+
+    return render_vert_tiles([tile_type], 'fixed', len)
+}
 
 function render_single_tile_meta(tile_type, w, r, m){
-    return render_single_tile(meta_tile_types[tile_type])
+    if (w < 6)
+        tile_type = m.world_single[0][tile_type]
+    else
+        tile_type = m.world_single[1][tile_type]
+    return render_single_tile(tile_type)
 }
 
 function render_waterfall(w, r, m, len){
@@ -245,9 +280,11 @@ function render_level(level, header, enemies, meta_info, steps=-1){
     if (current_world == 7)
         current_world = level.world
 
+    /*
     if (ground_set == 31) {
-        console.log(level.world, level.level, level.room)
+        console.log('unusual ground...', level.world, level.level, level.room)
     }
+    */
     var init_ground = {
         obj_type: 0xF0,
         param: 0b000 + ground_set,
@@ -274,9 +311,9 @@ function render_level(level, header, enemies, meta_info, steps=-1){
                     gtype = gs.ground_type
             }
             if (!vertical)
-                var gs_bytes = world_metadata.hset[gs.ground_set]
+                var gs_bytes = world_metadata.hset[gs.ground_set].slice(0)
             else
-                var gs_bytes = world_metadata.vset[gs.ground_set]
+                var gs_bytes = world_metadata.vset[gs.ground_set].slice(0)
             if (Array.isArray(gtype)){
                 var tile_types = gtype
             }
@@ -286,7 +323,9 @@ function render_level(level, header, enemies, meta_info, steps=-1){
                 else 
                     var tile_types = world_metadata.vtiles[current_world][gtype]
             }
-            if (gs.invert) gs_bytes = gs_bytes.reverse()
+            if (gs.invert) {
+                gs_bytes = gs_bytes.reverse()
+            }
             for (var j = 0; j < 16; j++){
                 var tile_byte = (gs_bytes[Math.floor(j / 4)] >> (2 * Math.floor(3 - j%4))) & 0x03 
                 if (gs.invert)
@@ -330,12 +369,12 @@ function render_level(level, header, enemies, meta_info, steps=-1){
 
             var output = render_object[obj_type]
             if (output != undefined){
-                output = output(current_world, 0, meta_info)
+                output = output(current_world, header.exterior_type, world_metadata)
             }
 
             if (mod_len.includes(obj_type_len)){
                 output = render_length[obj_type_len]
-                output = output(current_world, 0, meta_info, obj_length)
+                output = output(current_world, header.exterior_type, world_metadata, obj_length)
             }
             var x = obj.pos_x
             var y = obj.pos_y
@@ -349,7 +388,7 @@ function render_level(level, header, enemies, meta_info, steps=-1){
                         var map_tile = decoded_level_data[page][(y) % 15][((x) % 16)]
                         if (map_tile.solidity){
                             new_length--
-                            y++
+                            if(new_length >= 0) y++
                             if (y == 15){
                                 page++
                                 y = 0
@@ -413,54 +452,54 @@ function render_level(level, header, enemies, meta_info, steps=-1){
 }
 
 function write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header){
-                var traversed = 0
-                var vertical = header.vertical
-                for(var i = 0; i < tiles.length; traversed++){
-                    for(var j = 0; j < tiles[i].length; j++){
-                        tiles[i][j].owner = obj
-                        var rel_y = (y + i) % 15
-                        var rel_y_page = Math.floor((y + i)/15)
-                        var x_offset = !vertical ? rel_y_page : 0 
-                        var rel_x = (x + x_offset + j) % 16
-                        var rel_x_page = Math.floor((x + x_offset + j)/16)
+    var traversed = 0
+    var vertical = header.vertical
+    for(var i = 0; i < tiles.length; traversed++){
+        for(var j = 0; j < tiles[i].length; j++){
+            tiles[i][j].owner = obj
+            var rel_y = (y + i) % 15
+            var rel_y_page = Math.floor((y + i)/15)
+            var x_offset = !vertical ? rel_y_page : 0 
+            var rel_x = (x + x_offset + j) % 16
+            var rel_x_page = Math.floor((x + x_offset + j)/16)
 
-                        var page_offset = !vertical ? rel_x_page : rel_y_page
-                        if (page + page_offset > header.pages)
-                            break
-                        var map_tile = decoded_level_data[page + page_offset][rel_y][rel_x]
-                        if (map_tile.solidity == 2 && style == 'extend_plat' && i > 0){
-                            continue
-                        }
-                        if (map_tile.obj_type === 0x00 && style == 'extend_plat' && i > 0){
-                            continue
-                        }
-                        if (map_tile.solidity > 0 && style == 'extend' && i > 0){
-                            i = tiles.length - 1
-                            y -= tiles.length - 1
-                            if (traversed == 1){
-                                style = 'end'
-                                continue
-                            }
-                            var rel_y = (y + i) % 15
-                            var rel_y_page = Math.floor((y + i)/15)
-                            var x_offset = !vertical ? rel_y_page : 0 
-                            var rel_x = (x + x_offset + j) % 16
-                            var rel_x_page = Math.floor((x + x_offset + j)/16)
-
-                            var page_offset = !vertical ? rel_x_page : rel_y_page
-                            decoded_level_data[page + page_offset][rel_y][rel_x] = tiles[i][j]
-                            style = 'end'
-                            continue
-                        }
-                        decoded_level_data[page + page_offset][rel_y][rel_x] = tiles[i][j]
-                    }
-                    if ((style == 'extend_over' || style == 'extend_plat' || style == 'extend') && i == 1){
-                        y++
-                        if (y > 13)
-                            break
-                    }
-                    else {
-                        i++
-                    }
+            var page_offset = !vertical ? rel_x_page : rel_y_page
+            if (page + page_offset > header.pages)
+                break
+            var map_tile = decoded_level_data[page + page_offset][rel_y][rel_x]
+            if (map_tile.solidity == 2 && style == 'extend_plat' && i > 0){
+                continue
+            }
+            if (map_tile.obj_type === 0x00 && style == 'extend_plat' && i > 0){
+                continue
+            }
+            if (map_tile.solidity > 0 && style == 'extend' && i > 0){
+                i = tiles.length - 1
+                y -= tiles.length - 1
+                if (traversed == 1){
+                    style = 'end'
+                    continue
                 }
+                var rel_y = (y + i) % 15
+                var rel_y_page = Math.floor((y + i)/15)
+                var x_offset = !vertical ? rel_y_page : 0 
+                var rel_x = (x + x_offset + j) % 16
+                var rel_x_page = Math.floor((x + x_offset + j)/16)
+
+                var page_offset = !vertical ? rel_x_page : rel_y_page
+                decoded_level_data[page + page_offset][rel_y][rel_x] = tiles[i][j]
+                style = 'end'
+                continue
+            }
+            decoded_level_data[page + page_offset][rel_y][rel_x] = tiles[i][j]
+        }
+        if ((style == 'extend_over' || style == 'extend_plat' || style == 'extend') && i == 1){
+            y++
+            if (y > 13)
+                break
+        }
+        else {
+            i++
+        }
+    }
 }
