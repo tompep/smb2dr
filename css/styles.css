@@ -20,6 +20,11 @@ a, button{
     border-radius: 4px 
 }
 
+a:hover { 
+  background-color: yellow;
+  text-decoration: none;
+}
+
 div {
     padding: 2px
 }

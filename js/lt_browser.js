@@ -25,19 +25,16 @@ function write_characters (my_rom, characters){
 }
 
 function set_memory_location(my_rom, mem_locs, name, values, offset=0){
-    console.debug(name, values.length, values, offset)
     if (!offset)
         offset = 0
 
     var Location = mem_locs[name]
+    console.debug(name, values.length, values, Location, offset)
     if (Location){
         Location = Location + 0x10 + offset
-        console.debug(Location)
         for(var i = 0; i < values.length; i++){
-            values[i] = values[i] === true ? 1 : (values[i] === false ? 0 : parseInt(values[i]))
-            console.debug(my_rom[Location + i])
+            values[i] = values[i] === true ? 1 : (values[i] === false ? 0 : parseInt(values[i]) % 256)
             my_rom[Location + i] = values[i]
-            console.debug(my_rom[Location + i])
         }
     }
     else {
@@ -139,6 +136,7 @@ function write_level_bytes(my_l, world=0){
     var sorted = lvl.sort(function(a, b) {
         return a.layer - b.layer || a.pos_page - b.pos_page || a.pos_y - b.pos_y || a.pos_x - b.pos_x
     })
+    sorted = sorted.filter(x => x.obj_type >= 0)
     var sorted_ground = grounds
     sorted_ground = grounds.sort(function(a,b){
         return  a.pos_page - b.pos_page || a.column_tile - b.column_tile
@@ -283,15 +281,15 @@ function convert_hotspot(l_byte, r_byte){
     var full_byte = l_byte << 8 
     full_byte += r_byte - 0x6000
     return {
-        pos_page: Math.floor(full_byte / 0xF0),
-        pos_y: Math.floor((full_byte % 0xF0) / 0x10),
-        pos_x: Math.floor((full_byte % 0x10))
+        pos_page: ~~(full_byte / 0xF0),
+        pos_y: ~~((full_byte % 0xF0) / 0x10),
+        pos_x: ~~((full_byte % 0x10))
     }
 }
 
 function convert_coords(page, y, x, vertical){
     y = vertical ? y + page : y
-    page = page + Math.floor(y / 15)
+    page = page + ~~(y / 15)
     y = y % 15
     return {
         page: page,
@@ -302,7 +300,7 @@ function convert_coords(page, y, x, vertical){
 
 function convert_coords_obj_to_item(page, y, x, vertical){
     y = vertical ? (y + 15 * page) : y
-    page = vertical ? Math.floor(y / 16) : page
+    page = vertical ? ~~(y / 16) : page
     y = y % 16
     return {
         page: page,
@@ -383,7 +381,7 @@ function create_smb_enemy(type, y, x, page, vertical){
         obj_type: type,
         pos_x: x,
         pos_y: vertical ? (y + 16 * page) % 15 : y,
-        pos_page: vertical ? Math.floor((y + 16 * page) / 15) : page
+        pos_page: vertical ? ~~((y + 16 * page) / 15) : page
     }
 }
 
@@ -408,7 +406,7 @@ function extract_door_ptr(l, r, my_page){
         obj_type: 0xf5,
         dest_page: r & 0x0f,
         room: r >> 4,
-        world: Math.floor(l / 3),
+        world: ~~(l / 3),
         level: l % 3,
         level_room: l * 10 + (r >> 4),
         l_byte: l,
@@ -423,7 +421,7 @@ function extract_door_ptr(l, r, my_page){
 function extract_ptr_mem_block (bytes, mem_locs, name, num_ptrs, size, split=1){
     if (name in mem_locs){
         var start_char = mem_locs[name]
-        var bank = Math.floor(start_char / 0x4000)
+        var bank = ~~(start_char / 0x4000)
         if (bank < 7) var bank_offset = 0x8000
         else bank_offset = 0xc000
         var rom_offset = bank * 0x4000
@@ -437,9 +435,11 @@ function extract_ptr_mem_block (bytes, mem_locs, name, num_ptrs, size, split=1){
     return null
 }
 
-function extract_mem_block (bytes, mem_locs, name, size, split=1){
+function extract_mem_block (bytes, mem_locs, name, size, offset=0){
+    // fix this for ines header stuff
+    // make behavior consistent for everything (see set_mem_loc)
     if (name in mem_locs){
-        var start_char = mem_locs[name]
+        var start_char = mem_locs[name] + offset
         var b = bytes.slice(start_char, start_char + size)
         return b
     }
@@ -632,39 +632,19 @@ function extract_all_info (contents_full, mem_locs={}){
         enemy_ptr_order: enemy_ptr_order,
         level_ptr_order: level_ptr_order,
         world_metadata: my_world_metadata,
-        character_stats: character_stats,
         level_start: level_start,
-        char_start: char_start,
         enemy_tilemap_1: enemy_1,
         enemy_tilemap_2: enemy_2,
         a_tiles: a_tiles,
         mem_locs: mem_locs,
         data_46e: data_46e,
         obj_attr_data: obj_attr_data,
-        characters: extract_characters(contents_full, mem_locs)
+        characters: extract_characters(contents, mem_locs)
     }
     return {
         my_levels: modified_my_l, 
         meta_info: additional_rom_info
     }
-}
-
-var char_names = ['MARIO', 'PRINCESS', 'TOAD', 'LUIGI']
-function extract_characters(my_rom, mem_locs){
-    var character_stats = extract_mem_block(my_rom, mem_locs, 'CharacterStats', 22*4)
-    var character_pals = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterPalette', 16), 4)
-    var character_pals = split_em(extract_mem_block(my_rom, mem_locs, 'EndingCelebrationText_MARIO', 16), 4)
-    var stats_offset = extract_mem_block(my_rom, mem_locs, 'StatOffsets', 4)
-    var characters = []
-    for(var i = 0; i < 4; i++){
-        characters.push({
-            stats: character_stats.slice(stats_offset[i]*22, stats_offset[i]*22 + 22 ),
-            stats_offset: stats_offset[i],
-            name: char_names[i],
-            name_credits: char_names[i]
-        })
-    }
-    return characters
 }
 
 

@@ -141,8 +141,8 @@
             "name": "Default",
             "options": 
                 [
-                    {"name": "Doki Doki Mode", "desc": "Removes shrinking and running",
-					"val": false, "class": "mem_location",
+                    {"name": "Doki Doki Mode", "desc": "Removes shrinking and running (disabled)",
+					"val": false, "class": "",
                         "mem_loc_name": "DokiMode"},
                     {"name": "Debug (cheat)", "desc": "Gives debug mode (A+B+START+SELECT), prone to issues with subspace/jars",
 					"val": false, "class": "mem_location",

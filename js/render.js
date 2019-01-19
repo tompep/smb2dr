@@ -30,8 +30,6 @@ function create_tile(type, tiles=[], palette=[0,0,0,0]){
     return {
         obj_name: obj_name,
         obj_type: type,
-        spr_tiles: tiles,
-        palette: palette,
         solidity: is_tile_solid(type)
     }
 }
@@ -51,7 +49,7 @@ var render_object = [
    function(w, r, m) { return render_vert_tiles([0x83, 0x83])}, // "Dark entrance",
    function(w, r, m) { return render_vert_tiles([0xc1, 0xc2], 'extend')}, // "Vine, extends to ground",
    function(w, r, m) { return render_vert_tiles([0xc2, 0xc2], 'extend')}, // "Vine, extends to ground (no top)",
-   function(w, r, m) { return render_single_tile(0x69)}, // "Star background",
+   function(w, r, m) { return render_single_tile(0x54)}, // "Star background",
    function(w, r, m) { return render_column(w)}, // "Red pillar, extends to ground",
    function(w, r, m) { return render_horiz_tiles([0x1, 0x2])}, // "Cloud",
    function(w, r, m) { return render_single_tile([0x3])}, // "Small cloud",
@@ -139,6 +137,8 @@ function render_horiz_meta(tile_type, w, r, m, len){
 
 function render_vert_meta(tile_type, w, r, m, len){
     var new_r = r % 4
+    if (tile_type == 7)
+        new_r = r >> 2
     tile_type = m.object_tiles[w][tile_type][new_r]
 
     return render_vert_tiles([tile_type], 'fixed', len)
@@ -196,10 +196,6 @@ function render_single_tile(tile_type){
         tiles: [[create_tile(tile_type)]],
         render_type: 'single'
     }
-}
-
-function render_ladder(tile_type, w, r, m){
-    return render_vert_tiles(tile_type, 'fixed', 1)
 }
 
 function extend_tiles(tile_type, render_type='normal', length=1){
@@ -327,9 +323,9 @@ function render_level(level, header, enemies, meta_info, steps=-1){
                 gs_bytes = gs_bytes.reverse()
             }
             for (var j = 0; j < 16; j++){
-                var tile_byte = (gs_bytes[Math.floor(j / 4)] >> (2 * Math.floor(3 - j%4))) & 0x03 
+                var tile_byte = (gs_bytes[~~(j / 4)] >> (2 * ~~(3 - j%4))) & 0x03 
                 if (gs.invert)
-                    tile_byte = (gs_bytes[Math.floor(j / 4)] >> (2 * Math.floor(j%4))) & 0x03 
+                    tile_byte = (gs_bytes[~~(j / 4)] >> (2 * ~~(j%4))) & 0x03 
                 var tile_type = tile_types[tile_byte]
                 if (tile_byte == 0){ tile_type = 0x40 }
                 if (vertical) decoded_level_data[page][i][j] = create_tile(tile_type)
@@ -345,7 +341,7 @@ function render_level(level, header, enemies, meta_info, steps=-1){
     var steps_taken = steps
     // remember to consider layers
     for (var l = 0; l < 10; l++){
-        for (var obj of level.objs.filter(function(ele){return ele.layer == l})){
+        for (var obj of level.objs.filter(function(ele){return ele.layer == l && ele.obj_type >= 0})){
             if (steps == 0){
                 if (last_obj != null){
                     console.log('Ended on object', steps_taken)
@@ -458,10 +454,10 @@ function write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header)
         for(var j = 0; j < tiles[i].length; j++){
             tiles[i][j].owner = obj
             var rel_y = (y + i) % 15
-            var rel_y_page = Math.floor((y + i)/15)
+            var rel_y_page = ~~((y + i)/15)
             var x_offset = !vertical ? rel_y_page : 0 
             var rel_x = (x + x_offset + j) % 16
-            var rel_x_page = Math.floor((x + x_offset + j)/16)
+            var rel_x_page = ~~((x + x_offset + j)/16)
 
             var page_offset = !vertical ? rel_x_page : rel_y_page
             if (page + page_offset > header.pages)
@@ -481,10 +477,10 @@ function write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header)
                     continue
                 }
                 var rel_y = (y + i) % 15
-                var rel_y_page = Math.floor((y + i)/15)
+                var rel_y_page = ~~((y + i)/15)
                 var x_offset = !vertical ? rel_y_page : 0 
                 var rel_x = (x + x_offset + j) % 16
-                var rel_x_page = Math.floor((x + x_offset + j)/16)
+                var rel_x_page = ~~((x + x_offset + j)/16)
 
                 var page_offset = !vertical ? rel_x_page : rel_y_page
                 decoded_level_data[page + page_offset][rel_y][rel_x] = tiles[i][j]

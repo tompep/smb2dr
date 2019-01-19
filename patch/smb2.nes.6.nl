@@ -40,6 +40,7 @@ $8033#EnableNMI_BankC#
 $8067#MarioDream_Bed#
 $821F#MarioDream_Bubble#
 $82F8#MarioDream_BubbleSprites#
+$8308#MarioDream_BubbleSprites2#
 $82B5#MarioDream_DoNothing#
 $82C3#MarioDream_EraseBubble1#
 $82CC#MarioDream_EraseBubble2#
@@ -53,9 +54,6 @@ $832D#MarioDream_SnoringFrames#
 $8326#MarioDream_WakingFrameCounts#
 $833B#MarioDream_WakingFrames#
 $8342#MarioSleepingScene#
-$8493#QuickCharacterTable#
-$8308#byte_BANKC_8308#
-$8310#byte_BANKC_8310#
 $89C6#byte_BANKC_8998#
 $89D5#byte_BANKC_89A7#
 $89D7#byte_BANKC_89A9#

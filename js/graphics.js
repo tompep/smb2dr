@@ -264,6 +264,11 @@ var lookup_table = [
     0b0101010101010101
 ]
 
+var inverse_lookup_table = {}
+for (var i in lookup_table){
+    inverse_lookup_table[lookup_table[i]] = i
+}
+
 /*
  *  Original NES Palette
  */
@@ -334,6 +339,83 @@ var NES_palette = [
     [0,0,0]
 ]
 
+// euclidean distance example from ?
+function colorDifference (pal1, pal2) {
+    var sumOfSquares = 0
+
+    sumOfSquares += Math.pow(pal1[0] - pal2[0], 2)
+    sumOfSquares += Math.pow(pal1[1] - pal2[1], 2)
+    sumOfSquares += Math.pow(pal1[2] - pal2[2], 2)
+
+    return Math.sqrt(sumOfSquares)
+}
+
+function get_nearest_color (pal) {
+    var output_pal = []
+    for (var color1 of pal) {
+        color1 = color1.slice(0,3)
+        var diff_min = 99999
+        var target_color = 0
+        for (var c in NES_palette){
+            var diff = colorDifference(color1, NES_palette[c])
+            if (diff < diff_min){
+                diff_min = diff
+                target_color = c
+            }
+        }
+        output_pal.push(target_color)
+    }
+    return output_pal
+}
+
+var find_sprite = function(l, r){
+    for (var i = 0; i < l.length; i++)
+        if ((l[i] ^ r[i])) return false
+    return true
+}
+
+function create_sprites_from_bitmap(img, vert=true) {
+    var m_canvas = document.createElement('canvas')
+    var m_context = m_canvas.getContext('2d');
+    m_canvas.width = img.width
+    m_canvas.height = img.height
+    var width_sprites = ~~(img.width / 8 * 2)
+    var height_sprites = ~~(img.height / 16 / 2)
+    var num_sprites = width_sprites * height_sprites
+    m_context.drawImage(img, 0, 0); // Or at whatever offset you like
+
+    // enumerate all pixels
+    // each pixel's r,g,b,a datum are stored in separate sequential array elements
+
+    var unique_pixels = [] // speed this up by demanding palette info + pixel data from bmp?
+    // or just use dict (but I hate uniterable dicts, curse javascript)
+    var sprite_sheet = []
+    var current_sprite_sheet = sprite_sheet
+    for(var i=0; i < num_sprites; i++){
+        // (0,8) + (4), xmid + xout
+        var x_in  = ~~(i%2) * 8, // if not vert, do nothing
+            x_out = ~~((i%width_sprites)/4)*16, // if not vert, don't divide by 4, * 8 
+            y_in  = ~~((i/2)%2)*16, 
+            y_out = ~~(i/width_sprites)*32
+        var imgData = m_context.getImageData((x_in + x_out), (y_in + y_out), 8, 16);
+        var data = imgData.data;
+        var pixels = split_em(data, 4).map(x => x.slice(0, 3))
+        var new_spr = []
+        for(var j=0; j<pixels.length; j++) {
+            if (unique_pixels.find(x => find_sprite(x, pixels[j])) == undefined){
+                unique_pixels.push(pixels[j])
+            }
+            var color_num = unique_pixels.findIndex(x => find_sprite(x, pixels[j]))
+            new_spr.push(color_num)
+        }
+        sprite_sheet.push(new_spr)
+    }
+    return {
+        sheet: sprite_sheet,
+        colors: unique_pixels
+    }
+}
+
 function extract_graphics(current_char, sheets = 0x80){
     /* 
      * Extracts X amount of 64 sprite sheets from CHR data
@@ -389,6 +471,36 @@ function convert_to_8x16(frame, mirror){
     return sprite_tiles
 }
 
+var hashed_bitmap = {}
+
+function create_bitmap(sprite, palette, transparency, x_flipped, y_flipped) {
+    var hash = [sprite, palette, transparency, x_flipped, y_flipped].toString()
+    if (hashed_bitmap[hash]){
+        return hashed_bitmap[hash]
+    }
+    var i_offset = y_flipped ? 7 : 0
+    var j_offset = x_flipped ? 7 : 0
+    var bitmap_sprite = []
+    for (var i = 0; i < 8; i++){
+        var sprite_row = sprite[Math.abs(i - i_offset)]
+        for (var j = 0; j < 8; j++){
+            var pixel = (sprite_row >> (14 - 2*Math.abs(j-j_offset))) & 0b11
+            if (pixel == 1) pixel = 2
+            else if (pixel == 2) pixel = 1
+            var pal_color = palette[pixel]
+            var nes_color = NES_palette[pal_color % 64] 
+            var color = {
+                r: nes_color[0],
+                g: nes_color[1],
+                b: nes_color[2]
+            } // r, b, g
+            bitmap_sprite.push(...[color.r, color.g, color.b, (pixel == 0 && transparency) ? 0: 255])
+        }
+    }
+    hashed_bitmap[hash] = bitmap_sprite
+    return bitmap_sprite
+}
+
 function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute, layer){
     /*
      *  Create temporary canvas element and draw bitmap
@@ -401,6 +513,7 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute,
     m_context.clearRect(0, 0, m_canvas.width, m_canvas.height);
 
     var m_spr_canvas = new OffscreenCanvas(m_canvas.width, m_canvas.height)
+    var m_spr_ctx = m_spr_canvas.getContext("2d")
     
     if (layer)
         m_context.putImageData(layer, 0, 0)
@@ -409,36 +522,18 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute,
         var spr_index = sprites[index]
         var x_flipped = (spr_index & 0x200) > 0
         var y_flipped = (spr_index & 0x400) > 0
+        var x_loc = (index % width) * 8, y_loc = (~~(index / width) * 8)
         spr_index = spr_index % 0x200
-        var my_sheet = loaded_sheets[Math.floor(spr_index / 0x40)]
-        var bitmap_sprite = []
+        var my_sheet = loaded_sheets[~~(spr_index / 0x40)]
         if (my_sheet == undefined){
-            for (var i = 0; i < 64; i++)
-                bitmap_sprite.push(...[0, 0, 0, 0])
+            m_spr_ctx.clearRect(x_loc, y_loc, x_loc + 8, y_loc + 8)
         }
         else {
             var sprite = my_sheet[spr_index % 0x40]
-            var i_offset = y_flipped ? 7 : 0
-            var j_offset = x_flipped ? 7 : 0
-            for (var i = 0; i < 8; i++){
-                var sprite_row = sprite[Math.abs(i - i_offset)]
-                for (var j = 0; j < 8; j++){
-                    var pixel = (sprite_row >> (14 - 2*Math.abs(j-j_offset))) & 0b11
-                    if (pixel == 1) pixel = 2
-                    else if (pixel == 2) pixel = 1
-                    var pal_color = palette[pixel]
-                    var nes_color = NES_palette[pal_color % 64] 
-                    var color = {
-                        r: nes_color[0],
-                        g: nes_color[1],
-                        b: nes_color[2]
-                    } // r, b, g
-                    bitmap_sprite.push(...[color.r, color.g, color.b, (pixel == 0 && attribute) ? 0: 255])
-                }
-            }
+            var bitmap_sprite = create_bitmap(sprite, palette, attribute, x_flipped, y_flipped)
+            var bitmap = new ImageData(new Uint8ClampedArray(bitmap_sprite), 8)
+            m_spr_ctx.putImageData(bitmap, (index % width) * 8, (parseInt(index / width) * 8))
         }
-        var bitmap = new ImageData(new Uint8ClampedArray(bitmap_sprite), 8)
-        m_spr_canvas.getContext("2d").putImageData(bitmap, (index % width) * 8, (parseInt(index / width) * 8))
     }
 
     m_context.drawImage(m_spr_canvas, 0, 0)

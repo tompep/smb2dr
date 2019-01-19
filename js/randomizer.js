@@ -23,7 +23,7 @@ function handle_boss_options(my_levels, options){
                 my_l.modifiers.push({
                     loc_l: 0x76,
                     loc_r: 0xF7,
-                    contents: [parseInt(Math.floor(Math.random() * (rmmax - rmmin))) + parseInt(rmmin)]
+                    contents: [parseInt(~~(Math.random() * (rmmax - rmmin))) + parseInt(rmmin)]
                 })
                 continue
             }
@@ -35,7 +35,7 @@ function handle_boss_options(my_levels, options){
                 my_l.modifiers.push({
                     loc_l: 0x76,
                     loc_r: 0xF7,
-                    contents: [parseInt(Math.floor(Math.random() * (rmax - rmin))) + parseInt(rmin)]
+                    contents: [parseInt(~~(Math.random() * (rmax - rmin))) + parseInt(rmin)]
                 })
                 continue
             }
@@ -151,7 +151,7 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
             var new_boss_rooms = []
             var end_wart = boss_rooms[boss_rooms.length-1]
             while(new_boss_rooms.length < 6){
-                var index = (Math.floor(Math.random() * 6))
+                var index = (~~(Math.random() * 6))
                 console.log(boss_rooms[index], index)
                 var cloned = JSON.parse(JSON.stringify(boss_rooms[index]))
                 my_levels[boss_rooms[new_boss_rooms.length].i] = cloned
@@ -318,9 +318,9 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     upgrades = upgrades.slice(0, options['Upgrades'].val).map(x => x + 1)
 
     var powerups = Array(parseInt(options['Powerups'].val)).fill(0).map(
-        (x, y) => Math.floor(Math.random() * powerup_names.length) + power_up_start)
+        (x, y) => ~~(Math.random() * powerup_names.length) + power_up_start)
     var common = Array(parseInt(options['Common_Items'].val)).fill(0).map(
-        (x, y) => Math.floor(Math.random() * (junk_items.length)) + junk_start)
+        (x, y) => ~~(Math.random() * (junk_items.length)) + junk_start)
 
     if(options['Add_Rescue_Items'].checked || options['Rescue_All_Characters'].checked){
         var unlocks = shuffle([...unlock_names.keys()]).map(x => x + lock_start)
@@ -363,7 +363,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         while(attempts--) {
             for (var my_l of horizontal_levels){
                 var i = my_l.i
-                var count_up = Math.floor(Math.random() * 3)
+                var count_up = ~~(Math.random() * 3)
                 mush_counts[i] = 
                     Math.max(count_up, 
                         mush_counts[i], 
@@ -494,9 +494,6 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         console.log('Inventory still present', inventory.map(x => all_item_names[x]))
 }
 
-var player_table = [1, 8, 4, 2]
-var player_order = [0, 3, 2, 1]
-
 function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
     console.log('Player Randomizer')
     var character_pool = []
@@ -524,12 +521,9 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
             [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
     }
     else {
-        set_memory_location(my_rom, mem_locs,
-            'StartingInventory',
-            [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
         if (starting_gift)
             for(var i = 0; i < 4; i++){
-                var powerup = Math.floor(Math.random() * 13)
+                var powerup = ~~(Math.random() * 13)
                 console.log('Character', i, 'acquired', all_item_names[powerup + 1])
                 set_memory_location(my_rom, mem_locs,
                     'StartingInventory',
@@ -577,7 +571,7 @@ function shuffle(array) {
     // While there are elements in the array
     while (counter > 0) {
         // Pick a random index
-        let index = Math.floor(Math.random() * counter);
+        let index = ~~(Math.random() * counter);
 
         // Decrease counter by 1
         counter--;
@@ -904,15 +898,15 @@ function repair_ground_type (my_h, og_gt, og_world, new_world, world_metadata){
 var og_unk4 = [0, 0, 0, 1, 0, 0, 3]
 
 function randomize_header(my_l, world_metadata, options){
-    var new_pal_a = Math.floor(Math.random() * 6)
-    var new_pal_b = Math.floor(Math.random() * 3)
-    var new_music = Math.floor(Math.random() * 2)
+    var new_pal_a = ~~(Math.random() * 6)
+    var new_pal_b = ~~(Math.random() * 3)
+    var new_music = ~~(Math.random() * 2)
     var header_json = my_l.header
     var world = my_l.world
     my_l.header.pala = new_pal_a
     my_l.header.palb = new_pal_b
     my_l.header.music = new_music
-    header_json.unk3 = Math.floor(Math.random() * 6)
+    header_json.unk3 = ~~(Math.random() * 6)
     header_json.unk4 = og_unk4[world]
 
 }

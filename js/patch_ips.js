@@ -3,12 +3,24 @@ var PRG1="6ca47e9da206914730895e45fef4f7393e59772c1c80e9b9befc1a01d7ecf724"
 
 var smb2_crcs = ['7D3F6F3D', 'E0CA425C']
 
-function bit_crush(acc, ele){
+function bit_crush(num, acc, ele){
     /*
      * (Reduce function)
      * Reduce array of bytes into integer
      */
-    return (acc << 8) + ele
+    return (acc << num) + ele
+}
+
+var bc1 = function(acc, ele) {
+    return bit_crush(1, acc, ele)
+}
+
+var bc2 = function(acc, ele) {
+    return bit_crush(2, acc, ele)
+}
+
+var bc8 = function(acc, ele) {
+    return bit_crush(8, acc, ele)
 }
 
 function patch_ips (original, patch_data){
@@ -18,26 +30,26 @@ function patch_ips (original, patch_data){
 
     // Check magic word "PATCH"
     var patched_rom = original.slice(0)
-    if (patch_data.slice(0,5).reduce(bit_crush) != [0x50, 0x41, 0x54, 0x43, 0x48].reduce(bit_crush)){
-        console.log('invalid patch', patch_data.slice(0,5).reduce(bit_crush))
+    if (patch_data.slice(0,5).reduce(bc8) != [0x50, 0x41, 0x54, 0x43, 0x48].reduce(bc8)){
+        console.log('invalid patch', patch_data.slice(0,5).reduce(bc8))
         return patched_rom
     }
 
     patch_data = patch_data.slice(5)
     console.log('Patching...')
     while (patch_data.length > 0) {
-        var pos = patch_data.slice(0, 3).reduce(bit_crush)
+        var pos = patch_data.slice(0, 3).reduce(bc8)
         // Check magic word "END"
         if (pos == 0x454f46){
             console.log('Patch Success')
             return patched_rom
         }
         patch_data = patch_data.slice(3)
-        var len = patch_data.slice(0, 2).reduce(bit_crush)
+        var len = patch_data.slice(0, 2).reduce(bc8)
         patch_data = patch_data.slice(2)
         if (len == 0){
             // RLE Single
-            len = patch_data.slice(0,2).reduce(bit_crush)
+            len = patch_data.slice(0,2).reduce(bc8)
             patch_data = patch_data.slice(2)
             var byt = patch_data[0]
             for(var i = 0; i < len; i++)
@@ -57,7 +69,14 @@ function patch_ips (original, patch_data){
     return patched_rom
 }
 
-
+function decimalToHexString(number)
+{
+      if (number < 0)
+    {
+            number = 0xFFFFFFFF + number + 1;
+    }
+      return number.toString(16).toUpperCase();
+}
 
 /**
  * *

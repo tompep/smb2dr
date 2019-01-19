@@ -1,267 +1,267 @@
 
 // enum definitions (rewrite to consts)
-
-var worldTileset = [0x10, 0x12, 0x10, 0x14, 0x10, 0x12, 0x16]
-var worldTileset_enemy = [0xC, 0xD, 0xC, 0xE, 0xC, 0xD, 0xF]
-
 var BackgroundTileIds = [
-    "BackgroundTile_Black", // $00
-    "BackgroundTile_BgCloudLeft", // $01
-    "BackgroundTile_BgCloudRight", // $02
-    "BackgroundTile_BgCloudSmall", // $03
-    "BackgroundTile_WaterfallTop", // $04
-    "BackgroundTile_Waterfall", // $05
-    "BackgroundTile_WaterfallSplash", // $06
-    "BackgroundTile_Chain", // $07
-    "BackgroundTile_WaterTop", // $08
-    "BackgroundTile_HouseLeft", // $09
-    "BackgroundTile_Water", // $0A
-    "BackgroundTile_HouseMiddle", // $0B
-    "BackgroundTile_WaterWhale", // $0C
-    "BackgroundTile_HouseRight", // $0D
-    "BackgroundTile_Unused0E", // $0E
-    "BackgroundTile_Unused0F", // $0F
-    "BackgroundTile_Unused10", // $10
-    "BackgroundTile_WaterWhaleTail", // $11
-    "BackgroundTile_JumpThroughBlock", // $12
-    "BackgroundTile_CloudLeft", // $13
-    "BackgroundTile_CloudMiddle", // $14
-    "BackgroundTile_CloudRight", // $15
-    "BackgroundTile_JumpThroughIce", // $16
-    "BackgroundTile_ChainStandable", // $17
-    "BackgroundTile_SolidBrick0", // $18
-    "BackgroundTile_GroundBrick0", // $19
-    "BackgroundTile_Spikes", // $1A
-    "BackgroundTile_SolidRoundBrick0", // $1B
-    "BackgroundTile_SolidBlock", // $1C
-    "BackgroundTile_CactusTop", // $1D
-    "BackgroundTile_CactusMiddle", // $1E
-    "BackgroundTile_FrozenRock", // $1F
-    "BackgroundTile_LogPillarTop0", // $20
-    "BackgroundTile_LogPillarMiddle0", // $21
-    "BackgroundTile_ClawGripRock", // $22
-    "BackgroundTile_Unused23", // $23 ; These are just solid palette-swapped mirrors of $40
-    "BackgroundTile_Unused24", // $24
-    "BackgroundTile_Unused25", // $25
-    "BackgroundTile_Unused26", // $26
-    "BackgroundTile_Unused27", // $27
-    "BackgroundTile_Unused28", // $28
-    "BackgroundTile_Unused29", // $29
-    "BackgroundTile_Unused2A", // $2A
-    "BackgroundTile_Unused2B", // $2B
-    "BackgroundTile_Unused2C", // $2C
-    "BackgroundTile_Unused2D", // $2D
-    "BackgroundTile_Unused2E", // $2E
-    "BackgroundTile_Unused2F", // $2F
-    "BackgroundTile_Unused30", // $30
-    "BackgroundTile_Unused31", // $31
-    "BackgroundTile_Unused32", // $32
-    "BackgroundTile_Unused33", // $33
-    "BackgroundTile_Unused34", // $34
-    "BackgroundTile_Unused35", // $35
-    "BackgroundTile_Unused36", // $36
-    "BackgroundTile_Unused37", // $37
-    "BackgroundTile_Unused38", // $38
-    "BackgroundTile_Unused39", // $39
-    "BackgroundTile_Unused3A", // $3A
-    "BackgroundTile_Unused3B", // $3B
-    "BackgroundTile_Unused3C", // $3C
-    "BackgroundTile_Unused3D", // $3D
-    "BackgroundTile_Unused3E", // $3E
-    "BackgroundTile_Unused3F", // $3F
-    "BackgroundTile_Sky", // $40
-    "BackgroundTile_SubspaceMushroom1", // $41
-    "BackgroundTile_SubspaceMushroom2", // $42
-    "BackgroundTile_GrassCoin", // $43
-    "BackgroundTile_GrassLargeVeggie", // $44
-    "BackgroundTile_GrassSmallVeggie", // $45
-    "BackgroundTile_GrassRocket", // $46
-    "BackgroundTile_GrassShell", // $47
-    "BackgroundTile_GrassBomb", // $48
-    "BackgroundTile_GrassPotion", // $49
-    "BackgroundTile_Grass1UP", // $4A
-    "BackgroundTile_GrassPow", // $4B
-    "BackgroundTile_GrassBobOmb", // $4C
-    "BackgroundTile_GrassInactive", // $4D
-    "BackgroundTile_Cherry", // $4E
-    "BackgroundTile_DoorTop", // $4F
-    "BackgroundTile_DoorBottomLock", // $50
-    "BackgroundTile_DoorBottom", // $51
-    "BackgroundTile_LightDoor", // $52
-    "BackgroundTile_LightTrailRight", // $53
-    "BackgroundTile_LightTrail", // $54
-    "BackgroundTile_LightTrailLeft", // $55
-    "BackgroundTile_LightDoorEndLevel", // $56
-    "BackgroundTile_DoorBottomLockStuck", // $57
-    "BackgroundTile_DrawBridgeChain", // $58
-    "BackgroundTile_Whale", // $59
-    "BackgroundTile_WhaleEye", // $5A
-    "BackgroundTile_Phanto", // $5B
-    "BackgroundTile_TreeBackgroundLeft", // $5C
-    "BackgroundTile_TreeBackgroundMiddleLeft", // $5D
-    "BackgroundTile_TreeBackgroundRight", // $5E
-    "BackgroundTile_TreeBackgroundMiddleRight", // $5F
-    "BackgroundTile_WhaleTopLeft", // $60
-    "BackgroundTile_WhaleTop", // $61
-    "BackgroundTile_WhaleTopRight", // $62
-    "BackgroundTile_WhaleTail", // $63
-    "BackgroundTile_JumpThroughMachineBlock", // $64
-    "BackgroundTile_Bridge", // $65
-    "BackgroundTile_BridgeShadow", // $66
-    "BackgroundTile_ConveyorLeft", // $67
-    "BackgroundTile_ConveyorRight", // $68
-    "BackgroundTile_MushroomBlock", // $69
-    "BackgroundTile_Unused6AMushroomBlock", // $6A
-    "BackgroundTile_Unused6BMushroomBlock", // $6B
-    "BackgroundTile_POWBlock", // $6C
-    "BackgroundTile_Unused6D", // $6D ; Used to mark where the liftable blocks end
-    "BackgroundTile_SolidBrick1", // $6E
-    "BackgroundTile_JarTopPointer", // $6F
-    "BackgroundTile_JarMiddle", // $70
-    "BackgroundTile_JarBottom", // $71
-    "BackgroundTile_JarSmall", // $72
-    "BackgroundTile_JarTopGeneric", // $73
-    "BackgroundTile_JarTopNonEnterable", // $74
-    "BackgroundTile_LogLeft", // $75
-    "BackgroundTile_LogMiddle", // $76
-    "BackgroundTile_LogRight", // $77
-    "BackgroundTile_LogRightTree", // $78
-    "BackgroundTile_LogPillarTop1", // $79
-    "BackgroundTile_LogPillarMiddle1", // $7A
-    "BackgroundTile_Unused7B", // $7B
-    "BackgroundTile_Unused7C", // $7C
-    "BackgroundTile_Unused7D", // $7D
-    "BackgroundTile_Unused7E", // $7E
-    "BackgroundTile_Unused7F", // $7F
-    "BackgroundTile_Ladder", // $80
-    "BackgroundTile_LadderShadow", // $81
-    "BackgroundTile_PalmTreeTrunk", // $82
-    "BackgroundTile_DarkDoor", // $83
-    "BackgroundTile_PyramidLeftAngle", // $84
-    "BackgroundTile_PyramidLeft", // $85
-    "BackgroundTile_PyramidRight", // $86
-    "BackgroundTile_PyramidRightAngle", // $87
-    "BackgroundTile_StarBg1", // $88
-    "BackgroundTile_StarBg2", // $89
-    "BackgroundTile_QuicksandSlow", // $8A
-    "BackgroundTile_QuicksandFast", // $8B
-    "BackgroundTile_HornTopLeft", // $8C
-    "BackgroundTile_HornTopRight", // $8D
-    "BackgroundTile_HornBottomLeft", // $8E
-    "BackgroundTile_HornBottomRight", // $8F
-    "BackgroundTile_BackgroundBrick", // $90
-    "BackgroundTile_JumpthroughSand", // $91
-    "BackgroundTile_JumpthroughWoodBlock", // $92
-    "BackgroundTile_DiggableSand", // $93
-    "BackgroundTile_LadderStandable", // $94
-    "BackgroundTile_LadderStandableShadow", // $95
-    "BackgroundTile_JumpthroughSandBlock", // $96
-    "BackgroundTile_JumpthroughBrick", // $97
-    "BackgroundTile_98", // $98
-    "BackgroundTile_SolidSand", // $99
-    "BackgroundTile_9A", // $9A
-    "BackgroundTile_SolidBrick2", // $9B
-    "BackgroundTile_GroundBrick2", // $9C
-    "BackgroundTile_BombableBrick", // $9D
-    "BackgroundTile_JarWall", // $9E ; solid color, solid wall
-    "BackgroundTile_RockWallAngle", // $9F
-    "BackgroundTile_RockWall", // $A0
-    "BackgroundTile_RockWallOffset", // $A1
-    "BackgroundTile_SolidRoundBrick2", // $A2
-    "BackgroundTile_SolidBrick2Wall", // $A3
-    "BackgroundTile_SolidWood", // $A4
-    "BackgroundTile_RockWallEyeLeft", // $A5 ; World 6
-    "BackgroundTile_RockWallEyeRight", // $A6 ; World 6
-    "BackgroundTile_RockWallMouth", // $A7 ; World 6
-    "BackgroundTile_WindowTop", // $A8 ; World 7
-    "BackgroundTile_DoorwayTop", // $A9 ; World 7
-    "BackgroundTile_ColumnPillarTop2", // $AA
-    "BackgroundTile_ColumnPillarMiddle2", // $AB
-    "BackgroundTile_UnusedAC", // $AC
-    "BackgroundTile_UnusedAD", // $AD
-    "BackgroundTile_UnusedAE", // $AE
-    "BackgroundTile_UnusedAF", // $AF
-    "BackgroundTile_UnusedB0", // $B0 ; These are just solid palette-swapped mirrors of $C4
-    "BackgroundTile_UnusedB1", // $B1
-    "BackgroundTile_UnusedB2", // $B2
-    "BackgroundTile_UnusedB3", // $B3 ; SolidPlatformLeft2
-    "BackgroundTile_UnusedB4", // $B4 ; SolidPlatformMiddle2
-    "BackgroundTile_UnusedB5", // $B5 ; SolidPlatformRight2
-    "BackgroundTile_UnusedB6", // $B6 ; SolidPlatformTopLeft2
-    "BackgroundTile_UnusedB7", // $B7
-    "BackgroundTile_UnusedB8", // $B8 ; SolidPlatformTop2
-    "BackgroundTile_UnusedB9", // $B9
-    "BackgroundTile_UnusedBA", // $BA ; SolidPlatformTopRight2
-    "BackgroundTile_UnusedBB", // $BB
-    "BackgroundTile_UnusedBC", // $BC ; SolidPlatformTopLeftOverlap2
-    "BackgroundTile_UnusedBD", // $BD ; SolidPlatformTopRightOverlap2
-    "BackgroundTile_UnusedBE", // $BE ; SolidPlatformTopLeftOverlapEdge2
-    "BackgroundTile_UnusedBF", // $BF ; SolidPlatformTopRightOverlapEdge2
-    "BackgroundTile_PalmTreeTop", // $C0
-    "BackgroundTile_VineTop", // $C1
-    "BackgroundTile_Vine", // $C2
-    "BackgroundTile_VineBottom", // $C3
-    "BackgroundTile_ClimbableSky", // $C4
-    "BackgroundTile_UnusedC5", // $C5
-    "BackgroundTile_JarOutsideBackground", // $C6 ; solid color, background
-    "BackgroundTile_GreenPlatformLeft", // $C7
-    "BackgroundTile_GreenPlatformMiddle", // $C8
-    "BackgroundTile_GreenPlatformRight", // $C9
-    "BackgroundTile_GreenPlatformTopLeft", // $CA
-    "BackgroundTile_MushroomTopLeft", // $CB
-    "BackgroundTile_GreenPlatformTop", // $CC
-    "BackgroundTile_MushroomTopMiddle", // $CD
-    "BackgroundTile_GreenPlatformTopRight", // $CE
-    "BackgroundTile_MushroomTopRight", // $CF
-    "BackgroundTile_GreenPlatformTopLeftOverlap", // $D0
-    "BackgroundTile_GreenPlatformTopRightOverlap", // $D1
-    "BackgroundTile_GreenPlatformTopLeftOverlapEdge", // $D2
-    "BackgroundTile_GreenPlatformTopRightOverlapEdge", // $D3
-    "BackgroundTile_VineStandable", // $D4
-    "BackgroundTile_SolidGrass", // $D5
-    "BackgroundTile_SolidBrick3", // $D6
-    "BackgroundTile_GroundBrick3", // $D7 ; World 7
-    "BackgroundTile_UnusedD8", // $D8
-    "BackgroundTile_UnusedD9", // $D9
-    "BackgroundTile_UnusedDA", // $DA
-    "BackgroundTile_UnusedDB", // $DB
-    "BackgroundTile_UnusedDC", // $DC
-    "BackgroundTile_UnusedDD", // $DD
-    "BackgroundTile_UnusedDE", // $DE
-    "BackgroundTile_UnusedDF", // $DF
-    "BackgroundTile_UnusedE0", // $E0
-    "BackgroundTile_UnusedE1", // $E1
-    "BackgroundTile_UnusedE2", // $E2
-    "BackgroundTile_UnusedE3", // $E3
-    "BackgroundTile_UnusedE4", // $E4
-    "BackgroundTile_UnusedE5", // $E5
-    "BackgroundTile_UnusedE6", // $E6
-    "BackgroundTile_UnusedE7", // $E7
-    "BackgroundTile_UnusedE8", // $E8
-    "BackgroundTile_UnusedE9", // $E9
-    "BackgroundTile_UnusedEA", // $EA
-    "BackgroundTile_UnusedEB", // $EB
-    "BackgroundTile_UnusedEC", // $EC
-    "BackgroundTile_UnusedED", // $ED
-    "BackgroundTile_UnusedEE", // $EE
-    "BackgroundTile_UnusedEF", // $EF
-    "BackgroundTile_UnusedF0", // $F0
-    "BackgroundTile_UnusedF1", // $F1
-    "BackgroundTile_UnusedF2", // $F2
-    "BackgroundTile_UnusedF3", // $F3
-    "BackgroundTile_UnusedF4", // $F4
-    "BackgroundTile_UnusedF5", // $F5
-    "BackgroundTile_UnusedF6", // $F6
-    "BackgroundTile_UnusedF7", // $F7
-    "BackgroundTile_UnusedF8", // $F8
-    "BackgroundTile_UnusedF9", // $F9
-    "BackgroundTile_UnusedFA", // $FA
-    "BackgroundTile_UnusedFB", // $FB
-    "BackgroundTile_UnusedFC", // $FC
-    "BackgroundTile_UnusedFD", // $FD
-    "BackgroundTile_UnusedFE", // $FE
-    "BackgroundTile_UnusedFF" // $FF
+    "Tile_Black", // $00
+    "Tile_BgCloudLeft", // $01
+    "Tile_BgCloudRight", // $02
+    "Tile_BgCloudSmall", // $03
+    "Tile_WaterfallTop", // $04
+    "Tile_Waterfall", // $05
+    "Tile_WaterfallSplash", // $06
+    "Tile_Chain", // $07
+    "Tile_WaterTop", // $08
+    "Tile_HouseLeft", // $09
+    "Tile_Water", // $0A
+    "Tile_HouseMiddle", // $0B
+    "Tile_WaterWhale", // $0C
+    "Tile_HouseRight", // $0D
+    "Tile_Unused0E", // $0E
+    "Tile_Unused0F", // $0F
+    "Tile_Unused10", // $10
+    "Tile_WaterWhaleTail", // $11
+    "Tile_JumpThroughBlock", // $12
+    "Tile_CloudLeft", // $13
+    "Tile_CloudMiddle", // $14
+    "Tile_CloudRight", // $15
+    "Tile_JumpThroughIce", // $16
+    "Tile_ChainStandable", // $17
+    "Tile_SolidBrick0", // $18
+    "Tile_GroundBrick0", // $19
+    "Tile_Spikes", // $1A
+    "Tile_SolidRoundBrick0", // $1B
+    "Tile_SolidBlock", // $1C
+    "Tile_CactusTop", // $1D
+    "Tile_CactusMiddle", // $1E
+    "Tile_FrozenRock", // $1F
+    "Tile_LogPillarTop0", // $20
+    "Tile_LogPillarMiddle0", // $21
+    "Tile_ClawGripRock", // $22
+    "Tile_Unused23", // $23 ; These are just solid palette-swapped mirrors of $40
+    "Tile_Unused24", // $24
+    "Tile_Unused25", // $25
+    "Tile_Unused26", // $26
+    "Tile_Unused27", // $27
+    "Tile_Unused28", // $28
+    "Tile_Unused29", // $29
+    "Tile_Unused2A", // $2A
+    "Tile_Unused2B", // $2B
+    "Tile_Unused2C", // $2C
+    "Tile_Unused2D", // $2D
+    "Tile_Unused2E", // $2E
+    "Tile_Unused2F", // $2F
+    "Tile_Unused30", // $30
+    "Tile_Unused31", // $31
+    "Tile_Unused32", // $32
+    "Tile_Unused33", // $33
+    "Tile_Unused34", // $34
+    "Tile_Unused35", // $35
+    "Tile_Unused36", // $36
+    "Tile_Unused37", // $37
+    "Tile_Unused38", // $38
+    "Tile_Unused39", // $39
+    "Tile_Unused3A", // $3A
+    "Tile_Unused3B", // $3B
+    "Tile_Unused3C", // $3C
+    "Tile_Unused3D", // $3D
+    "Tile_Unused3E", // $3E
+    "Tile_Unused3F", // $3F
+    "Tile_Sky", // $40
+    "Tile_SubspaceMushroom1", // $41
+    "Tile_SubspaceMushroom2", // $42
+    "Tile_GrassCoin", // $43
+    "Tile_GrassLargeVeggie", // $44
+    "Tile_GrassSmallVeggie", // $45
+    "Tile_GrassRocket", // $46
+    "Tile_GrassShell", // $47
+    "Tile_GrassBomb", // $48
+    "Tile_GrassPotion", // $49
+    "Tile_Grass1UP", // $4A
+    "Tile_GrassPow", // $4B
+    "Tile_GrassBobOmb", // $4C
+    "Tile_GrassInactive", // $4D
+    "Tile_Cherry", // $4E
+    "Tile_DoorTop", // $4F
+    "Tile_DoorBottomLock", // $50
+    "Tile_DoorBottom", // $51
+    "Tile_LightDoor", // $52
+    "Tile_LightTrailRight", // $53
+    "Tile_LightTrail", // $54
+    "Tile_LightTrailLeft", // $55
+    "Tile_LightDoorEndLevel", // $56
+    "Tile_DoorBottomLockStuck", // $57
+    "Tile_DrawBridgeChain", // $58
+    "Tile_Whale", // $59
+    "Tile_WhaleEye", // $5A
+    "Tile_Phanto", // $5B
+    "Tile_TreeBackgroundLeft", // $5C
+    "Tile_TreeBackgroundMiddleLeft", // $5D
+    "Tile_TreeBackgroundRight", // $5E
+    "Tile_TreeBackgroundMiddleRight", // $5F
+    "Tile_WhaleTopLeft", // $60
+    "Tile_WhaleTop", // $61
+    "Tile_WhaleTopRight", // $62
+    "Tile_WhaleTail", // $63
+    "Tile_JumpThroughMachineBlock", // $64
+    "Tile_Bridge", // $65
+    "Tile_BridgeShadow", // $66
+    "Tile_ConveyorLeft", // $67
+    "Tile_ConveyorRight", // $68
+    "Tile_MushroomBlock", // $69
+    "Tile_Unused6AMushroomBlock", // $6A
+    "Tile_Unused6BMushroomBlock", // $6B
+    "Tile_POWBlock", // $6C
+    "Tile_Unused6D", // $6D ; Used to mark where the liftable blocks end
+    "Tile_SolidBrick1", // $6E
+    "Tile_JarTopPointer", // $6F
+    "Tile_JarMiddle", // $70
+    "Tile_JarBottom", // $71
+    "Tile_JarSmall", // $72
+    "Tile_JarTopGeneric", // $73
+    "Tile_JarTopNonEnterable", // $74
+    "Tile_LogLeft", // $75
+    "Tile_LogMiddle", // $76
+    "Tile_LogRight", // $77
+    "Tile_LogRightTree", // $78
+    "Tile_LogPillarTop1", // $79
+    "Tile_LogPillarMiddle1", // $7A
+    "Tile_Unused7B", // $7B
+    "Tile_Unused7C", // $7C
+    "Tile_Unused7D", // $7D
+    "Tile_Unused7E", // $7E
+    "Tile_Unused7F", // $7F
+    "Tile_Ladder", // $80
+    "Tile_LadderShadow", // $81
+    "Tile_PalmTreeTrunk", // $82
+    "Tile_DarkDoor", // $83
+    "Tile_PyramidLeftAngle", // $84
+    "Tile_PyramidLeft", // $85
+    "Tile_PyramidRight", // $86
+    "Tile_PyramidRightAngle", // $87
+    "Tile_StarBg1", // $88
+    "Tile_StarBg2", // $89
+    "Tile_QuicksandSlow", // $8A
+    "Tile_QuicksandFast", // $8B
+    "Tile_HornTopLeft", // $8C
+    "Tile_HornTopRight", // $8D
+    "Tile_HornBottomLeft", // $8E
+    "Tile_HornBottomRight", // $8F
+    "Tile_BackgroundBrick", // $90
+    "Tile_JumpthroughSand", // $91
+    "Tile_JumpthroughWoodBlock", // $92
+    "Tile_DiggableSand", // $93
+    "Tile_LadderStandable", // $94
+    "Tile_LadderStandableShadow", // $95
+    "Tile_JumpthroughSandBlock", // $96
+    "Tile_JumpthroughBrick", // $97
+    "Tile_98", // $98
+    "Tile_SolidSand", // $99
+    "Tile_9A", // $9A
+    "Tile_SolidBrick2", // $9B
+    "Tile_GroundBrick2", // $9C
+    "Tile_BombableBrick", // $9D
+    "Tile_JarWall", // $9E ; solid color, solid wall
+    "Tile_RockWallAngle", // $9F
+    "Tile_RockWall", // $A0
+    "Tile_RockWallOffset", // $A1
+    "Tile_SolidRoundBrick2", // $A2
+    "Tile_SolidBrick2Wall", // $A3
+    "Tile_SolidWood", // $A4
+    "Tile_RockWallEyeLeft", // $A5 ; World 6
+    "Tile_RockWallEyeRight", // $A6 ; World 6
+    "Tile_RockWallMouth", // $A7 ; World 6
+    "Tile_WindowTop", // $A8 ; World 7
+    "Tile_DoorwayTop", // $A9 ; World 7
+    "Tile_ColumnPillarTop2", // $AA
+    "Tile_ColumnPillarMiddle2", // $AB
+    "Tile_UnusedAC", // $AC
+    "Tile_UnusedAD", // $AD
+    "Tile_UnusedAE", // $AE
+    "Tile_UnusedAF", // $AF
+    "Tile_UnusedB0", // $B0 ; These are just solid palette-swapped mirrors of $C4
+    "Tile_UnusedB1", // $B1
+    "Tile_UnusedB2", // $B2
+    "Tile_UnusedB3", // $B3 ; SolidPlatformLeft2
+    "Tile_UnusedB4", // $B4 ; SolidPlatformMiddle2
+    "Tile_UnusedB5", // $B5 ; SolidPlatformRight2
+    "Tile_UnusedB6", // $B6 ; SolidPlatformTopLeft2
+    "Tile_UnusedB7", // $B7
+    "Tile_UnusedB8", // $B8 ; SolidPlatformTop2
+    "Tile_UnusedB9", // $B9
+    "Tile_UnusedBA", // $BA ; SolidPlatformTopRight2
+    "Tile_UnusedBB", // $BB
+    "Tile_UnusedBC", // $BC ; SolidPlatformTopLeftOverlap2
+    "Tile_UnusedBD", // $BD ; SolidPlatformTopRightOverlap2
+    "Tile_UnusedBE", // $BE ; SolidPlatformTopLeftOverlapEdge2
+    "Tile_UnusedBF", // $BF ; SolidPlatformTopRightOverlapEdge2
+    "Tile_PalmTreeTop", // $C0
+    "Tile_VineTop", // $C1
+    "Tile_Vine", // $C2
+    "Tile_VineBottom", // $C3
+    "Tile_ClimbableSky", // $C4
+    "Tile_UnusedC5", // $C5
+    "Tile_JarOutsideBackground", // $C6 ; solid color, background
+    "Tile_GreenPlatformLeft", // $C7
+    "Tile_GreenPlatformMiddle", // $C8
+    "Tile_GreenPlatformRight", // $C9
+    "Tile_GreenPlatformTopLeft", // $CA
+    "Tile_MushroomTopLeft", // $CB
+    "Tile_GreenPlatformTop", // $CC
+    "Tile_MushroomTopMiddle", // $CD
+    "Tile_GreenPlatformTopRight", // $CE
+    "Tile_MushroomTopRight", // $CF
+    "Tile_GreenPlatformTopLeftOverlap", // $D0
+    "Tile_GreenPlatformTopRightOverlap", // $D1
+    "Tile_GreenPlatformTopLeftOverlapEdge", // $D2
+    "Tile_GreenPlatformTopRightOverlapEdge", // $D3
+    "Tile_VineStandable", // $D4
+    "Tile_SolidGrass", // $D5
+    "Tile_SolidBrick3", // $D6
+    "Tile_GroundBrick3", // $D7 ; World 7
+    "Tile_UnusedD8", // $D8
+    "Tile_UnusedD9", // $D9
+    "Tile_UnusedDA", // $DA
+    "Tile_UnusedDB", // $DB
+    "Tile_UnusedDC", // $DC
+    "Tile_UnusedDD", // $DD
+    "Tile_UnusedDE", // $DE
+    "Tile_UnusedDF", // $DF
+    "Tile_UnusedE0", // $E0
+    "Tile_UnusedE1", // $E1
+    "Tile_UnusedE2", // $E2
+    "Tile_UnusedE3", // $E3
+    "Tile_UnusedE4", // $E4
+    "Tile_UnusedE5", // $E5
+    "Tile_UnusedE6", // $E6
+    "Tile_UnusedE7", // $E7
+    "Tile_UnusedE8", // $E8
+    "Tile_UnusedE9", // $E9
+    "Tile_UnusedEA", // $EA
+    "Tile_UnusedEB", // $EB
+    "Tile_UnusedEC", // $EC
+    "Tile_UnusedED", // $ED
+    "Tile_UnusedEE", // $EE
+    "Tile_UnusedEF", // $EF
+    "Tile_UnusedF0", // $F0
+    "Tile_UnusedF1", // $F1
+    "Tile_UnusedF2", // $F2
+    "Tile_UnusedF3", // $F3
+    "Tile_UnusedF4", // $F4
+    "Tile_UnusedF5", // $F5
+    "Tile_UnusedF6", // $F6
+    "Tile_UnusedF7", // $F7
+    "Tile_UnusedF8", // $F8
+    "Tile_UnusedF9", // $F9
+    "Tile_UnusedFA", // $FA
+    "Tile_UnusedFB", // $FB
+    "Tile_UnusedFC", // $FC
+    "Tile_UnusedFD", // $FD
+    "Tile_UnusedFE", // $FE
+    "Tile_UnusedFF" // $FF
 ]
+
+var tileEnum = {}
+BackgroundTileIds.map((x,y) => tileEnum[x] = y)
+
 
 var EnemyIds = [
     "Enemy_Heart", // 0
@@ -394,57 +394,63 @@ var EnemyIds = [
     "Enemy_BossMushroom" 
 ]
 
+var enemyEnum = {}
+EnemyIds.map((x,y) => enemyEnum[x] = y)
+
 // thx loginsinex
 var MapObjectIds = [
-    "Mushroom block", // 0 
-    "POW block",
-    "Bombable rock",
+    "Mushroom_block", //_0_
+    "POW_block",
+    "Bombable_rock",
     "Vine",
-    "Jar (small, can't go in)",
-    "Ladder (1 square)",
-    "Jar, extends to ground, generic",
-    "Jar, extends to ground, ptr",
-    "Jar, extends to ground, warp",
-    "Locked door",
+    "Jar_small",
+    "Ladder_1_square",
+    "Jar_generic",
+    "Jar_ptr",
+    "Jar_warp",
+    "Locked_door",
     "Door",
-    "Dark entrance",
-    "Vine, extends to ground",
-    "Vine, extends to ground (no top)",
-    "Star background",
-    "Red pillar, extends to ground",
-    "Cloud", // 16
-    "Small cloud",
-    "Vine, extends to top",
-    "Entrance/exit (light right)",
-    "Entrance/exit (light left)",
-    "White entrance, extends to ground",
-    "Tree, extends to ground",
+    "Dark_entrance",
+    "Vine_extends_to_ground",
+    "Vine_extends_to_ground_no_top",
+    "Star_background",
+    "Red_pillar_extends_to_ground",
+    "Cloud", //_16
+    "Small_cloud",
+    "Vine_extends_to_top",
+    "Entrance_exit_light_right",
+    "Entrance_exit_light_left",
+    "Entrance_extends_to_ground",
+    "Tree_extends_to_ground",
     "Pyramid",
-    "Brick background, extends to ground",
-    "Brick wall, extends to ground",
-    "Vegetable thrower (used in Wart's room)",
+    "Brick_background_extends_to_ground",
+    "Brick_wall_extends_to_ground",
+    "Vegetable_thrower_used_in_Warts_room",
     "???",
-    "Castle entrance 1",
-    "Castle entrance 2",
-    "Big mouth entrance used in desert",
-    "Large red platform background",
-    "Herb with coin", // 32
-    "Herb with fresh vegetable",
-    "Herb with small vegetable",
-    "Herb with rocket",
-    "Herb with turtle shell",
-    "Herb with bomb",
-    "Herb with potion",
-    "Herb with 1UP",
-    "Herb with POW", // 40 0x28
+    "Castle_entrance_1",
+    "Castle_entrance_2",
+    "Big_mouth_entrance_used_in_desert",
+    "Large_red_platform_background",
+    "Herb_with_coin", //_32
+    "Herb_with_fresh_vegetable",
+    "Herb_with_small_vegetable",
+    "Herb_with_rocket",
+    "Herb_with_turtle_shell",
+    "Herb_with_bomb",
+    "Herb_with_potion",
+    "Herb_with_1UP",
+    "Herb_with_POW", //_40_0x28
     "Cherry",
-    "Herb with Bob-omb",
-    "1st sub-space Mushroom", // 43 0x2b
-    "White/red evil head",
-    "2nd sub-space Mushroom", // 45 0x2d
-    "Whale eye",
-    "Wood wall, 1 square"
+    "Herb_with_Bob_omb",
+    "1st_sub_space_Mushroom", //_43_0x2b
+    "White/red_evil_head",
+    "2nd_sub_space_Mushroom", //_45_0x2d
+    "Whale_eye",
+    "Wood_wall_1_square"
 ]
+
+var objEnum = {}
+MapObjectIds.map((x,y) => objEnum[x] = y)
 
 function get_map_obj_id (num) {
     if (num < 0x30)
@@ -454,23 +460,25 @@ function get_map_obj_id (num) {
 }
 
 var MapObjectIdsExtendable = [
-    "", //0
-    "", //1
-    "", //2
-    "X-Blocks [1]", //3
-    "X-Blocks [2]", //4
-    "Herb(s) with small vegetable", //5
-    "Bridge", // 6
-    "Spikes barrier", // 7
-    "Column of bombable rock", // 8
-    "Column of brown brick", // 9
-    "Ladder", // a
-    "Whale and Drawbridge (BX patched)", // (BX, water, frozen, frozen, bridge )"
-    "Green platform (CX patched)", //, green green whale mush)"
-    "Red wood platform", // d
-    "Cloud platform", // e
-     "Waterfall" // f
+    "null0", //0
+    "null1", //1
+    "null2", //2
+    "X_Blocks_1", //3
+    "X_Blocks_2", //4
+    "Herbs_with_small_vegetable", //5
+    "Bridge", //_6
+    "Spikes_barrier", //_7
+    "Column_of_bombable_rock", //_8
+    "Column_of_brown_brick", //_9
+    "Ladder", //_a
+    "Whale_and_Drawbridge_BX_patched", //_BX_water_frozen_frozen_bridge_"
+    "Green_platform_CX_patched", //_green_green_whale_mush"
+    "Red_wood_platform", //_d
+    "Cloud_platform", //_e
+    "Waterfall" //_f
 ]
+
+MapObjectIdsExtendable.map((x,y) => objEnum[x] = y * 0x10)
 
 var metadata = {
     "0,0,0":"0>3",
@@ -496,59 +504,102 @@ var metadata = {
 }
 
 var tbl= {
-    '0':0xD0,
-    '1':0xD1,
-    '2':0xD2,
-    '3':0xD3,
-    '4':0xD4,
-    '5':0xD5,
-    '6':0xD6,
-    '7':0xD7,
-    '8':0xD8,
-    '9':0xD9,
-    'A':0xDA,
-    'B':0xDB,
-    'C':0xDC,
-    'D':0xDD,
-    'E':0xDE,
-    'F':0xDF,
-    'G':0xE0,
-    'H':0xE1,
-    'I':0xE2,
-    'J':0xE3,
-    'K':0xE4,
-    'L':0xE5,
-    'M':0xE6,
-    'N':0xE7,
-    'O':0xE8,
-    'P':0xE9,
-    'Q':0xEA,
-    'R':0xEB,
-    'S':0xEC,
-    'T':0xED,
-    'U':0xEE,
-    'V':0xEF,
-    'W':0xF0,
-    'X':0xF1,
-    'Y':0xF2,
-    'Z':0xF3,
-    '-':0xF4,
-    '?':0xF5,
-    '.':0xF6,
-    ',':0xF7,
-    '@':0xF8,
-    ' ':0xFB
+    "0":0xD0, "1":0xD1, "2":0xD2, "3":0xD3, "4":0xD4, "5":0xD5, "6":0xD6, "7":0xD7, "8":0xD8, "9":0xD9,
+    "A":0xDA, "B":0xDB, "C":0xDC, "D":0xDD, "E":0xDE, "F":0xDF, "G":0xE0, "H":0xE1, "I":0xE2, "J":0xE3,
+    "K":0xE4, "L":0xE5, "M":0xE6, "N":0xE7, "O":0xE8, "P":0xE9, "Q":0xEA, "R":0xEB, "S":0xEC, "T":0xED,
+    "U":0xEE, "V":0xEF, "W":0xF0, "X":0xF1, "Y":0xF2, "Z":0xF3, "-":0xF4, "?":0xF5, ".":0xF6, ",":0xF7,
+    "@":0xF8, " ":0xFB
 }
+
+var i_tbl = []
+for (var key in tbl)
+    i_tbl[tbl[key]] = key
 
 function convertByTbl(string, minlength=0xF){
-    string = string.toUpperCase().split('')
+    string = string.toUpperCase().split("")
     return string.map(x => x in tbl ? tbl[x] : 0xF5).concat(Array(Math.max(minlength - string.length, 0)).fill(0xFB))
 }
 
-function invertByTbl(string, minlength=0xF){
-    string = string.toUpperCase().split('')
-    return string.map(x => x in tbl ? tbl[x] : 0xF5).concat(Array(Math.max(minlength - string.length, 0)).fill(0xFB))
+function invertByTbl(bytes){
+    console.log(bytes)
+    return [...bytes].map(x => i_tbl[x] != undefined ? i_tbl[x] : "?").join('')
 }
+
+var ClimbableTiles = [
+    tileEnum.Tile_Vine,
+    tileEnum.Tile_VineStandable,
+    tileEnum.Tile_VineBottom,
+    tileEnum.Tile_ClimbableSky,
+    tileEnum.Tile_Chain,
+    tileEnum.Tile_Ladder,
+    tileEnum.Tile_LadderShadow,
+    tileEnum.Tile_LadderStandable,
+    tileEnum.Tile_LadderStandableShadow,
+    tileEnum.Tile_ChainStandable
+]
+
+var bankEnum = {
+    "CHRBank_Mario":  0x00,
+    "CHRBank_Luigi":  0x01,
+    "CHRBank_Princess":  0x02,
+    "CHRBank_Toad":  0x03,
+    "CHRBank_MarioSmall":  0x04,
+    "CHRBank_LuigiSmall":  0x05,
+    "CHRBank_PrincessSmall":  0x06,
+    "CHRBank_ToadSmall":  0x07,
+    "CHRBank_CommonEnemies1":  0x08,
+    "CHRBank_CommonEnemies2":  0x09,
+    "CHRBank_BackgroundGrassClawgrip":  0x0A,
+    "CHRBank_EnemiesGrass":  0x0C,
+    "CHRBank_EnemiesDesert":  0x0D,
+    "CHRBank_EnemiesIce":  0x0E,
+    "CHRBank_EnemiesSky":  0x0F,
+    "CHRBank_BackgroundGrass":  0x10,
+    "CHRBank_BackgroundDesert":  0x12,
+    "CHRBank_BackgroundIce":  0x14,
+    "CHRBank_BackgroundSky":  0x16,
+    "CHRBank_Animated1":  0x18,
+    "CHRBank_Animated2":  0x1A,
+    "CHRBank_Animated3":  0x1C,
+    "CHRBank_Animated4":  0x1E,
+    "CHRBank_Animated5":  0x20,
+    "CHRBank_Animated6":  0x22,
+    "CHRBank_Animated7":  0x24,
+    "CHRBank_Animated8":  0x26,
+    "CHRBank_TitleScreenBG1":  0x28,
+    "CHRBank_TitleScreenBG2":  0x2A,
+    "CHRBank_CharacterSelectBG1":  0x2C,
+    "CHRBank_CharacterSelectBG2":  0x2E,
+    "CHRBank_CharacterSelectSprites":  0x30,
+    "CHRBank_ChanceBG1":  0x34,
+    "CHRBank_ChanceBG2":  0x36,
+    "CHRBank_CelebrationBG1":  0x38,
+    "CHRBank_CelebrationBG2":  0x3A,
+    "CHRBank_CharExtra1":  0x3C,
+    "CHRBank_CharExtra2":  0x3D,
+    "CHRBank_CharExtra3":  0x3E,
+    "CHRBank_CharExtra4":  0x3F,
+    "CHRBank_TitleCardGrass":  0x40,
+    "CHRBank_TitleCardDesert":  0x42,
+    "CHRBank_TitleCardIce":  0x44,
+    "CHRBank_TitleCardSky":  0x46,
+    "CHRBank_EndingSprites":  0x48,
+    "CHRBank_EndingCast1":  0x4C,
+    "CHRBank_EndingCast2":  0x4D,
+    "CHRBank_EndingCast3":  0x4E,
+    "CHRBank_EndingCast4":  0x4F,
+    "CHRBank_EndingBackground1":  0x50,
+    "CHRBank_EndingBackground2":  0x54,
+    "CHRBank_EndingBackground3":  0x58,
+    "CHRBank_EndingBackground4":  0x5C,
+    "CHRBank_EndingBackground5":  0x60,
+    "CHRBank_EndingBackground6":  0x64,
+    "CHRBank_EndingBackground7":  0x68,
+    "CHRBank_EndingBackground8":  0x6C
+}
+
+var worldTileset = [0x10, 0x12, 0x10, 0x14, 0xA, 0x12, 0x16]
+var worldTileset_enemy = [0xC, 0xD, 0xC, 0xE, 0xC, 0xD, 0xF]
 
 var const_special_bytes = 0xF0
 var special_zerobyte = [0xF2, 0xF3, 0xF4, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF]
