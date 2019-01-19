@@ -439,8 +439,6 @@ function handleSpriteSelect(evt) {
 
             characters[character].pal = palette
             characters[character].spal = palette
-            set_memory_location(currentRom, mem_locs, 'CharacterPalette', palette, 4*character)
-            set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettes', palette, 7 * character + 3)
             characters[character].frames = all_frames.slice(0, 11).map(x => x.map(y => y < 0x34 || y == 0xFB ? y : y + 8))
 
             set_memory_location(currentRom, mem_locs, 'CharacterOne_Frames', characters[character].frames.reduce((a=[], x) => a.concat(x)), 0x2c*character)
@@ -479,6 +477,7 @@ function handleSpriteSelect(evt) {
                     'start_sprite', [].concat(
                     ...new_hi.slice(8,16).concat(new_lo.slice(8,16))), 32*(i%(l/2)) + 16 + offset)
             }
+            write_to_character(evt)
             show_character(evt)
             $("#char_sheet_load")[0].value = '';
         };
@@ -488,7 +487,8 @@ function handleSpriteSelect(evt) {
 }
 
 function write_to_character(evt){
-    var character = player_order[$('#a_character').val() & 0b11]
+    var c_id = $('#a_character').val()
+    var character = player_order[c_id & 0b11]
     var characters = info.meta_info.characters
     var char_dict = characters[character]
 
@@ -521,7 +521,7 @@ function write_to_character(evt){
 
     console.log(char_dict)
 
-    set_memory_location(currentRom, mem_locs, 'CharacterStats', char_dict.stats, character*char_dict.stats.length)
+    set_memory_location(currentRom, mem_locs, 'CharacterStats', char_dict.stats, char_dict.stats_off)
     set_memory_location(currentRom, mem_locs, 'DokiMode', [char_dict.characteristics], character)
     set_memory_location(currentRom, mem_locs, 'HeightOffset', [char_dict.heights[0]], character)
     set_memory_location(currentRom, mem_locs, 'HeightOffset', [char_dict.heights[1]], character + 4)
@@ -534,7 +534,7 @@ function write_to_character(evt){
     set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[2]], character+8)
     set_memory_location(currentRom, mem_locs, 'StartingProjectile', [char_dict.inventory[3]], character)
     set_memory_location(currentRom, mem_locs, 'CharacterPalette', char_dict.pal, 4*character)
-    set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettes', char_dict.spal, 7 * character + 3)
+    set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettes', char_dict.spal, 7 * c_id + 3)
 }
 
 function show_character(evt) {
@@ -1629,6 +1629,7 @@ function extract_characters(my_rom, mem_locs){
     for(var i = 0; i < 4; i++){
         characters.push({
             stats: char_stats[i],
+            stats_off: char_stats_offset[i],
             pal: char_pal[i],
             spal: char_pal_sel[player_order[i]],
             dspal: char_pal_desel[player_order[i]],
