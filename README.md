@@ -1,4 +1,4 @@
-Copyright Bogus
+Copyright Goes Here
 
 # SMB2DR
 
