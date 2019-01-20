@@ -1,7 +1,9 @@
 var PRG0="47ba60fad332fdea5ae44b7979fe1ee78de1d316ee027fea2ad5fe3c0d86f25a"
 var PRG1="6ca47e9da206914730895e45fef4f7393e59772c1c80e9b9befc1a01d7ecf724"
 
-var smb2_crcs = ['7D3F6F3D', 'E0CA425C']
+var smb2_crcs = ['7D3F6F3D', 'E0CA425C'] 
+var smb2_crcs2 = ['8AA4ACE0', '17518181']
+
 
 function bit_crush(num, acc, ele){
     /*
