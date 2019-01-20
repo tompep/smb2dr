@@ -549,7 +549,7 @@ function write_to_character(evt){
     set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[2]], character+8)
     set_memory_location(currentRom, mem_locs, 'StartingProjectile', [char_dict.inventory[3]], character)
     set_memory_location(currentRom, mem_locs, 'CharacterPalette', char_dict.pal, 4*character)
-    set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettes', char_dict.spal, 7 * c_id + 3)
+    set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettes', char_dict.pal, char_dict.soff + 3)
 }
 
 function show_character(evt) {
@@ -1624,8 +1624,10 @@ function extract_characters(my_rom, mem_locs){
     var char_stats = []
     char_stats_offset.map(x => char_stats.push(new Int8Array(extract_mem_block(my_rom, mem_locs, 'CharacterStats', 23, x))))
     var char_pal = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterPalette', 16), 4)
-    var char_pal_desel = split_em(extract_mem_block(my_rom, mem_locs, 'PlayerSelectSpritePalettes', 16), 4)
-    var char_pal_sel = split_em(extract_mem_block(my_rom, mem_locs, 'PlayerSelectSpritePalettesDark', 16), 4)
+    var cps_offset = extract_mem_block(my_rom, mem_locs, 'PlayerSelectPaletteOffsets', 4)
+    var char_pal_sel = [] 
+    cps_offset.map(x => char_pal_sel.push(
+        new Uint8Array(extract_mem_block(my_rom, mem_locs, 'PlayerSelectSpritePalettes', 4, x + 3))))
     var char_names = split_em(extract_mem_block(my_rom, mem_locs, 
         'EndingCelebrationText_MARIO', 12*4), 12).map(x => x.slice(3, x.length - 1))
     var char_frames = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterOne_Frames', 44*4), 44)
@@ -1646,8 +1648,8 @@ function extract_characters(my_rom, mem_locs){
             stats: char_stats[i],
             stats_off: char_stats_offset[i],
             pal: char_pal[i],
-            spal: char_pal_sel[player_order[i]],
-            dspal: char_pal_desel[player_order[i]],
+            spal: char_pal_sel[i],
+            soff: cps_offset[i],
             name: char_names[i],
             name_credits: char_names[i],
             frames: split_em(char_frames[i], 4),
