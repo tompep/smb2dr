@@ -25,6 +25,15 @@ var bc8 = function(acc, ele) {
     return bit_crush(8, acc, ele)
 }
 
+function extract_bits(x){
+    var ex_bits = []
+    for (var i = 0; i < 8; i++)
+        ex_bits.push((x >> i) & 1)
+    return ex_bits
+
+}
+
+
 function patch_ips (original, patch_data){
     /*
      * Rudimentary IPS patching function

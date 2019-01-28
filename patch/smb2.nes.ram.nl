@@ -101,7 +101,7 @@ $0004#CustomCharFlag_Fluttering#
 $0008#CustomCharFlag_PeachWalk#
 $0002#CustomCharFlag_Running#
 $0001#CustomCharFlag_Shrinking#
-$0010#CustomCharFlag_WideSprite#
+$0080#CustomCharFlag_WideSprite#
 $0001#DEBUG#
 $0001#DISABLE_DOOR_POINTERS#
 $4010#DMC_FREQ#
@@ -288,6 +288,7 @@ $0412#ObjectYSubpixel#
 $0047#ObjectYVelocity#
 $0001#PLAYER_STUFF#
 $0001#PLAYER_STUFF_HOLD#
+$0001#PLAYER_STUFF_JAR#
 $0001#PLAYER_STUFF_STORE#
 $0001#PLAYER_STUFF_expand_sprites#
 $04C4#POWQuakeTimer#

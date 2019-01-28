@@ -1,6 +1,30 @@
 
 // Function to write bytes to output
 
+function set_memory_location(my_rom, mem_locs, name, values, offset=0){
+    if (!offset)
+        offset = 0
+
+    
+    if (isNaN(name)){
+        var Location = mem_locs[name]
+    }
+    else {
+        Location = ~~(name)
+    }
+    console.debug(name, values.length, values, Location, offset)
+    if (Location){
+        Location = Location + 0x10 + offset
+        for(var i = 0; i < values.length; i++){
+            values[i] = values[i] === true ? 1 : (values[i] === false ? 0 : parseInt(values[i]) % 256)
+            my_rom[Location + i] = values[i]
+        }
+    }
+    else {
+        console.error('Mem loc not found for writing', name)
+    }
+}
+
 function write_enemy_bytes(enemies, page_cnt, vertical){
     var output = []
     var converted_enemies = enemies.map(function(ele){
@@ -18,28 +42,6 @@ function write_enemy_bytes(enemies, page_cnt, vertical){
         }
     }
     return output
-}
-
-function write_characters (my_rom, characters){
-    
-}
-
-function set_memory_location(my_rom, mem_locs, name, values, offset=0){
-    if (!offset)
-        offset = 0
-
-    var Location = mem_locs[name]
-    console.debug(name, values.length, values, Location, offset)
-    if (Location){
-        Location = Location + 0x10 + offset
-        for(var i = 0; i < values.length; i++){
-            values[i] = values[i] === true ? 1 : (values[i] === false ? 0 : parseInt(values[i]) % 256)
-            my_rom[Location + i] = values[i]
-        }
-    }
-    else {
-        console.error('Mem loc not found for writing', name)
-    }
 }
 
 function write_header_bytes(h){
@@ -531,6 +533,90 @@ function extract_enemy_bytes(bytes, ptr_loc=0xA500){
     var my_data = all_ptrs.map(x => bytes.slice(x, x+256))
     return my_data
 }
+
+var char_lookup_bit = [
+    0b0001, // mario
+    0b0100, // luigi
+    0b0010,
+    0b1000
+]
+
+var char_names = ['MARIO', 'PRINCESS', 'TOAD', 'LUIGI'] // just change the order proper in ASM
+var player_table = [1, 8, 4, 2]
+var player_order = [0, 3, 2, 1]
+var player_order_b = [0, 3, 1, 2]
+var player_order_d = [0, 2, 3, 1]
+
+function extract_characters(my_rom, mem_locs){
+    // mario prin toad lugi
+    var char_stats_offset = extract_mem_block(my_rom, mem_locs, 'StatOffsets', 4)
+    var char_stats = []
+    char_stats_offset.map(x => char_stats.push(new Int8Array(extract_mem_block(my_rom, mem_locs, 'CharacterStats', 23, x))))
+    var char_pal = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterPalette', 16), 4)
+    var cps_offset = extract_mem_block(my_rom, mem_locs, 'PlayerSelectPaletteOffsets', 4)
+    var char_pal_sel = [] 
+    cps_offset.map(x => char_pal_sel.push(
+        new Uint8Array(extract_mem_block(my_rom, mem_locs, 'PlayerSelectSpritePalettes', 4, x + 3))))
+    var char_names = split_em(extract_mem_block(my_rom, mem_locs, 
+        'EndingCelebrationText_MARIO', 12*4), 12).map(x => x.slice(3, x.length - 1))
+
+    var char_frames = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterOne_Frames', 44*4), 44)
+    var s_char_frames = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterOne_FramesSmall', 44*4), 44)
+    var char_frames_wide = split_em(extract_mem_block(my_rom, mem_locs, 'CO_ExtraFramesOne', 22*4), 22)
+
+    var char_meta_frames = [...extract_mem_block(my_rom, mem_locs, 'CharacterOneMetaFrames', 11*4)]
+    char_meta_frames = split_em(char_meta_frames.map((x, y) => extract_bits(x)), 11)
+    var s_char_meta_frames = [...extract_mem_block(my_rom, mem_locs, 'CharacterOneMetaFramesSmall', 11*4)]
+    s_char_meta_frames = split_em(s_char_meta_frames.map((x, y) => extract_bits(x)), 11)
+
+    var char_sheet = split_em(extract_mem_block(my_rom, mem_locs, 'CHRBank_CharacterSize', 8), 2) 
+    var ex_sheet = extract_mem_block(my_rom, mem_locs, 'CharacterExtraSheets', 4) 
+    console.log(char_meta_frames, s_char_meta_frames)
+    var char_eyes = extract_mem_block(my_rom, mem_locs, 'CharacterEyeTiles', 4) 
+    var char_options = extract_mem_block(my_rom, mem_locs, 'DokiMode', 4)
+    var char_heights = split_em(extract_mem_block(my_rom, mem_locs, 'HeightOffset', 8), 4)
+    var char_carry = split_em(extract_mem_block(my_rom, mem_locs, 'CarryYOffsets', 16), 4)
+    var char_inventory = split_em(extract_mem_block(my_rom, mem_locs, 'StartingInventory', 16), 4)
+    var char_select_1 = split_em(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites1', 16*4), 16) 
+    var char_select_2 = split_em(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites2', 16*4), 16) 
+    var char_tiny1 = split_em(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites', 16), 4) 
+    var char_tiny2 = split_em(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites2', 16), 4) 
+
+    var characters = []
+    for(var i = 0; i < 4; i++){
+        characters.push({
+            stats: char_stats[i],
+            stats_off: char_stats_offset[i],
+            pal: char_pal[i],
+            spal: char_pal_sel[i],
+            soff: cps_offset[i],
+            name: char_names[i],
+            name_credits: char_names[i],
+
+            frames: split_em(char_frames[i], 4),
+            w_frames: split_em(char_frames_wide[i], 2),
+            s_frames: split_em(s_char_frames[i], 4),
+
+            m_big: char_meta_frames[i],
+            m_small: s_char_meta_frames[i],
+
+            eyes: char_eyes[i],
+            sheet_num: char_sheet[i],
+            ex_sheet: ex_sheet[i],
+
+            characteristics: char_options[i],
+            heights: [char_heights[0][i], char_heights[1][i]],
+            carry: char_carry.map(x => x[i]),
+            inventory: char_inventory.map(x => x[i]),
+            char_select1: char_select_1[player_order[i]],
+            char_select2: char_select_2[player_order[i]],
+            char_tiny1: char_tiny1[player_order_d[i]],
+            char_tiny2: char_tiny2[player_order_d[i]]
+        })
+    }
+    return characters
+}
+
 
 function extract_all_info (contents_full, mem_locs={}){
     /*

@@ -1,3 +1,4 @@
+Learn proper moduled JS
 Turn each interface on the UI into it's own indepedent JS file 
 Turn any form creation into A) json with schematic or B) React
 Character Creation

@@ -374,30 +374,68 @@ var find_sprite = function(l, r){
     return true
 }
 
-function create_sprites_from_bitmap(img, vert=true) {
+function crop_bitmap(img, x, y, right, down){
     var m_canvas = document.createElement('canvas')
     var m_context = m_canvas.getContext('2d');
+    m_canvas.width = right ? Math.min(right, img.width - x) : img.width - x
+    m_canvas.height = down ? Math.min(down, img.height - y) : img.height - y
+    m_context.drawImage(img, -x, -y) // Or at whatever offset you like
+    return m_context.getImageData(0, 0, m_canvas.width, m_canvas.height)
+}
+
+function sprite_mask(length, width, height){
+    console.log(length, width, height)
+    if (length % width) console.error('Indivisible')
+    var row_length = ~~(length / height)
+    if (row_length % width) console.error('Indivisible')
+
+    var indices = []
+
+    for (var i = 0; i < row_length; i += width){
+        var frame = []
+        for (var j = 0; j < height; j += 1){
+            frame.push(...Array.range(width, i + j * row_length))
+        }
+        indices.push(...frame)
+    }
+    return indices
+}
+
+function create_sprites_from_bitmap(img, tile_width, tile_height, 
+    start_pos=0, limit, unique_pixels=[]) {
+    // todo make this not tied to two tile high sprites
+    var m_canvas = document.createElement('canvas')
+    var m_context = m_canvas.getContext('2d');
+
+    document.body.appendChild(m_canvas);
+
     m_canvas.width = img.width
     m_canvas.height = img.height
-    var width_sprites = ~~(img.width / 8 * 2)
-    var height_sprites = ~~(img.height / 16 / 2)
-    var num_sprites = width_sprites * height_sprites
-    m_context.drawImage(img, 0, 0); // Or at whatever offset you like
+    if (img.width % tile_width || img.height % tile_height){
+        console.error('Sheet is not divisible by tilesize', tile_width, tile_height)
+    }
+
+    var max_row = ~~(img.width / tile_width)
+    var max_col = ~~(img.height / tile_height)
+    var max_sprites = max_row * max_col
+    if (limit)
+        max_sprites = Math.min(max_sprites, limit)
+    
+    m_context.putImageData(img, 0, 0) // Or at whatever offset you like
 
     // enumerate all pixels
     // each pixel's r,g,b,a datum are stored in separate sequential array elements
 
-    var unique_pixels = [] // speed this up by demanding palette info + pixel data from bmp?
     // or just use dict (but I hate uniterable dicts, curse javascript)
     var sprite_sheet = []
     var current_sprite_sheet = sprite_sheet
-    for(var i=0; i < num_sprites; i++){
-        // (0,8) + (4), xmid + xout
-        var x_in  = ~~(i%2) * 8, // if not vert, do nothing
-            x_out = ~~((i%width_sprites)/4)*16, // if not vert, don't divide by 4, * 8 
-            y_in  = ~~((i/2)%2)*16, 
-            y_out = ~~(i/width_sprites)*32
-        var imgData = m_context.getImageData((x_in + x_out), (y_in + y_out), 8, 16);
+
+    for(var i=start_pos; i < max_sprites; i++){
+        var x_in = (i % max_row) * tile_width
+        var y_in = ~~(i / max_row) * tile_height
+        var imgData = m_context.getImageData(x_in, y_in, tile_width, tile_height);
+        m_context.clearRect(x_in, y_in, tile_width, tile_height)
+
         var data = imgData.data;
         var pixels = split_em(data, 4).map(x => x.slice(0, 3))
         var new_spr = []
@@ -410,6 +448,7 @@ function create_sprites_from_bitmap(img, vert=true) {
         }
         sprite_sheet.push(new_spr)
     }
+
     return {
         sheet: sprite_sheet,
         colors: unique_pixels
@@ -451,6 +490,21 @@ function extract_graphics(current_char, sheets = 0x80){
     }
 }
 
+function convert_sprite_to_8x16(frame, width=2, mirror=[]){
+    var sprite_tiles = []
+    if (!width)
+        width = 2
+    frame = split_em([...frame], width)
+    mirror = split_em([...mirror], width)
+    for (var r in frame){
+        var row = frame[r]
+        var mirror_row = mirror[r] ? mirror[r] : []
+        sprite_tiles.push(...row.map((x, y) => (((x % 2) == 0) ? (x) : (x + 0xFF)) + (mirror_row[y] ? 0x200 : 0)    ))
+        sprite_tiles.push(...row.map((x, y) => (((x % 2) == 0) ? (x + 1) : (x + 0x100))  + (mirror_row[y] ? 0x200 : 0)    ))
+    }
+    return sprite_tiles
+}
+
 function convert_to_8x16(frame, mirror){
     var sprite_tiles = []
     frame = [...frame]
@@ -471,13 +525,8 @@ function convert_to_8x16(frame, mirror){
     return sprite_tiles
 }
 
-var hashed_bitmap = {}
 
 function create_bitmap(sprite, palette, transparency, x_flipped, y_flipped) {
-    var hash = [sprite, palette, transparency, x_flipped, y_flipped].toString()
-    if (hashed_bitmap[hash]){
-        return hashed_bitmap[hash]
-    }
     var i_offset = y_flipped ? 7 : 0
     var j_offset = x_flipped ? 7 : 0
     var bitmap_sprite = []
@@ -497,14 +546,23 @@ function create_bitmap(sprite, palette, transparency, x_flipped, y_flipped) {
             bitmap_sprite.push(...[color.r, color.g, color.b, (pixel == 0 && transparency) ? 0: 255])
         }
     }
-    hashed_bitmap[hash] = bitmap_sprite
     return bitmap_sprite
 }
 
-function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute, layer){
+var hashed_bitmap = {}
+
+function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute){
     /*
      *  Create temporary canvas element and draw bitmap
      */
+
+    var layer = null
+    var hash = [loaded_sheets, sprites, width, palette, attribute, layer].toString()
+    if (hashed_bitmap[hash]){
+        return hashed_bitmap[hash]
+    }
+    console.debug('no cache hit')
+
     var m_canvas = document.createElement('canvas')
     m_canvas.width = 8 * width 
     m_canvas.height = 8 * Math.ceil(sprites.length/width)
@@ -512,9 +570,6 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute,
     m_context.fillStyle='white'
     m_context.clearRect(0, 0, m_canvas.width, m_canvas.height);
 
-    var m_spr_canvas = new OffscreenCanvas(m_canvas.width, m_canvas.height)
-    var m_spr_ctx = m_spr_canvas.getContext("2d")
-    
     if (layer)
         m_context.putImageData(layer, 0, 0)
 
@@ -526,24 +581,20 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute,
         spr_index = spr_index % 0x200
         var my_sheet = loaded_sheets[~~(spr_index / 0x40)]
         if (my_sheet == undefined){
-            m_spr_ctx.clearRect(x_loc, y_loc, x_loc + 8, y_loc + 8)
+            m_context.clearRect(x_loc, y_loc, x_loc + 8, y_loc + 8)
         }
         else {
             var sprite = my_sheet[spr_index % 0x40]
             var bitmap_sprite = create_bitmap(sprite, palette, attribute, x_flipped, y_flipped)
             var bitmap = new ImageData(new Uint8ClampedArray(bitmap_sprite), 8)
-            m_spr_ctx.putImageData(bitmap, (index % width) * 8, (parseInt(index / width) * 8))
+            m_context.putImageData(bitmap, (index % width) * 8, (parseInt(index / width) * 8))
         }
     }
 
-    m_context.drawImage(m_spr_canvas, 0, 0)
-
-    var m_spr_canvas = new OffscreenCanvas(m_canvas.width, m_canvas.height)
-    m_spr_canvas.getContext("2d").drawImage(m_canvas, 0, 0)
-
-    return {
+    hashed_bitmap[hash] = {
         image_data: m_context.getImageData(0, 0, m_canvas.width, m_canvas.height),
-        data_url: m_canvas.toDataURL(),
-        off_canvas: m_spr_canvas
+        data_url: m_canvas.toDataURL()
     }
+
+    return hashed_bitmap[hash]
 }

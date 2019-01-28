@@ -32,13 +32,11 @@
                         "Running Speed, left - in quicksand",
                         "Height offset (full-size)",
                         "Height offset (small)",
-                        "Carry offset (full-size crouch)",
-                        "Carry offset (full-size)",
-                        "Carry offset (small crouch)",
-                        "Carry offset (small)"]
+                        "Carry offset final (full-size)",
+                        "Carry offset final (small)"]
                         , "class": "mem_array", "mem_loc_name": "Character Stats", "min": -127, "max": 128},
                     {"name": "Characteristics", "desc": "", "class": "add_up_multi", 
-                        "val": [ "Can Shrink", "Can Run", "Flutter Jump", "Peach Walk", "Wide Sprite"]},
+                        "val": [ "Can Shrink", "Can Run", "Flutter Jump", "Peach Walk", "n/a", "n/a", "n/a", "Wide Sprite"]},
                     {"name": "Starting Inventory", "desc": "", "class": "add_up_multi", 
                         "val": [ "Power Throw",
                      "Power Charge", "Power Walk", "Store Item", "Life Vest", 

@@ -12,7 +12,6 @@ function handle_boss_options(my_levels, options){
     var rmmax = options['Mini-Boss_Max_Health'].val
     rmin = rmax < rmin ? rmax : rmin
     rmmin = rmmax < rmmin ? rmmax : rmmin
-    console.log(rboss, rmboss, rmin, rmax, rmmin, rmmax, 'pizzatime')
     if (!rboss && !rmboss) return
     for (var my_l of my_levels){
         if (my_l == undefined)
@@ -290,32 +289,36 @@ var all_item_names = [
 
 
 
-var upgrade_names = all_item_names.slice(1, 14)
-
-var powerup_names = all_item_names.slice(17, 22)
-
-var continue_names = all_item_names.slice(22, 23) 
-
-var unlock_names = all_item_names.slice(23, 27) 
-
-var fragment_names = all_item_names.slice(27, 28) 
-
-var junk_items = all_item_names.slice(28, 33)
-
 var power_up_start = 17 
 var cont_start = 22
 var lock_start = 23 
 var frag_start = 27 
 var junk_start = 28
+var crystal_start = 34
+
+var upgrade_names = all_item_names.slice(1, 14)
+
+var powerup_names = all_item_names.slice(power_up_start, cont_start)
+
+var continue_names = all_item_names.slice(cont_start, lock_start) 
+
+var unlock_names = all_item_names.slice(lock_start, frag_start) 
+
+var fragment_names = all_item_names.slice(frag_start, junk_start) 
+
+var junk_items = all_item_names.slice(junk_start, crystal_start)
+
+var crystal_items = all_item_names.slice(crystal_start)
+
 
 function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     console.log('Item Randomizer')
     var inventory = Array(parseInt(options['Mushrooms'].val)).fill(0)
 
-    var upgrades = shuffle([...upgrade_names.keys()])
+    var upgrades = shuffle(Array.range(upgrade_names.length, 1))
     while (upgrades.length < options['Upgrades'].val)
-        upgrades = upgrades.concat(shuffle([...upgrade_names.keys()]))
-    upgrades = upgrades.slice(0, options['Upgrades'].val).map(x => x + 1)
+        upgrades = upgrades.concat(shuffle(Array.range(upgrade_names.length, 1)))
+    upgrades.slice(0, options['Upgrades'].val)
 
     var powerups = Array(parseInt(options['Powerups'].val)).fill(0).map(
         (x, y) => ~~(Math.random() * powerup_names.length) + power_up_start)
@@ -326,6 +329,11 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         var unlocks = shuffle([...unlock_names.keys()]).map(x => x + lock_start)
         inventory = inventory.concat(unlocks)
     }
+
+    Array(parseInt(options['Mushroom_Fragments'].val)).fill(frag_start).map(x => inventory.push(x))
+    Array(parseInt(options['Crystals'].val)).fill(crystal_start).map(x => inventory.push(x))
+    // can't just treat crystals as is, can only have one per room
+    // consider boss pools
 
     inventory = inventory.concat(upgrades)
     inventory = inventory.concat(powerups)
