@@ -1,8 +1,14 @@
 
 function Main_UI(){
     this.main = $('div')
-
 }
+
+function htmlLogger() {
+    /*
+     *  
+     */
+}
+
 
 // start script
 var startingRom
@@ -18,6 +24,32 @@ var sprites
 
 var presets = []
 
+var select_color = $('<select class="nespalette_select"></select>')
+select_color.on('input', function(evt){
+    var x = this.value
+    console.log(x)
+    var color_string = NES_palette[x].toString()
+    color_string = color_string.slice(1, color_string.length)
+    color_string = 'rgba(' + NES_palette[x].toString() + ')'
+    this.style.backgroundColor = color_string
+})
+for (var x in NES_palette){
+    var color_string = NES_palette[x].toString()
+    color_string = color_string.slice(1, color_string.length)
+    color_string = 'rgba(' + NES_palette[x].toString() + ')'
+    var color_option = $('<option style="background-color: '+ color_string +'" val="'+ x +'" > </option>')
+    color_option.text(x)
+    select_color.append(color_option)
+}
+
+var palette_selector = function (id, size) {
+    // mmm I don't know this kind of UI backend design
+    this.tag = $('<div>')
+    this.tag.attr('id', id)
+    this.tag.attr('class', 'option_pal')
+    for (var i = 0; i < size; i++)
+        this.tag.append(select_color.clone(true))
+}
 
 
 function read_info_file_info (targetRom){
@@ -386,25 +418,34 @@ function create_option(name, description, start, min=0, max=100, cl=null){
     else if (typeof start === "string" && isNaN(start)){
         type = 'text' 
     }
+    else if (Array.isArray(start) && cl == "palette"){
+        type = "form" 
+        var tag_name = $("<label></label>")
+        tag_name.append(title_name)
+        tag.append(tag_name)
+        var form = tag
+
+        tag.append((new palette_selector(name, 4)).tag)
+        return tag
+    }
     else if (Array.isArray(start) && cl == 'mem_array'){
         type = 'form' 
         var tag_name = $("<label></label>")
         tag_name.append(title_name)
         tag.append(tag_name)
-        var form = tag
-        form.attr('id', name)
-        form.attr('name', title_name)
-        tag.append(form)
+        tag.attr('name', title_name)
+        tag.attr('id', name)
+        tag.attr('class', 'option_form')
         for (var index in start){
             var o = start[index]
             var label = $("<label></label>")
-            var innertag = $("<input class='option' style='width: 48px;' type='number' value='0'> </input>")
+            var innertag = $("<input class='sub_option' style='width: 48px;' type='number' value='0'> </input>")
             innertag.attr('id', name)
             innertag.attr('min', min)
             innertag.attr('max', max)
             label.append(innertag)
             label.append(" ", o)
-            form.append(label)
+            tag.append(label)
         }
         return tag
     }
@@ -644,19 +685,6 @@ function audit_rooms(value, level_info, type='enemy'){
         return result
     }
     return result.reduce((a, b) => a.concat(b))
-}
-
-String.prototype.replaceAll = function(find, replace){
-    return this.split(find).join(replace)
-    console.log(find, replace)
-    var str = this
-    newstring = str.replace(new RegExp(find, 'g'), replace)
-    console.log(newstring)
-    return newstring
-}
-
-Array.range = function(len, min=0) {
-    return Array(len).fill(0).map((x,y) => y + min)
 }
 
 

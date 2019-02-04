@@ -18,7 +18,6 @@ $7400#BonusChanceLayoutRAM#
 $7500#BonusChanceLayoutRAM2#
 $04B8#BossBeaten#
 $76F6#Boss_HP#
-$76F8#Boss_Variant#
 $0013#BreakStartLevelLoop#
 $0001#COMPATIBILITY#
 $0504#CameraScrollTiles#
@@ -221,8 +220,8 @@ $0631#MaxLevelsCompleted#
 $04FB#Mushroom1Pulled#
 $0620#Mushroom1upPulled#
 $04FC#Mushroom2Pulled#
-$7610#MushroomEffect#
-$76F9#MushroomFragments#
+$7620#MushroomEffect#
+$76F8#MushroomFragments#
 $05FA#MusicDPCMNoteLength#
 $05FB#MusicDPCMNoteStartLength#
 $061E#MusicNoiseNoteLength#
@@ -288,7 +287,6 @@ $0412#ObjectYSubpixel#
 $0047#ObjectYVelocity#
 $0001#PLAYER_STUFF#
 $0001#PLAYER_STUFF_HOLD#
-$0001#PLAYER_STUFF_JAR#
 $0001#PLAYER_STUFF_STORE#
 $0001#PLAYER_STUFF_expand_sprites#
 $04C4#POWQuakeTimer#
@@ -386,6 +384,9 @@ $76EC#Player_Luck#
 $04FD#PokeyTempScreenX#
 $0404#PreviousCharacter#
 $0405#PreviousWorld#
+$0020#ProjChar_Disappear#
+$0080#ProjChar_IsPlayers#
+$0040#ProjChar_PuffEnemy#
 $76F2#ProjectileNumber#
 $76F3#ProjectileTimer#
 $76F1#ProjectileType#
@@ -448,6 +449,7 @@ $0604#SoundEffectQueue2#
 $0605#SoundEffectQueue3#
 $00C4#SoundEffectTimer2#
 $0611#SoundEffectTimer3#
+$000B#SpriteAnimation_GroundPound#
 $06F9#SpriteCHR1#
 $06FA#SpriteCHR2#
 $06FB#SpriteCHR3#

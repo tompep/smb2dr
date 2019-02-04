@@ -1,3 +1,209 @@
+
+var randomizer_config_form = {
+    "Objective": [
+        {
+            "name": "Default",
+            "options": [
+                {"tag": "Defeat Final Boss, and the following objectives", "options": [ ]},
+                {"name": "Collect X Crystals", "desc": "Find X amount of crystals across the game",
+                "val": 0, "class": "mem_location", "max": 20,
+                    "mem_loc_name": "CrystalCondition"},
+                {"name": "Defeat X Bosses", "desc": "Defeat X amount of bosses hidden around or at the end of levels",
+                "val": 0, "class": "mem_location", "max": 7,
+                    "mem_loc_name": "BossCondition"},
+                {"name": "Rescue All Characters", "desc": "Must leave the game with all 4 characters unlocked",
+                "val": false, "class": "mem_location",
+                    "mem_loc_name": "RescueCondition"},
+                {"name": "End Game at any Exit", "desc": "Don't require the 'final boss' to be defeated to win",
+                "val": false}
+            ]
+        }
+    ],
+    "Level Randomization": [
+        {
+            "name": "Default",
+            "options": [
+                {"name": "Randomize World Appearance", "desc": "Randomize palette/tiles/music and enemies (possible softlocks unknown)",
+                "val": [ "Do Not Randomize", "Per World", "Per Level", "Per Room"
+                ]},
+                {"name": "Game Scale", "desc": "Number of Levels to compile together",
+                "val": "20"},
+                {"name": "Curse Rate", "desc": "Rate at which rooms will spawn an active Phanto",
+                "val": "0.5"},
+                {"name": "Inverted Rate", "desc": "Rate at which rooms will be inverted",
+                "val": "0.5"}
+            ]
+        },
+        {
+            "name": "World Order Randomizer",
+            "options": [
+                {"name": "Scramble Levels in World", "desc": "Scramble levels from within a World",
+					"val": false}
+            ]
+        },
+        {
+            "name": "Level Order Randomizer",
+            "options": []
+        },
+        {
+            "name": "Simple Door Randomizer",
+            "options": []
+        },
+        {
+            "name": "Experimental Door Randomizer",
+            "options": [
+                {"tag": "This mode is a proof of concept and is not updated for the latest code", "options": [ ]}
+            ]
+        }
+    ],
+    "Character Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"tag": "Starting Characters", "class": "wide", "options": [
+                        {"name": "Mario", "desc": "Start with character 1",
+					"val": true},
+                        {"name": "Luigi", "desc": "Start with character 2",
+					"val": true},
+                        {"name": "Toad", "desc": "Start with character 3",
+					"val": true},
+                        {"name": "Peach", "desc": "Start with character 4",
+					"val": true}
+                    ]},
+                    {"name": "Character Lock", "desc": "Restrict choice of character (incompatible with Rescue)",
+                        "val": [ "No locking", "Per World", "Per Level", "Per Room" 
+                    ]},                
+                    {"name": "Change Character on Death", "desc": "Gives character select screen on life lost",
+					"val": false, "class": "mem_location", "mem_loc_name": "CharSelectDeath"},
+                    {"name": "Change Character at any time", "desc": "Switch character any time (Select+LR)",
+					"val": false, "class": "mem_location", "mem_loc_name": "CharSelectAnytime"},
+                    {"name": "Elimination Mode", "desc": "Gives each character it's own lives, and removes a character from the game when out of lives",
+					"val": false, "class": "mem_location", "mem_loc_name": "IndependentLives"},
+                    {"name": "Independent Player Powerups", "desc": "Upgrades are only for individual characters",
+					"val": false, "class": "mem_location", "mem_loc_name": "IndependentPlayers"},
+                    {"name": "Add Rescue Items", "desc": "Adds items to rescue lost characters",
+					"val": false},
+                    {"name": "Starting Gift", "desc": "Gives a random upgrade to each character",
+					"val": false}
+                ]
+        }
+    ],
+    "Object Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"name": "Autospawn Potion Door", "desc": "Spawns a door where mushrooms exist",
+					"val": false},
+                    {"name": "Randomize Mushroom Locations", "desc": "Completely randomizes mushroom locations",
+					"val": false},
+                    {"name": "Bosses Drop Items", "desc": "Bosses will drop items from item pool",
+					"val": false, "class": "mem_location", "mem_loc_name": "BossMushroom"},
+                    {"name": "Mushrooms", "desc": "Number of mushrooms in Subspace pool",
+					"val": "4"},
+                    {"name": "Mushroom Fragments", "desc": "Number of mushrooms in Subspace pool",
+					"val": "16"},
+                    {"name": "Powerups", "desc": "Number of powerups in Subspace pool",
+					"val": "16"},
+                    {"name": "Upgrades", "desc": "Number of upgrades in Subspace pool",
+					"val": "13"},
+                    {"name": "Common Items", "desc": "Number of common items in Subspace pool",
+					"val": "8"},
+                    {"name": "Crystals", "desc": "Number of crystals in Subspace pool",
+					"val": "0"}
+                ]
+        }   
+    ],
+    "Boss Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"name": "Randomize Boss Health", "desc": "Gives bosses random health",
+					"val": false},
+                    {"name": "Randomize Mini-Boss Health", "desc": "Gives mini-bosses (Birdo and Hawkmouth) random health",
+					"val": false},
+                    {"name": "Boss Min Health", "desc": "",
+					"val": "2"},
+                    {"name": "Boss Max Health", "desc": "",
+					"val": "7"},
+                    {"name": "Mini-Boss Min Health", "desc": "",
+					"val": "1"},
+                    {"name": "Mini-Boss Max Health", "desc": "",
+					"val": "5"}
+                ]
+        },
+        {
+            "name": "Randomized",
+            "options": 
+                [
+                    {"name": "Randomize Boss Arenas", "desc": "Duplicate arenas",
+					"val": false},
+                    {"name": "End with Wart", "desc": "Last boss is always Wart",
+					"val": false}
+                ]
+        }
+    ],
+    "Other Randomization": [
+        {
+            "name": "Default",
+            "options": 
+                [
+                    {"name": "Doki Doki Mode", "desc": "Removes shrinking and running (disabled)",
+					"val": false, "class": "",
+                        "mem_loc_name": "DokiMode"},
+                    {"name": "Debug (cheat)", "desc": "Gives debug mode (A+B+START+SELECT), prone to issues with subspace/jars",
+					"val": false, "class": "mem_location",
+                        "mem_loc_name": "DebugSet"},
+                    {"name": "Ground Breaker (cheat)", "desc": "Lets the player pick up any ground tile",
+					"val": false, "class": "mem_location",
+                        "mem_loc_name": "GBreaker"},
+                    {"name": "Maxed Upgrades (cheat)", "desc": "Gives players all upgrades",
+					"val": false}, 
+                    {"name": "Extra Lives", "desc": "Starting Extra Lives",
+					"val": "5", "class": "mem_location",
+                        "mem_loc_name": "ContinueGame", "offset": "1"},
+                    {"name": "Continues", "desc": "Starting Continues",
+					"val": "2", "class": "mem_location",
+                        "mem_loc_name": "SetNumContinues", "offset": "1"},
+                    {"name": "Starting Bonus Health", "desc": "Starting extra health",
+					"val": "1", "class": "mem_location",
+                        "mem_loc_name": "StartHealth", "min": -1, "max": 14},
+                    {"name": "Maxed Health", "desc": "Maxed amount of extra health",
+					"val": "14", "class": "mem_location",
+                        "mem_loc_name": "MaxedHealth", "min": -1, "max": 14},
+                    {"name": "Reset Health Cap", "desc": "Reduced extra health after 'completing' a level",
+					"val": "4", "class": "mem_location",
+                        "mem_loc_name": "ResetHealth", "min": 0, "max": 14}
+                ]
+        }
+    ]
+}
+
+$("#randomizer").text()
+$("#randomizer").append(...handle_options(randomizer_config_form))
+var start_button = $('<button id="manip">')
+start_button.click(randomize_rom);
+start_button.text('Randomize ROM');
+console.log(start_button)
+
+$("#randomizer").append(start_button)
+$('#randomizer input[type=number]').on('focusout', number_cap)
+
+$('#seed').keypress(function (evt){
+    if (chars.includes(String.fromCharCode(evt.which).toUpperCase())) {}
+    else if (!chars.includes(String.fromCharCode(evt.which))){
+        evt.preventDefault();
+    }
+});
+
+if (Math.seedrandom)
+    Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
+
+$('#seed').val(rand_seed());
+$('#seed').attr('maxlength', 10);
+
 // No Level Randomization
                         
 var rando_seed = ''

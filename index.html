@@ -26,16 +26,22 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.4/seedrandom.min.js"> </script>
     </head>
     <body class='hide_me'>
-        <div class='center'>
+        <div id='center' class='center'>
             <img src="css/titletop2.png"></img>
             </br>
             </br>
-            <div class="pad5">
-                <a id='start_summary'>About</a>
-                <a id='start_randomizer'>Randomizer</a>
-                <a id='start_map_viewer'>Maps</a>
-                <a id='start_character_viewer'>Characters</a>
-                <a id='start_changelog'>Change Log</a>
+            <div class="option_div">
+            Live Page: <a href="https://smb2randomizer.github.io/smb2dr/">https://smb2randomizer.github.io/smb2dr/</a>
+            </br>
+            Live Src: <a href="https://github.com/smb2randomizer">https://github.com/smb2randomizer/</a>
+            </div>
+            </br>
+            <div id="top_nav" class="pad5">
+                <a class='button' id='start_summary'>About</a>
+                <a class='button' id='start_randomizer'>Randomizer</a>
+                <a class='button' id='start_map_viewer'>Maps</a>
+                <a class='button' id='start_character_viewer'>Characters</a>
+                <a class='button' id='start_changelog'>Change Log</a>
             </div>
             </br>
 
@@ -175,37 +181,6 @@
                 <button id="auditByWorld"> By World </button>
                 <button id="auditByGame">  By Game </button>
             </div>
-            <div class="main_item" id="char_viewer">
-                In Progress
-                <div class="option_div"> 
-                Character
-                <input id="a_character" type="number" class="char_read" min="0" max="3" value="0"/>
-                Frame
-                <input id="a_frame" type="number" class="char_read" min="-1" max="10" value="0"/>
-                <label>
-                <input id="a_size" type="checkbox" class="char_read"/>
-                Small
-                </label>
-                <select id="a_char_pal" class="level_audit hide_me">
-                    <option value='-1'>Select Palette</option>
-                </select>
-                <form id="palette_character"></form>
-                <button onclick="$('#char_sheet_load').trigger('click')">Load Sheet</button>
-                <div class="hide_me">
-                    <label><input type="file" class="input" id="char_sheet_load" name="file"/></label>
-                </div>
-                <button id='char_sheet_save'>Save Sheet</button>
-                <button id="writeJSON_char" class='hide_me'> Random Player Palette </button>
-                </div>
-                <div id="char_sprites">No sprites read.</div>
-                <div id="char_stats"></div>
-                <button id="writeJSON_char"> Output To JSON </button>
-                <button id="readJSON_char"> Input From JSON </button>
-                <div>
-                <textarea id="info_dump_char" class='log'>
-                </textarea>
-                </div>
-            </div>
             <div class="main_item" id="sprite_viewer">
                 <div class="map_frame">
                 </div>
@@ -213,37 +188,31 @@
 
 
         </div>
-        <pre id="log" class="log">>___</pre>
 
 
-        <script src="js/bind_console_log.js"></script>
+        <script src="js/bind_console_log.js"> </script>
+        <script src="js/memory.js"> </script>
         <script src="js/patch_ips.js"></script>
         <script src="js/graphics.js"></script>
         <script src="js/metadata_obj_tiles.js"></script>
-        <script src="js/render.js"></script>
+
+        <script src="js/main_ui.js"></script>
         <script src="js/characters.js"></script>
         <script src="js/levels.js"></script>
+        <script src="js/render.js"></script>
         <script src="js/lt_browser.js"></script>
         <script src="js/randomizer_vania.js"></script>
         <script src="js/randomizer.js"></script>
-        <script src="js/main_ui.js"></script>
         <script>
-$('#char_sheet_load').on('input', handleSpriteSelect)
-$('#char_sheet_save').on('click', outputSpriteSelect)
-$('.char_read').on('input', show_character)
+var log_component = new html_logger('log_div')
+log_component.rebind_console_log()
+$('body').append(log_component.log_div)
 
-$.ajax({contentType: "json",
-        url: "character_config.json",
-        success: function(result){
-            console.log(this.url + ' grabbed')
-            $("#char_stats").text()
-            $("#char_stats").append(...handle_options(result))
-            $('#char_stats input[type=number]').on('focusout', number_cap)
-            $('#char_stats input').on('change', write_to_character)
-            $('#char_stats select').on('change', write_to_character)
-            $("#palette_character .nespalette_select").on('change', show_character)
-            $('#palette_character select').on('change', write_to_character)
-}});
+var char_component = new char_viewer('char_viewer')
+$('#center').append(char_component.my_div)
+console.log(char_component.my_div)
+
+$('input[type=number]').on('focusout', number_cap)
 
 console.log('Document ready...')
 var oReq = new XMLHttpRequest();
@@ -312,35 +281,6 @@ $.ajax({contentType: "text",
 }});
 
 
-$.ajax({contentType: "json",
-        url: "smb2dr_config.json",
-        success: function(result){
-            console.log(this.url + ' grabbed')
-            $("#randomizer").text()
-            $("#randomizer").append(...handle_options(result))
-            var start_button = $('<button id="manip">')
-            start_button.click(randomize_rom);
-            start_button.text('Randomize ROM');
-            console.log(start_button)
-
-            $("#randomizer").append(start_button)
-            $('#randomizer input[type=number]').on('focusout', number_cap)
-}});
-
-
-$('#seed').keypress(function (evt){
-    if (chars.includes(String.fromCharCode(evt.which).toUpperCase())) {}
-    else if (!chars.includes(String.fromCharCode(evt.which))){
-        evt.preventDefault();
-    }
-});
-
-if (Math.seedrandom)
-    Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
-
-$('#seed').val(rand_seed());
-$('#seed').attr('maxlength', 10);
-
 $('#a_enemy').append(EnemyIds.map((x, y) => 
     $('<option value="' + y + '">' + x.replace('Enemy_', '') + '</option>')));
 $('#a_tiles').append(BackgroundTileIds.map((x, y) => 
@@ -350,27 +290,6 @@ $('#a_object').append(MapObjectIds.map((x, y) =>
 $('#a_object').append(MapObjectIdsExtendable.slice(3).map((x, y) => 
     $('<option value="' + (y * 0x10 + 0x30) + '">' + x + '</option>')));
 
-var select_color = $('<select class="nespalette_select"></select>')
-select_color.on('input', function(evt){
-    var x = this.value
-    var color_string = NES_palette[x].toString()
-    color_string = color_string.slice(1, color_string.length)
-    color_string = 'rgba(' + NES_palette[x].toString() + ')'
-    this.style.backgroundColor = color_string
-})
-for (var x in NES_palette){
-    var color_string = NES_palette[x].toString()
-    color_string = color_string.slice(1, color_string.length)
-    color_string = 'rgba(' + NES_palette[x].toString() + ')'
-    var color_option = $('<option style="background-color: '+ color_string +'" val="'+ x +'" > </option>')
-    color_option.text(x)
-    select_color.append(color_option)
-}
-
-$("#palette_character").append(select_color.clone(true))
-$("#palette_character").append(select_color.clone(true))
-$("#palette_character").append(select_color.clone(true))
-$("#palette_character").append(select_color.clone(true))
 
 $('input[type=number]').on('focusout', number_cap)
 
@@ -378,8 +297,6 @@ $('#files').on('input', handleFileSelect);
 $('.level_read').on('input', show_level);
 $('#writeJSON').click(writeJSON);
 $('#readJSON').click(readJSON);
-
-
 
 var canvas = document.getElementById("myCanvas")
 var ctx = canvas.getContext("2d");

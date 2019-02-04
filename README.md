@@ -7,8 +7,9 @@ Visit us at the SMB2R Discord!
 ## About
     SMB2 Door Randomizer is a project designed to alter and enhance the original Super Mario Bros 2, with the end goal to create "metroidvania" genre gameplay from the skeleton of the original structure.  
     Additionally, in the future, providing extra ROMs will extract its level data and add them to the available level pool to randomize. 
-    Simply provide an original SMB2 ROM to begin the process.  
     While fixing minor bugs, it also expands the range of random events and restrictions to challenge the player, while also including new powerups and mapping options.
+    Visit the github pages for contribution, http://github.com/smb2randomizer
+
 
 ## Instructions
     Provide a US (U, USA) ROM of Super Mario Bros. 2 of either PRG0, PRG1, or REV A.

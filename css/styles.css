@@ -10,17 +10,22 @@ body{
     background-color: white;
     margin: auto;
     width: 100%;
-    max-width: 540px;
+    max-width: 600px;
 }
 
-a, button{ 
+a {
+    background-color: gray;
+    color: white;
+}
+
+a.button, button{ 
     background-color: gray;
     color: white;
     padding: 10px;
     border-radius: 4px 
 }
 
-a:hover { 
+a.button:hover { 
   background-color: yellow;
   text-decoration: none;
 }
@@ -85,12 +90,13 @@ select{
     padding: 10px;
     width: 512;
     border: 32px solid transparent;
+    border-top: 16px solid transparent;
     border-image: url(border_page.png) 64 round;
     background-color: #FCE4A0;
     text-emphasis: bold;
     color: brown;
     padding: 20px;
-    border-radius: 90px;
+    border-radius: 50px;
     text-align: left;
     white-space: pre-wrap;
 }
@@ -102,7 +108,7 @@ select{
     width: 50%;
 }
 
-.option{
+.option, .sub_option{
     background-color: white;
     color: black;
     margin: auto;
@@ -154,7 +160,6 @@ select{
 .center {
     padding: 10px;
     width: 100%;
-    max-width: 540px;
     border: 32px solid transparent;
     border-image: url(border5.png) 64 round;
     color: white;

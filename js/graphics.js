@@ -350,6 +350,20 @@ function colorDifference (pal1, pal2) {
     return Math.sqrt(sumOfSquares)
 }
 
+function sprites_to_bytes(sheet){
+    var l = sheet.length
+    var output = []
+    for(var i = 0; i < l; i++){
+        var r_spr = sheet[i]
+        var new_hi = r_spr.map(x => inverse_lookup_table[(x & 0b1010101010101010) >> 1])
+        var new_lo = r_spr.map(x => inverse_lookup_table[(x & 0b101010101010101)])
+        output.push(...new_hi.slice(0,8).concat(new_lo.slice(0,8)))
+        output.push(...new_hi.slice(8,16).concat(new_lo.slice(8,16)))
+    }
+    return output
+}
+
+
 function get_nearest_color (pal) {
     var output_pal = []
     for (var color1 of pal) {
