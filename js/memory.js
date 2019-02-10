@@ -1,21 +1,24 @@
 
-function set_memory_location(my_rom, mem_locs, name, values, offset=0){
+function set_memory_location(my_rom, mem_locs, name, values, offset=0, func=null){
     if (!offset)
         offset = 0
 
-    
     if (isNaN(name)){
         var Location = mem_locs[name]
     }
     else {
         Location = ~~(name)
     }
-    console.debug(name, values.length, values, Location, offset)
+    console.debug(name, values, Location)
     if (Location){
+        console.debug(name, values.length, values.map(x => x.toString(16)), Location.toString(16), offset)
         Location = Location + 0x10 + offset
         for(var i = 0; i < values.length; i++){
             values[i] = values[i] === true ? 1 : (values[i] === false ? 0 : parseInt(values[i]) % 256)
-            my_rom[Location + i] = values[i]
+            if (!func)
+                my_rom[Location + i] = values[i]
+            else
+                my_rom[Location + i] = func(my_rom[Location + i], values[i])
         }
     }
     else {
@@ -57,10 +60,11 @@ function extract_ptr_mem_block (bytes, mem_locs, name, num_ptrs, size, split=1){
 function extract_mem_block (bytes, mem_locs, name, size, offset=0){
     // fix this for ines header stuff
     // make behavior consistent for everything (see set_mem_loc)
+    // return instead, an object/callback that can write back to the rom?
     if (name in mem_locs){
         var start_char = mem_locs[name] + offset
         var b = bytes.slice(start_char, start_char + size)
-        return b
+        return [...b]
     }
     else {
         console.log(name, 'not found in compiled ASM')

@@ -6,16 +6,16 @@ var randomizer_config_form = {
             "options": [
                 {"tag": "Defeat Final Boss, and the following objectives", "options": [ ]},
                 {"name": "Collect X Crystals", "desc": "Find X amount of crystals across the game",
-                "val": 0, "class": "mem_location", "max": 20,
+                    "val": 0, "class": "mem_location", "max": 20,
                     "mem_loc_name": "CrystalCondition"},
                 {"name": "Defeat X Bosses", "desc": "Defeat X amount of bosses hidden around or at the end of levels",
-                "val": 0, "class": "mem_location", "max": 7,
+                    "val": 0, "class": "mem_location", "max": 7,
                     "mem_loc_name": "BossCondition"},
                 {"name": "Rescue All Characters", "desc": "Must leave the game with all 4 characters unlocked",
-                "val": false, "class": "mem_location",
+                    "val": false, "class": "mem_location",
                     "mem_loc_name": "RescueCondition"},
                 {"name": "End Game at any Exit", "desc": "Don't require the 'final boss' to be defeated to win",
-                "val": false}
+                    "val": false}
             ]
         }
     ],
@@ -24,21 +24,23 @@ var randomizer_config_form = {
             "name": "Default",
             "options": [
                 {"name": "Randomize World Appearance", "desc": "Randomize palette/tiles/music and enemies (possible softlocks unknown)",
-                "val": [ "Do Not Randomize", "Per World", "Per Level", "Per Room"
-                ]},
+                    "val": [ "Do Not Randomize", "Per World", "Per Level", "Per Room"
+                    ]},
+                {"name": "Randomize Music", "desc": "Music Randomization",
+                    "val": false},
                 {"name": "Game Scale", "desc": "Number of Levels to compile together",
-                "val": "20"},
+                    "val": "20", "max": "21"},
                 {"name": "Curse Rate", "desc": "Rate at which rooms will spawn an active Phanto",
-                "val": "0.5"},
+                    "val": "0.5"},
                 {"name": "Inverted Rate", "desc": "Rate at which rooms will be inverted",
-                "val": "0.5"}
+                    "val": "0.5"}
             ]
         },
         {
             "name": "World Order Randomizer",
             "options": [
                 {"name": "Scramble Levels in World", "desc": "Scramble levels from within a World",
-					"val": false}
+                    "val": false}
             ]
         },
         {
@@ -48,12 +50,6 @@ var randomizer_config_form = {
         {
             "name": "Simple Door Randomizer",
             "options": []
-        },
-        {
-            "name": "Experimental Door Randomizer",
-            "options": [
-                {"tag": "This mode is a proof of concept and is not updated for the latest code", "options": [ ]}
-            ]
         }
     ],
     "Character Randomization": [
@@ -63,29 +59,29 @@ var randomizer_config_form = {
                 [
                     {"tag": "Starting Characters", "class": "wide", "options": [
                         {"name": "Mario", "desc": "Start with character 1",
-					"val": true},
+                            "val": true},
                         {"name": "Luigi", "desc": "Start with character 2",
-					"val": true},
+                            "val": true},
                         {"name": "Toad", "desc": "Start with character 3",
-					"val": true},
+                            "val": true},
                         {"name": "Peach", "desc": "Start with character 4",
-					"val": true}
+                            "val": true}
                     ]},
                     {"name": "Character Lock", "desc": "Restrict choice of character (incompatible with Rescue)",
-                        "val": [ "No locking", "Per World", "Per Level", "Per Room" 
-                    ]},                
+                        "val": [ "No Locking", "Per World", "Per Level", "Per Room" 
+                        ]},                
                     {"name": "Change Character on Death", "desc": "Gives character select screen on life lost",
-					"val": false, "class": "mem_location", "mem_loc_name": "CharSelectDeath"},
+                        "val": false, "class": "mem_location", "mem_loc_name": "CharSelectDeath"},
                     {"name": "Change Character at any time", "desc": "Switch character any time (Select+LR)",
-					"val": false, "class": "mem_location", "mem_loc_name": "CharSelectAnytime"},
+                        "val": false, "class": "mem_location", "mem_loc_name": "CharSelectAnytime"},
                     {"name": "Elimination Mode", "desc": "Gives each character it's own lives, and removes a character from the game when out of lives",
-					"val": false, "class": "mem_location", "mem_loc_name": "IndependentLives"},
+                        "val": false, "class": "mem_location", "mem_loc_name": "IndependentLives"},
                     {"name": "Independent Player Powerups", "desc": "Upgrades are only for individual characters",
-					"val": false, "class": "mem_location", "mem_loc_name": "IndependentPlayers"},
+                        "val": false, "class": "mem_location", "mem_loc_name": "IndependentPlayers"},
                     {"name": "Add Rescue Items", "desc": "Adds items to rescue lost characters",
-					"val": false},
+                        "val": false},
                     {"name": "Starting Gift", "desc": "Gives a random upgrade to each character",
-					"val": false}
+                        "val": false}
                 ]
         }
     ],
@@ -94,24 +90,26 @@ var randomizer_config_form = {
             "name": "Default",
             "options": 
                 [
+                    {"name": "Enemy Randomization (early)", "desc": "Simple enemy randomizer (hard)",
+                        "val": false},
                     {"name": "Autospawn Potion Door", "desc": "Spawns a door where mushrooms exist",
-					"val": false},
+                        "val": false},
                     {"name": "Randomize Mushroom Locations", "desc": "Completely randomizes mushroom locations",
-					"val": false},
-                    {"name": "Bosses Drop Items", "desc": "Bosses will drop items from item pool",
-					"val": false, "class": "mem_location", "mem_loc_name": "BossMushroom"},
+                        "val": false},
+                    {"name": "Boss Drops", "desc": "Bosses will drop something on death",
+                        "val": [ "Nothing", "Always Mushroom", "Subspace Item Pool" ]},                
                     {"name": "Mushrooms", "desc": "Number of mushrooms in Subspace pool",
-					"val": "4"},
+                        "val": "4"},
                     {"name": "Mushroom Fragments", "desc": "Number of mushrooms in Subspace pool",
-					"val": "16"},
+                        "val": "16"},
                     {"name": "Powerups", "desc": "Number of powerups in Subspace pool",
-					"val": "16"},
+                        "val": "16"},
                     {"name": "Upgrades", "desc": "Number of upgrades in Subspace pool",
-					"val": "13"},
+                        "val": "13"},
                     {"name": "Common Items", "desc": "Number of common items in Subspace pool",
-					"val": "8"},
+                        "val": "8"},
                     {"name": "Crystals", "desc": "Number of crystals in Subspace pool",
-					"val": "0"}
+                        "val": "0"}
                 ]
         }   
     ],
@@ -121,17 +119,17 @@ var randomizer_config_form = {
             "options": 
                 [
                     {"name": "Randomize Boss Health", "desc": "Gives bosses random health",
-					"val": false},
+                        "val": false},
                     {"name": "Randomize Mini-Boss Health", "desc": "Gives mini-bosses (Birdo and Hawkmouth) random health",
-					"val": false},
+                        "val": false},
                     {"name": "Boss Min Health", "desc": "",
-					"val": "2"},
+                        "val": "2"},
                     {"name": "Boss Max Health", "desc": "",
-					"val": "7"},
+                        "val": "7"},
                     {"name": "Mini-Boss Min Health", "desc": "",
-					"val": "1"},
+                        "val": "1"},
                     {"name": "Mini-Boss Max Health", "desc": "",
-					"val": "5"}
+                        "val": "5"}
                 ]
         },
         {
@@ -139,9 +137,9 @@ var randomizer_config_form = {
             "options": 
                 [
                     {"name": "Randomize Boss Arenas", "desc": "Duplicate arenas",
-					"val": false},
+                        "val": false},
                     {"name": "End with Wart", "desc": "Last boss is always Wart",
-					"val": false}
+                        "val": false}
                 ]
         }
     ],
@@ -150,31 +148,30 @@ var randomizer_config_form = {
             "name": "Default",
             "options": 
                 [
-                    {"name": "Doki Doki Mode", "desc": "Removes shrinking and running (disabled)",
-					"val": false, "class": "",
-                        "mem_loc_name": "DokiMode"},
+                    {"name": "Doki Doki Mode", "desc": "Removes shrinking and running",
+                        "val": false, "class": "", "mem_loc_name": "DokiMode"},
                     {"name": "Debug (cheat)", "desc": "Gives debug mode (A+B+START+SELECT), prone to issues with subspace/jars",
-					"val": false, "class": "mem_location",
+                        "val": false, "class": "mem_location",
                         "mem_loc_name": "DebugSet"},
                     {"name": "Ground Breaker (cheat)", "desc": "Lets the player pick up any ground tile",
-					"val": false, "class": "mem_location",
+                        "val": false, "class": "mem_location",
                         "mem_loc_name": "GBreaker"},
                     {"name": "Maxed Upgrades (cheat)", "desc": "Gives players all upgrades",
-					"val": false}, 
+                        "val": false}, 
                     {"name": "Extra Lives", "desc": "Starting Extra Lives",
-					"val": "5", "class": "mem_location",
+                        "val": "5", "class": "mem_location",
                         "mem_loc_name": "ContinueGame", "offset": "1"},
                     {"name": "Continues", "desc": "Starting Continues",
-					"val": "2", "class": "mem_location",
+                        "val": "2", "class": "mem_location",
                         "mem_loc_name": "SetNumContinues", "offset": "1"},
                     {"name": "Starting Bonus Health", "desc": "Starting extra health",
-					"val": "1", "class": "mem_location",
+                        "val": "1", "class": "mem_location",
                         "mem_loc_name": "StartHealth", "min": -1, "max": 14},
                     {"name": "Maxed Health", "desc": "Maxed amount of extra health",
-					"val": "14", "class": "mem_location",
+                        "val": "14", "class": "mem_location",
                         "mem_loc_name": "MaxedHealth", "min": -1, "max": 14},
                     {"name": "Reset Health Cap", "desc": "Reduced extra health after 'completing' a level",
-					"val": "4", "class": "mem_location",
+                        "val": "4", "class": "mem_location",
                         "mem_loc_name": "ResetHealth", "min": 0, "max": 14}
                 ]
         }
@@ -183,6 +180,7 @@ var randomizer_config_form = {
 
 $("#randomizer").text()
 $("#randomizer").append(...handle_options(randomizer_config_form))
+
 var start_button = $('<button id="manip">')
 start_button.click(randomize_rom);
 start_button.text('Randomize ROM');
@@ -198,15 +196,19 @@ $('#seed').keypress(function (evt){
     }
 });
 
-if (Math.seedrandom)
-    Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
+var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+function rand_seed(){
+    return Array(10).fill(0).map(x => chars[~~(Math.random() * 36)]).join('')
+}
 
-$('#seed').val(rand_seed());
+function starting_seed() {
+    if (Math.seedrandom)
+        Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
+    $('#seed').val(rand_seed());
+}
+
+starting_seed()
 $('#seed').attr('maxlength', 10);
-
-// No Level Randomization
-                        
-var rando_seed = ''
 
 function handle_boss_options(my_levels, options){
     console.log('Boss Health Randomizer')
@@ -218,7 +220,14 @@ function handle_boss_options(my_levels, options){
     var rmmax = options['Mini-Boss_Max_Health'].val
     rmin = rmax < rmin ? rmax : rmin
     rmmin = rmmax < rmmin ? rmmax : rmmin
-    if (!rboss && !rmboss) return
+    if (!rboss && !rmboss){
+        console.log('No health randomization')
+        return
+    }
+    else{
+        if (rboss) console.log('Boss Random range', rmin, rmax)
+        if (rmboss) console.log('Mini-Boss Random range', rmmin, rmmax)
+    }
     for (var my_l of my_levels){
         if (my_l == undefined)
             continue
@@ -260,9 +269,21 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     var LevelStart = mem_locs['Data_StartLevel'] + 0x10
     var WinLevel = mem_locs['WinLevel'] + 0x10
 
-    var level_sets = split_em([...my_levels], 10) 
+    var level_sets = [] 
+    Array.split([...my_levels], 10).map(x => !x.every(y => y == undefined) ? level_sets.push(x) : x) 
+
+    var game_scale = options['GameScale']
+    console.debug(level_sets)
+    while(game_scale > 0 && level_sets.length > game_scale){
+        var target_num = ~~(Math.random() * level_sets.length)
+        level_sets.splice(target_num, 1)
+        console.log(target_num, level_sets)
+    }
+    console.debug(level_sets)
+    var all_levels = [].concat.apply([], level_sets)
+
     if (options['ShuffleType'] == 'World_Order_Randomizer'){
-        var world_sets = split_em(level_sets, 3)
+        var world_sets = Array.split(level_sets, 3)
         if (options['ScrambleWorld'])
             world_sets = shuffle(world_sets).map(x => shuffle(x))
         else 
@@ -277,11 +298,11 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
 
         for (var i = 0; i < 3; i++)
         {
-            var targets = shuffle([...my_levels])
+            var targets = shuffle([...all_levels])
             targets = targets.filter(x => x != undefined)
             targets = targets.filter(x => x.is_jar == 0)
             targets = targets.filter(x => !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0))
-            targets = split_em(targets, 2)
+            targets = Array.split(targets, 2)
 
             for (var my_pairs of targets){
                 var ll = my_pairs[0]
@@ -414,10 +435,13 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
         target_ptr = target_ptr >= 0 ? target_ptr : ptrs.length
 
 
-        if (n % 3 == 2 || n == 0x13){
+        if (n % 3 == 2 || n == level_sets.length - 1){
             console.log('boss')
             var boss_room = boss_rooms[0]
             boss_rooms = boss_rooms.slice(1)
+
+            if (n == level_sets.length - 1)
+                boss_room = last_boss
 
             var boss = boss_room.enemies.filter(
                 function(ele){return ele.obj_type > 0x5C})[0]
@@ -453,6 +477,106 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     my_rom[LevelStart + 3] = 0
     my_rom[WinLevel] = last_boss.world * 3 + last_boss.level
 
+    return all_levels
+
+}
+
+var ne = enemyEnum
+
+var post_enemy_changes = { }
+
+
+var shuffle_enemy_data = [
+    { 
+        targets: [ne.ShyguyPink, ne.ShyguyRed, ne.Tweeter, ne.Porcupo,
+            ne.NinjiRunning, ne.SnifitRed, ne.SnifitPink, ne.BobOmb, ne.FryguySplit],
+        additional: [ne.JarGeneratorShyguy, ne.JarGeneratorBobOmb, ne.SnifitGray, ne.NinjiJumping, ne.Birdo, ne.BeezoStraight, ne.BeezoDiving],
+        process: function (extra=[]) { return Array.pick_random(this.targets.concat(this.additional).concat(extra)) }
+    },
+    { 
+        targets: [ne.Spark1, ne.Spark2, ne.Spark3, ne.Spark4],
+        process: function () { return Array.pick_random(this.targets) }
+    },
+    { 
+        targets: [ne.SnifitGray, ne.NinjiJumping, 
+            ne.PanserStationaryFiresAngled, ne.PanserStationaryFiresUp],
+        process: function () { return Array.pick_random(this.targets) }
+    },
+    { 
+        targets: [ne.FallingLogs],
+        additional: [ne.Trouter, ne.FallingLogs],
+        process: function () { return Array.pick_random(this.targets).concat(this.additional) }
+    },
+    { 
+        targets: [ne.BossMouser], 
+        additional: [ne.BossPanserWalking, ne.BossMouser, ne.BossMouser],
+        process: function () { return Array.pick_random(this.targets.concat(this.additional)) } 
+    },
+
+]
+
+function enemy_randomizer(my_levels, my_rom, mem_locs, meta_info, my_options){
+    for (var my_l of my_levels){
+        if (my_l == undefined)
+            continue
+        for (var e of my_l.enemies){
+            for (var rule of shuffle_enemy_data){
+                if (rule.targets.includes(e.obj_type)) {
+                    var prev_type = e.obj_type
+                    e.obj_type = rule.process()
+                    if(e.obj_type == ne.Birdo) e.pos_y--
+                    if(e.obj_type == ne.JarGeneratorShyguy || e.obj_type == ne.JarGeneratorBobOmb){
+                        my_l.objs.push( create_smb_object(objEnum.Jar_small, 
+                        e.pos_x, e.pos_y, e.pos_page, 1) )
+                        var options = [ne.Fireball, ne.Heart, ne.VegetableSmall]
+                        var attack = rule.process(options) 
+                        while([ne.JarGeneratorShyguy, ne.JarGeneratorBobOmb].includes(attack))
+                            attack = rule.process(options) 
+                        my_l.hotspots.push ({
+                            pos_x: e.pos_x,
+                            pos_y: e.pos_y,
+                            pos_page: e.pos_page,
+                            contents: [attack, 0x00, 0x45]
+                        })
+                    } 
+                    if(e.obj_type == ne.BeezoDiving) e.pos_y = 2
+                    if(prev_type == ne.BossMouser) {
+                        my_l.enemies.push( create_smb_enemy(ne.JarGeneratorShyguy, 
+                        e.pos_y+2, e.pos_x, e.pos_page, my_l.vertical) )
+                    }
+                    break
+                }
+            }
+        }
+    }
+}
+
+var oe = objEnum
+
+var post_obj_changes = { }
+
+var shuffle_obj_data = [
+    { 
+        targets: [],
+        additional: [],
+        process: function (extra=[]) { return Array.pick_random(this.targets.concat(this.additional).concat(extra)) }
+    },
+
+]
+
+function overworld_item_randomizer(my_levels, my_rom, mem_locs, meta_info, my_options){
+    for (var my_l of my_levels){
+        if (my_l == undefined)
+            continue
+        for (var o of my_l.objs){
+            for (var rule of shuffle_obj_data){
+                if (rule.targets.includes(o.obj_type)) {
+                    var prev_type = o.obj_type
+                    o.obj_type = rule.process()
+                }
+            }
+        }
+    }
 }
 
 var all_item_names = [
@@ -490,9 +614,13 @@ var all_item_names = [
         'Life', 
         'Star', 
         'Stopwatch', 
+        'Shyguy', 
         'Crystals' 
 ]
 
+
+var invEnum = {}
+all_item_names.map((x,y) => invEnum[x.replaceAll(' ', '_')] = y)
 
 
 var power_up_start = 17 
@@ -500,7 +628,7 @@ var cont_start = 22
 var lock_start = 23 
 var frag_start = 27 
 var junk_start = 28
-var crystal_start = 34
+var crystal_start = 35
 
 var upgrade_names = all_item_names.slice(1, 14)
 
@@ -524,7 +652,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     var upgrades = shuffle(Array.range(upgrade_names.length, 1))
     while (upgrades.length < options['Upgrades'].val)
         upgrades = upgrades.concat(shuffle(Array.range(upgrade_names.length, 1)))
-    upgrades.slice(0, options['Upgrades'].val)
+    upgrades = upgrades.slice(0, options['Upgrades'].val)
 
     var powerups = Array(parseInt(options['Powerups'].val)).fill(0).map(
         (x, y) => ~~(Math.random() * powerup_names.length) + power_up_start)
@@ -533,11 +661,11 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
 
     if(options['Add_Rescue_Items'].checked || options['Rescue_All_Characters'].checked){
         var unlocks = shuffle([...unlock_names.keys()]).map(x => x + lock_start)
-        inventory = inventory.concat(unlocks)
+        inventory.unshift(...unlocks)
     }
 
-    Array(parseInt(options['Mushroom_Fragments'].val)).fill(frag_start).map(x => inventory.push(x))
-    Array(parseInt(options['Crystals'].val)).fill(crystal_start).map(x => inventory.push(x))
+    Array(parseInt(options['Mushroom_Fragments'].val)).fill(invEnum.Mushroom_Fragment).map(x => inventory.push(x))
+    Array(parseInt(options['Crystals'].val)).fill(invEnum.Crystals).map(x => inventory.push(x))
     // can't just treat crystals as is, can only have one per room
     // consider boss pools
 
@@ -545,10 +673,10 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     inventory = inventory.concat(powerups)
     inventory = inventory.concat(common)
 
-    console.log(inventory.map(x => all_item_names[x]))
+    console.log('Initial inventory', inventory.map(x => all_item_names[x]))
     
     var horizontal_levels = my_levels.filter(x => (x != undefined && !x.header.vertical &&
-        !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0)))
+        x.is_jar == 0 && !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0)))
     var mush_counts = Array(my_levels.length).fill(0)
 
     if (!options['Randomize_Mushroom_Locations'].checked){
@@ -568,7 +696,10 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     var mush_sum = mush_counts.reduce( (a, b) => a + b ) 
     
     if (inventory.length > horizontal_levels.length * 2){
-        mush_counts = mush_counts.fill(2)
+        for (var my_l of horizontal_levels){
+            var l = my_l.i
+            mush_counts[l] = 2
+        }
         inventory = inventory.slice(0, horizontal_levels.length * 2)
     }
     else {
@@ -589,6 +720,10 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         }
     }
 
+    while (inventory.length < mush_sum)
+        inventory.push(invEnum.Coin)
+    inventory = inventory.slice(0, mush_sum)
+    console.log('Final inventory', inventory.map(x => all_item_names[x]))
     inventory = shuffle(inventory)
 
     for (var my_l of my_levels){
@@ -603,7 +738,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
 
         if (!my_l.header.vertical){
             var isBoss = my_l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-            if (!isBoss){
+            if (!isBoss && my_l.is_jar == 0){
                 var my_columns = shuffle(columns)
                 for (var i = targets.length; i < mush_counts[my_l.i]; i++){
                     var target = my_columns[0]
@@ -636,7 +771,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             }
         }
 
-        var level_inventory = inventory.slice(0, targets.length).filter(x => x != 0)
+        var level_inventory = inventory.slice(0, targets.length)
         if(level_inventory.length > 0){
             my_l.modifiers.push({
                 loc_l: 0x76,
@@ -648,15 +783,8 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             })
         }
         inventory = inventory.slice(targets.length)
-        continue
-        if (options['Randomize Enemies']){}
-        if (options['Randomize Enemies']){}
-        if (options['Randomize Enemies']){}
-        if (options['Randomize Enemies']){}
-        if (options['Randomize Enemies']){}
-        if (options['Randomize Enemies']){}
-        if (options['Randomize Enemies']){}
-        if (options['Randomize Enemies']){}
+        return
+
         my_l.objs = my_l.objs.filter(x => !(x.obj_type >= 32 && x.obj_type < 46))
         my_l.objs = my_l.objs.filter(x => ![0x50].includes(x.obj_type & 0xF0))
         my_l.objs = my_l.objs.filter(x => ![0, 1, 4, 6, 7, 8].includes(x.obj_type))
@@ -672,12 +800,10 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             }
         }
 
-        my_l.enemies = my_l.enemies.filter(x => x.obj_type >= 0x32 || [0x12, 0x1c, 0x2d].includes(x.obj_type))
+        // remove all non-essential enemies
+        // my_l.enemies = my_l.enemies.filter(x => x.obj_type >= 0x32 || [0x12, 0x1c, 0x2d].includes(x.obj_type))
 
         // first pass
-        var rendered = render_level(my_l, my_l.header, my_l.enemies, meta_info)
-        var columns = get_valid_columns(rendered).filter(x => 
-            rendered[x.pos_page][x.pos_y-1][x.pos_x].obj_type == 0x40)
         for(var i = 0; i < 5; i++){
             // function get patch
             var my_columns = shuffle(columns)
@@ -732,50 +858,60 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
     if (maxed_up){
         set_memory_location(my_rom, mem_locs,
             'StartingInventory',
-            [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
+            [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF],
+            0, function(l, r){ return l | r })
     }
     else {
         if (starting_gift)
             for(var i = 0; i < 4; i++){
                 var powerup = ~~(Math.random() * 13)
-                console.log('Character', i, 'acquired', all_item_names[powerup + 1])
+                console.log('Character', i, 'acquired', all_item_names[powerup + 1], 0)
                 set_memory_location(my_rom, mem_locs,
                     'StartingInventory',
                     [1 << (powerup % 8)],
-                    player_order[i] + 4 * (powerup >> 3))
+                    player_order[i] + 4 * (powerup >> 3), function(l, r){ return l | r })
             }
     }
 
-    if (locking != 'No locking'){
-        var world_sets = split_em(level_sets, 3)
-        var character = 0xf
-        for (var w of world_sets){
-            if (locking == 'Per World')
-                character = shuffle(character_pool)[0]
-            for (var l of w){
-                if (locking == 'Per Level')
-                    character = shuffle(character_pool)[0]
-                for (var r of l) {
-                    if (locking == 'Per Room')
-                        character = shuffle(character_pool)[0]
-                    if (r != undefined){
-                        r.modifiers.push({
-                            loc_l: 0x00,
-                            loc_r: 0x8f,
-                            contents: [character]
-                        })
-                        // if not rescue...
-                        r.modifiers.push({
-                            loc_l: 0x7D,
-                            loc_r: 0xE0,
-                            contents: [[character].reduce((a, b) => a ^ (player_table[b]), 0xF)]
-                        })
-                    }
-                }
+    var doki = option_vals['Doki_Doki_Mode'].checked
+    if (doki){
+        set_memory_location(my_rom, mem_locs,
+            'DokiMode',
+            [0b11111100,0b11111100,0b11111100,0b11111100],
+            0, function(l, r){ return l & r })
+    }
+
+    var r_header = option_vals['Character_Lock'].radio
+    var character = 0xf
+    var segments = []
+    if (r_header == 'Per World')
+        segments = Array.split(info.my_levels, 30)
+    else if (r_header == 'Per Level')
+        segments = Array.split(info.my_levels, 10)
+    else if (r_header == 'Per Room')
+        segments = Array.split(info.my_levels, 1)
+    else
+        console.log('No Character Locking...')
+    for(var s of segments){
+        character = shuffle(character_pool)[0]
+        for(var l of s){
+            if (l != undefined){
+                l.modifiers.push({
+                    loc_l: 0x00,
+                    loc_r: 0x8f,
+                    contents: [character]
+                })
+                // if not rescue...
+                l.modifiers.push({
+                    loc_l: 0x7D,
+                    loc_r: 0xE0,
+                    contents: [[character].reduce((a, b) => a ^ (player_table[b]), 0xF)]
+                })
             }
         }
     }
 }
+
 
 
 /// helper
@@ -895,7 +1031,7 @@ function inverse_level(my_l, all_levels){
         if (enemy.obj_type == 0x42) enemy.obj_type = 0x43
         else if (enemy.obj_type == 0x43) enemy.obj_type = 0x42
         else if (enemy.obj_type == 0x1c) new_x = enemy.pos_x
-        var new_enemy = create_smb_enemy(enemy.obj_type, enemy.pos_y, new_x, new_page)
+        var new_enemy = create_smb_enemy(enemy.obj_type, enemy.pos_y, new_x, new_page, my_l.vertical)
         new_enemies.push(new_enemy)
     }
 
@@ -1114,12 +1250,10 @@ var og_unk4 = [0, 0, 0, 1, 0, 0, 3]
 function randomize_header(my_l, world_metadata, options){
     var new_pal_a = ~~(Math.random() * 6)
     var new_pal_b = ~~(Math.random() * 3)
-    var new_music = ~~(Math.random() * 2)
     var header_json = my_l.header
     var world = my_l.world
     my_l.header.pala = new_pal_a
     my_l.header.palb = new_pal_b
-    my_l.header.music = new_music
     header_json.unk3 = ~~(Math.random() * 6)
     header_json.unk4 = og_unk4[world]
 

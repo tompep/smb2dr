@@ -395,62 +395,62 @@ var EnemyIds = [
 ]
 
 var enemyEnum = {}
-EnemyIds.map((x,y) => enemyEnum[x] = y)
+EnemyIds.map((x,y) => enemyEnum[x.replace('Enemy_', '')] = y)
 
 // thx loginsinex
 var MapObjectIds = [
-    "Mushroom_block", //_0_
-    "POW_block",
-    "Bombable_rock",
+    "Mushroom block", // 0 
+    "POW block",
+    "Bombable rock",
     "Vine",
-    "Jar_small",
-    "Ladder_1_square",
-    "Jar_generic",
-    "Jar_ptr",
-    "Jar_warp",
-    "Locked_door",
+    "Jar small",
+    "Ladder 1 square",
+    "Jar generic",
+    "Jar ptr",
+    "Jar warp",
+    "Locked door",
     "Door",
-    "Dark_entrance",
-    "Vine_extends_to_ground",
-    "Vine_extends_to_ground_no_top",
-    "Star_background",
-    "Red_pillar_extends_to_ground",
-    "Cloud", //_16
-    "Small_cloud",
-    "Vine_extends_to_top",
-    "Entrance_exit_light_right",
-    "Entrance_exit_light_left",
-    "Entrance_extends_to_ground",
-    "Tree_extends_to_ground",
+    "Dark entrance",
+    "Vine extends to ground",
+    "Vine extends to ground no top",
+    "Star background",
+    "Red pillar extends to ground",
+    "Cloud", // 16
+    "Small cloud",
+    "Vine extends to top",
+    "Entrance exit light right",
+    "Entrance exit light left",
+    "Entrance extends to ground",
+    "Tree extends to ground",
     "Pyramid",
-    "Brick_background_extends_to_ground",
-    "Brick_wall_extends_to_ground",
-    "Vegetable_thrower_used_in_Warts_room",
+    "Brick background extends to ground",
+    "Brick wall extends to ground",
+    "Vegetable thrower used in Warts room",
     "???",
-    "Castle_entrance_1",
-    "Castle_entrance_2",
-    "Big_mouth_entrance_used_in_desert",
-    "Large_red_platform_background",
-    "Herb_with_coin", //_32
-    "Herb_with_fresh_vegetable",
-    "Herb_with_small_vegetable",
-    "Herb_with_rocket",
-    "Herb_with_turtle_shell",
-    "Herb_with_bomb",
-    "Herb_with_potion",
-    "Herb_with_1UP",
-    "Herb_with_POW", //_40_0x28
+    "Castle entrance 1",
+    "Castle entrance 2",
+    "Big mouth entrance used in desert",
+    "Large red platform background",
+    "Herb with coin", // 32
+    "Herb with fresh vegetable",
+    "Herb with small vegetable",
+    "Herb with rocket",
+    "Herb with turtle shell",
+    "Herb with bomb",
+    "Herb with potion",
+    "Herb with 1UP",
+    "Herb with POW", // 40 0x28
     "Cherry",
-    "Herb_with_Bob_omb",
-    "1st_sub_space_Mushroom", //_43_0x2b
-    "White/red_evil_head",
-    "2nd_sub_space_Mushroom", //_45_0x2d
-    "Whale_eye",
-    "Wood_wall_1_square"
+    "Herb with Bob omb",
+    "1st sub space Mushroom", // 43 0x2b
+    "White red evil head",
+    "2nd sub space Mushroom", // 45 0x2d
+    "Whale eye",
+    "Wood wall 1 square"
 ]
 
 var objEnum = {}
-MapObjectIds.map((x,y) => objEnum[x] = y)
+MapObjectIds.map((x,y) => objEnum[x.replaceAll(' ', '_')] = y)
 
 function get_map_obj_id (num) {
     if (num < 0x30)
@@ -481,9 +481,8 @@ var MapObjectIdsExtendable = [
 MapObjectIdsExtendable.map((x,y) => objEnum[x] = y * 0x10)
 
 var metadata = {
-    "0,0,0":"0>3",
-    "0,0,5":"02<4",
-    "0,1,0":"0>467",
+    "0,0,5":[0,1,2],
+    "0,1,0":[3,4,5,6,7,8,9],
     "0,1,1":"0>3",
     "1,2,3":"0>36",
     "2,0,1":"06>9",

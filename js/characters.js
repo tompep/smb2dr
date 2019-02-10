@@ -5,7 +5,8 @@ var character_config_form = {
             "name": "Default",
 
             "options": [
-                {"name": "Name", "desc": "", "val": "Name", "max": 10},
+                {"name": "Name", "desc": "Display name, truncates to 8 in game", "val": "Name", "max": 12},
+                {"name": "Slot Priority", "desc": "Slot Priority for character, lower is closer to first", "val": 0},
                 {"name": "Player Palette", "desc": "", "val": [0, 0, 0, 0], "class": "palette"},
                 {"name": "Select Palette", "desc": "", "val": [0, 0, 0, 0], "class": "palette"},
                 {"name": "Deselect Palette", "desc": "", "val": [0, 0, 0, 0], "class": "palette"},
@@ -36,16 +37,20 @@ var character_config_form = {
                         "Running Speed, left - in quicksand",
                         "Height offset (full-size)",
                         "Height offset (small)",
-                        "Carry offset final (full-size)",
-                        "Carry offset final (small)"]
+                        "Carry offset crouch (full-size)",
+                        "Carry offset crouch (small)",
+                        "Carry offset mid-carry (full-size)",
+                        "Carry offset mid-carry (small)",
+                        "Carry offset final-carry (full-size)",
+                        "Carry offset final-carry (small)"]
                     , "class": "mem_array", "mem_loc_name": "Character Stats", "min": -127, "max": 128},
                 {"name": "Characteristics", "desc": "", "class": "add_up_multi", 
                     "val": [ "Can Shrink",
                         "Can Run",
                         "Flutter Jump",
                         "Peach Walk",
-                        "n/a",
-                        "n/a",
+                        "Starting B costs Cherries",
+                        "Starting Up-B costs Cherries",
                         "n/a",
                         "Wide Sprite"]},
 
@@ -69,7 +74,7 @@ var character_config_form = {
                         "Unimplemented3" ,
 
                         "Kirby Jump",
-                        "Grapple",
+                        "Unimplemented",
                         "Space Jump",
                         "Bounce Jump",
                         "Bounce All",
@@ -85,17 +90,31 @@ var character_config_form = {
                         "Phanto Buddy",
                         "Fry Buddy",
                         "Fireball",
-                        "Bullet" ]}
+                        "Bullet",
+                        "Set bomb",
+                        "'Hammer'",
+                        "Ladder" ]}
+                ,
+                {"name": "Starting Up-B", "desc": "Text", "class": "add_up", 
+                    "val": [ "n/a",
+                        "Fire Flower",
+                        "Egg Thrower",
+                        "Bomb Thrower",
+                        "Phanto Buddy",
+                        "Fry Buddy",
+                        "Fireball",
+                        "Bullet",
+                        "Set bomb",
+                        "'Hammer'",
+                        "Ladder" ]}
             ]
         }
     ]
 }
 
 /*
- * 
- *
- * 
- * 
+ * TODO: Learn how to work with objects in Javascript
+ *          don't want to hardwire any html page stuff!  or most of it
  */
 
 function extract_characters(my_rom, mem_locs){
@@ -104,76 +123,83 @@ function extract_characters(my_rom, mem_locs){
     var char_stats = []
     char_stats_offset.map(x => char_stats.push(new Int8Array(extract_mem_block(my_rom, mem_locs, 'CharacterStats', 23, x))))
 
-    var char_pal = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterPalette', 16), 4)
+    var char_pal = Array.split(extract_mem_block(my_rom, mem_locs, 'CharacterPalette', 16), 4)
 
     var cps_offset = extract_mem_block(my_rom, mem_locs, 'PlayerSelectPaletteOffsets', 4)
     var char_pal_sel = [] 
     cps_offset.map(x => char_pal_sel.push(
         new Uint8Array(extract_mem_block(my_rom, mem_locs, 'PlayerSelectSpritePalettes', 4, x + 3))))
-    var char_names = split_em(extract_mem_block(my_rom, mem_locs, 
+    var char_names = Array.split(extract_mem_block(my_rom, mem_locs, 
         'EndingCelebrationText_MARIO', 12*4), 12).map(x => x.slice(3, x.length - 1))
 
-    var dspals = split_em(extract_mem_block(my_rom, mem_locs, 'PlayerSelectSpritePalettesDark', 16, 3), 4)
+    var dspals = Array.split(extract_mem_block(my_rom, mem_locs, 'PlayerSelectSpritePalettesDark', 16, 3), 4)
 
-    var char_frames = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterOne_Frames', 48*4), 48)
-    var s_char_frames = split_em(extract_mem_block(my_rom, mem_locs, 'CharacterOne_FramesSmall', 48*4), 48)
-    var char_frames_wide = split_em(extract_mem_block(my_rom, mem_locs, 'CO_ExtraFramesOne', 24*4), 24)
+    var char_frames = Array.split(extract_mem_block(my_rom, mem_locs, 'CharacterOne_Frames', 48*4), 48)
+    var s_char_frames = Array.split(extract_mem_block(my_rom, mem_locs, 'CharacterOne_FramesSmall', 48*4), 48)
+    var char_frames_wide = Array.split(extract_mem_block(my_rom, mem_locs, 'ExtraFramesOne', 24*4), 24)
 
     var char_meta_frames = [...extract_mem_block(my_rom, mem_locs, 'CharacterOneMetaFrames', 12*4)]
-    char_meta_frames = split_em(char_meta_frames.map((x, y) => extract_bits(x)), 12)
+    char_meta_frames = Array.split(char_meta_frames.map((x, y) => extract_bits(x)), 12)
     var s_char_meta_frames = [...extract_mem_block(my_rom, mem_locs, 'CharacterOneMetaFramesSmall', 12*4)]
-    s_char_meta_frames = split_em(s_char_meta_frames.map((x, y) => extract_bits(x)), 12)
+    s_char_meta_frames = Array.split(s_char_meta_frames.map((x, y) => extract_bits(x)), 12)
 
-    var char_sheet = split_em(extract_mem_block(my_rom, mem_locs, 'CHRBank_CharacterSize', 8), 2) 
+    var char_sheet = Array.split(extract_mem_block(my_rom, mem_locs, 'CHRBank_CharacterSize', 8), 2) 
     var ex_sheet = extract_mem_block(my_rom, mem_locs, 'CharacterExtraSheets', 4) 
     console.log(char_meta_frames, s_char_meta_frames)
     var char_eyes = extract_mem_block(my_rom, mem_locs, 'CharacterEyeTiles', 4) 
     var char_options = extract_mem_block(my_rom, mem_locs, 'DokiMode', 4)
-    var char_heights = split_em(extract_mem_block(my_rom, mem_locs, 'HeightOffset', 8), 4)
-    var char_carry = split_em(extract_mem_block(my_rom, mem_locs, 'CarryYOffsets', 16), 4)
-    var char_inventory = split_em(extract_mem_block(my_rom, mem_locs, 'StartingInventory', 16), 4)
-    var char_select_1 = split_em(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites1', 16*4), 16) 
-    var char_select_2 = split_em(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites2', 16*4), 16) 
-    var char_tiny1 = split_em(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites', 16), 4) 
-    var char_tiny2 = split_em(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites2', 16), 4) 
+    var char_heights = Array.split(extract_mem_block(my_rom, mem_locs, 'HeightOffset', 8), 4)
+    var char_carry = Array.split(extract_mem_block(my_rom, mem_locs, 'CarryYOffsets', 16), 4)
+    var char_carry_duck = Array.split(extract_mem_block(my_rom, mem_locs, 'CharacterYOffsetCrouch', 8), 4)
+    var char_inventory = Array.split(extract_mem_block(my_rom, mem_locs, 'StartingInventory', 16), 4)
+    var char_select_1 = Array.split(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites1', 20*4), 20) 
+    var char_select_2 = Array.split(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites2', 16*4), 16) 
+    var char_tiny1 = Array.split(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites', 16), 4) 
+    var char_tiny2 = Array.split(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites2', 16), 4) 
 
     var characters = []
     for(var i = 0; i < 4; i++){
         characters.push({
             stats: char_stats[i],
-            stats_off: char_stats_offset[i],
+            priority: player_order[i]*10,
+            version: 0,
             pal: char_pal[i],
             spal: char_pal_sel[i],
             dspal: dspals[player_order[i]],
-            soff: cps_offset[i],
             name: invertByTbl(char_names[i]),
 
-            frames: split_em(char_frames[i], 4),
-            w_frames: split_em(char_frames_wide[i], 2),
-            s_frames: split_em(s_char_frames[i], 4),
+            frames: Array.split(char_frames[i], 4),
+            w_frames: Array.split(char_frames_wide[i], 2),
+            s_frames: Array.split(s_char_frames[i], 4),
 
             m_big: char_meta_frames[i],
             m_small: s_char_meta_frames[i],
 
             eyes: char_eyes[i],
-            sheet_num: char_sheet[i],
-            ex_sheet: ex_sheet[i],
 
             characteristics: char_options[i],
             heights: [char_heights[0][i], char_heights[1][i]],
             carry: char_carry.map(x => x[i]),
+            carry_duck: char_carry_duck.map(x => x[i]),
             inventory: char_inventory.map(x => x[i]),
             char_select1: char_select_1[player_order[i]],
             char_select2: char_select_2[player_order[i]],
             char_tiny1: char_tiny1[player_order_d[i]],
-            char_tiny2: char_tiny2[player_order_d[i]]
+            char_tiny2: char_tiny2[player_order_d[i]],
+
+            stats_off: char_stats_offset[i],
+            soff: cps_offset[i],
+            sheet_num: char_sheet[i],
+            ex_sheet: ex_sheet[i],
         })
     }
     return characters
 }
 
-function extract_frames(bitmaps, width, height, offset=0, limit=32) {
+function extract_frames(bitmaps, width, height, offset=0, limit=32, og_uniques) {
     var unique_sprites = []
+    if (og_uniques)
+        unique_sprites = og_uniques
     var sprite_frame = []
     var sprite_meta = []
 
@@ -187,10 +213,10 @@ function extract_frames(bitmaps, width, height, offset=0, limit=32) {
         if (unique_sprites.length >= limit){
             break
         }
-        //split_em(new_spr, 8).map(x => x.reduce(bit_crush_2))
+        //Array.split(new_spr, 8).map(x => x.reduce(bit_crush_2))
         var sprite = bitmaps[s]
-        var new_spr = [].concat(...split_em(sprite, 8).map(x => x.reduce(bc2)))
-        var new_spr_mirror = [].concat(...split_em(sprite, 8).map(x => x.reverse().reduce(bc2)))
+        var new_spr = [].concat(...Array.split(sprite, 8).map(x => x.reduce(bc2)))
+        var new_spr_mirror = [].concat(...Array.split(sprite, 8).map(x => x.reverse().reduce(bc2)))
         // speed this up with 8 comparisons of proper shifted sprites
         if (sprite.reduce((a, c) => a + c) == 0){
             sprite_meta.push(0)
@@ -348,20 +374,35 @@ var char_viewer = function (id='char_viewer') {
     this.loaded_characters = {}
     
     this.preset_characters = {}
+    this.preset_characters_sets = {}
     this.id = id
 
+
+    // setup controls
     this.my_div = $('<div id="' + this.id + '" class="main_item"></div>')
 
     this.load_sheet = $('<input type="file" style="display: none" class="input" id="char_sheet_load" name="file"/>')
+    this.load_char = $('<input type="file" style="display: none" class="input" id="load_character" name="file"/>')
     
+    this.preset_control = $('<div class="option_div">')
+    var load_char = $("<button>Load Char File</button> ")
+    load_char.on('click', function() { my_obj.load_char.trigger('click') })
+    this.preset_control.append(this.load_char)
+    this.preset_control.append(load_char)
+
+    var save_sheet = $(" <button id='save_character'>Save Char File</button> ")
+    this.preset_control.append(save_sheet)
+
+    this.my_div.append(this.preset_control)
+
     this.option_control = $('<div class="option_div">')
     this.option_control.append(' <label> Character <input id="a_character" type="number" class="char_read" min="0" max="3" value="0"/> </label>')
     this.option_control.append(' <label> Frame <input id="a_frame" type="number" class="char_read" min="-1" max="10" value="0"/> </label>')
     this.option_control.append(' <label> <input id="a_size" type="checkbox" class="char_read"/> Small </label> ')
-    this.option_control.append(this.load_sheet)
 
     var load_sheet = $("<button>Load Sheet</button> ")
     load_sheet.on('click', function() { my_obj.load_sheet.trigger('click') })
+    this.option_control.append(this.load_sheet)
     this.option_control.append(load_sheet)
 
     var save_sheet = $(" <button id='char_sheet_save'>Save Sheet</button> ")
@@ -373,24 +414,29 @@ var char_viewer = function (id='char_viewer') {
 
     this.my_div.append(this.scratch_page)
     
-    var char_stat_control = $('<div id="char_stats"></div>') 
-    this.my_div.append(char_stat_control)
+    this.char_stat_control = $('<div id="char_stats"></div>') 
+    this.my_div.append(this.char_stat_control)
 
     var stat_tags = handle_options(character_config_form)
-    var option_tags = stat_tags[1].find('.option, .option_form, .option_select, .option_pal')
+    var option_tags = stat_tags[1].find('.option, .option_form, .option_select, .option_pal, .sub_option')
     for(var stat of [...option_tags]){
         this.my_stats[stat.id] = $(stat)
     }
-    char_stat_control.append(...stat_tags)
+    this.char_stat_control.append(...stat_tags)
     console.debug(this.my_stats)
 
     this.load_character_to_form = function(char_dict){
         var char_name = char_dict.name
-        console.log(char_dict.name)
-        var char_stats = new Int8Array([...char_dict.stats].concat([...char_dict.heights, char_dict.carry[0], char_dict.carry[2]]))
+        var priority = char_dict.priority
+        console.log(char_dict)
+        var char_stats = new Int8Array([...char_dict.stats].concat([...char_dict.heights, 
+            char_dict.carry_duck[0], char_dict.carry_duck[1],
+            char_dict.carry[1], char_dict.carry[3],
+            char_dict.carry[0], char_dict.carry[2]]))
         var my_stats = my_obj.my_stats
 
         my_stats['Name'].val(char_name)
+        my_stats['Slot_Priority'].val(priority)
         var stats_tags = my_stats['Character_Stats'].find('.sub_option')
         console.log(my_stats['Character_Stats'], stats_tags)
         for (var i in char_stats){
@@ -412,6 +458,220 @@ var char_viewer = function (id='char_viewer') {
         console.log(c_vals)
         my_stats['Starting_Inventory'].val(c_vals)
         my_stats['Starting_Power-Up'].val(char_dict.inventory[3])
+        my_stats['Starting_Up-B'].val(char_dict.inventory[4] > 0x80 ? char_dict.inventory[4] - 0x80 : 0)
+    }
+
+    this.load_img = function(dataURL=undefined){
+        console.log('Loading file...')
+        var img = new Image;
+
+        img.onload = function(){
+            var c_id = $('#a_character').val() & 0b11
+            var character = player_order[c_id]
+            var characters = info.meta_info.characters
+
+            var img_large = crop_bitmap(img, 0, 0, 24*12, 32)
+            var bitmap_sprites = create_sprites_from_bitmap(img_large, 8, 16) 
+            var palette = bitmap_sprites.colors, sheet = bitmap_sprites.sheet
+
+            var img_small = crop_bitmap(img, 0, 32, 16*12, 32)
+            var small_bitmap_sprites = create_sprites_from_bitmap(img_small, 8, 16, 0, 48, palette) 
+
+            var img_ex = crop_bitmap(img, 16*12, 32)
+            var ex_bitmaps = create_sprites_from_bitmap(img_ex, 8, 16) 
+            var ex_palette = ex_bitmaps.colors, ex_bitmap_sprites = ex_bitmaps.sheet
+            
+            // palette stuff
+            palette = normalizePlayerPal(palette).slice(0, 4)
+            ex_palette = normalizePlayerPal(ex_palette).slice(0, 4)
+
+            characters[character].pal = palette
+            characters[character].spal = ex_palette
+
+            var palette = $('.nespalette_select')
+            var player_pal = characters[character].pal.concat(characters[character].spal).concat([...characters[character].dspal])
+            palette.map(x => palette[x].value = player_pal[x])
+            palette.trigger('input')
+
+            // slice stuff
+            var ex_big = extract_frames(sheet, 3, 2, 0, 31)
+            var ex_small = extract_frames(small_bitmap_sprites.sheet, 2, 2)
+
+            var ex_stretch = extract_frames(sheet, 3, 2, ex_big.frames.length)
+            ex_stretch.meta.map(x => x[7] = 1)
+
+            var ex_stretch_small = extract_frames(
+                small_bitmap_sprites.sheet, 2, 2, ex_small.frames.length, 32, ex_stretch.uniques)
+            ex_stretch_small.meta.map(x => x[7] = 1)
+
+            ex_big.frames.push(...ex_stretch.frames)
+            ex_big.meta.push(...ex_stretch.meta)
+            ex_small.frames.push(...ex_stretch_small.frames)
+            ex_small.meta.push(...ex_stretch_small.meta)
+
+            characters[character].frames = ex_big.frames.map(x => [...x.slice(1,3), ...x.slice(4, 6)])
+            characters[character].s_frames = ex_small.frames
+            characters[character].w_frames = ex_big.frames.map(x => [x[0], x[3]])
+            characters[character].eyes = 0x3E
+
+            var eye_sprite = [].concat(...Array.split(ex_bitmap_sprites[8].map(x => x > 0 ? 2 : 0), 8).map(x => x.reduce(bc2)))
+
+            var big_sheet = []
+            ex_big.uniques.map(x => big_sheet.push(...Array.split(x, 8)))
+            while(big_sheet.length < 64) big_sheet.push(...Array.split(eye_sprite, 8))
+            big_sheet = big_sheet.slice(0, 64)
+
+            var sml_sheet = []
+            ex_small.uniques.map(x => sml_sheet.push(...Array.split(x, 8)))
+            while(sml_sheet.length < 64) sml_sheet.push(...Array.split(eye_sprite, 8))
+            sml_sheet = sml_sheet.slice(0, 64)
+
+            var ex_sheet = []
+            ex_stretch.uniques.map(x => ex_sheet.push(...Array.split(x, 8)))
+            while(ex_sheet.length < 64) ex_sheet.push(...Array.split(eye_sprite, 8))
+            ex_sheet = ex_sheet.slice(0, 64)
+
+            var indices = sprite_mask(ex_bitmap_sprites.length, 2, 2)
+            console.debug(indices)
+
+            var select_sheet = []
+            indices.slice(0,32).map(x => select_sheet.push(...
+                Array.split(Array.split(ex_bitmap_sprites[x], 8).map(x => x.reduce(bc2)), 8)))
+
+            write_sprites_to_rom(currentRom, mem_locs, 
+                select_sheet.slice(0,8), 0x30, c_id*8)  
+            select_sheet.slice(0,8).map((x,y) =>
+                sprites.all_sheets[0x30][y + c_id*8] = x)
+
+            write_sprites_to_rom(currentRom, mem_locs, 
+                select_sheet.slice(8,16), 0x30, c_id*8 + 0x20)  
+            select_sheet.slice(8,16).map((x,y) =>
+                sprites.all_sheets[0x30][y + c_id*8 + 0x20] = x)
+
+            write_sprites_to_rom(currentRom, mem_locs, 
+                select_sheet.slice(16,24), 0x31, c_id*8)  
+            select_sheet.slice(16,24).map((x,y) =>
+                sprites.all_sheets[0x31][y + c_id*8] = x)
+
+            write_sprites_to_rom(currentRom, mem_locs, 
+                select_sheet.slice(24,32), 0x31, c_id*8 + 0x20)  
+            select_sheet.slice(24,32).map((x,y) =>
+                sprites.all_sheets[0x31][y + c_id*8 + 0x20] = x)
+
+            var indices = sprite_mask(ex_bitmap_sprites.length, 1, 1)
+            console.debug(indices, 'windices')
+
+            var select_sheet = []
+            indices.slice(9,11).map(x => select_sheet.push(...
+                Array.split(Array.split(ex_bitmap_sprites[x], 8).map(x => x.reduce(bc2)), 8)))
+
+            write_sprites_to_rom(currentRom, mem_locs, 
+                select_sheet, 0x48, player_order_b[c_id]*4)  
+            select_sheet.map((x,y) =>
+                sprites.all_sheets[0x48][y + player_order_b[c_id]*4] = x)
+
+
+            var char_sheet = characters[character].sheet_num
+            var x_sheet = characters[character].ex_sheet
+            console.log(char_sheet)
+            sprites.all_sheets[char_sheet[0]] = big_sheet
+            sprites.all_sheets[char_sheet[1]] = sml_sheet
+            sprites.all_sheets[x_sheet] = ex_sheet
+
+            write_sprites_to_rom(currentRom, mem_locs, big_sheet, char_sheet[0])  
+            write_sprites_to_rom(currentRom, mem_locs, sml_sheet, char_sheet[1])  
+            write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
+            write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
+
+            console.log(char_sheet, x_sheet)
+
+            set_memory_location(currentRom, mem_locs, 'CharacterOne_Frames', 
+                characters[character].frames.reduce(
+                    (a=[], x) => a.concat(x)).slice(0, 0x30), 0x30*character)
+            set_memory_location(currentRom, mem_locs, 'CharacterOne_FramesSmall', 
+                characters[character].s_frames.reduce(
+                    (a=[], x) => a.concat(x)).slice(0, 0x30), 0x30*character)
+            set_memory_location(currentRom, mem_locs, 'ExtraFramesOne', 
+                characters[character].w_frames.reduce(
+                    (a=[], x) => a.concat(x)).slice(0, 24), 24*character)
+
+            console.log(ex_big.meta, ex_small.meta)
+            ex_big.meta.map(x => x.reverse())
+            ex_small.meta.map(x => x.reverse())
+            set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFrames', 
+                ex_big.meta.map(x => x.reduce(bc1)), 12*character)
+            set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFramesSmall', 
+                ex_small.meta.map(x => x.reduce(bc1)), 12*character)
+
+            set_memory_location(currentRom, mem_locs, 
+                'CharacterEyeTiles', [characters[character].eyes], character)
+            console.log(characters[character].eyes)
+
+            my_obj.write_to_character()
+            my_obj.show_character()
+            $("#char_sheet_load")[0].value = '';
+            return
+
+        };
+        img.src = dataURL;
+    }
+
+    this.save_character = function(){
+        var c_id = $('#a_character').val()
+        var character = player_order[c_id & 0b11]
+        var characters = info.meta_info.characters
+        var char_dict_target = characters[character]
+        var canvas = sprite_frames_to_canvas(char_dict_target, c_id, sprites)
+
+        let char_dict = Object.assign({}, char_dict_target)
+        console.log(char_dict)
+        char_dict.sheet = canvas.toDataURL()
+        for (var c in char_dict){
+            if (char_dict[c] instanceof Uint8Array)
+                char_dict[c] = [...char_dict[c]]
+            if (char_dict[c] instanceof Int8Array)
+                char_dict[c] = [...char_dict[c]]
+
+        }
+        delete char_dict.stats_off
+        delete char_dict.soff
+        delete char_dict.sheet_num
+        delete char_dict.ex_sheet
+        downloadJSON(char_dict, 'character.json')
+    }
+
+    this.load_character_file_input = function (evt){
+        var loader = function(e){
+            console.log('Loading config...')
+            var result = JSON.parse(e.target.result);
+            var my_name = file.name.replace('.json', '')
+            my_obj.load_character(result)
+        }
+        for (var file of evt.target.files){
+            var reader = new FileReader();
+            reader.onload = loader
+            reader.readAsText(file)
+            console.log(file)
+        }
+    }
+
+    this.load_character = function(new_char_dict){
+        var c_id = $('#a_character').val()
+        var character = player_order[c_id & 0b11]
+        var characters = info.meta_info.characters
+
+        new_char_dict.stats_off = characters[character].stats_off
+        new_char_dict.soff = characters[character].soff
+        new_char_dict.sheet_num = characters[character].sheet_num
+        new_char_dict.ex_sheet = characters[character].ex_sheet
+
+        characters[character] = new_char_dict
+
+        console.log(new_char_dict)
+        my_obj.load_character_to_form(new_char_dict)
+        my_obj.load_img(new_char_dict.sheet)
+        delete new_char_dict.sheet
+        my_obj.write_to_character()
     }
 
     this.show_character = function () {
@@ -516,158 +776,8 @@ var char_viewer = function (id='char_viewer') {
         var file = evt.target.files[0]
         var reader = new FileReader();
         console.log('Loading file...?')
-        reader.onload = function(){
-            console.log('Loading file...')
-            var dataURL = reader.result
-            var img = new Image;
-        
-            img.onload = function(){
-                var c_id = $('#a_character').val() & 0b11
-                var character = player_order[c_id]
-                var characters = info.meta_info.characters
 
-                var img_large = crop_bitmap(img, 0, 0, 24*12, 32)
-                var bitmap_sprites = create_sprites_from_bitmap(img_large, 8, 16) 
-                var palette = bitmap_sprites.colors, sheet = bitmap_sprites.sheet
-
-                var img_small = crop_bitmap(img, 0, 32, 16*12, 32)
-                var small_bitmap_sprites = create_sprites_from_bitmap(img_small, 8, 16, 0, 48, palette) 
-
-                var img_ex = crop_bitmap(img, 16*12, 32)
-                var ex_bitmaps = create_sprites_from_bitmap(img_ex, 8, 16) 
-                var ex_palette = ex_bitmaps.colors, ex_bitmap_sprites = ex_bitmaps.sheet
-                
-                // palette stuff
-                palette = normalizePlayerPal(palette).slice(0, 4)
-                ex_palette = normalizePlayerPal(ex_palette).slice(0, 4)
-
-                characters[character].pal = palette
-                characters[character].spal = ex_palette
-
-                var palette = $('.nespalette_select')
-                var player_pal = characters[character].pal.concat(characters[character].spal).concat([...characters[character].dspal])
-                palette.map(x => palette[x].value = player_pal[x])
-                palette.trigger('input')
-
-                // slice stuff
-                var ex_big = extract_frames(sheet, 3, 2, 0, 31)
-                var ex_small = extract_frames(small_bitmap_sprites.sheet, 2, 2)
-
-                var ex_stretch = extract_frames(sheet, 3, 2, ex_big.frames.length)
-                ex_stretch.meta.map(x => x[7] = 1)
-
-                ex_big.frames.push(...ex_stretch.frames)
-                ex_big.meta.push(...ex_stretch.meta)
-
-                characters[character].frames = ex_big.frames.map(x => [...x.slice(1,3), ...x.slice(4, 6)])
-                characters[character].s_frames = ex_small.frames
-                characters[character].w_frames = ex_big.frames.map(x => [x[0], x[3]])
-                characters[character].eyes = 0x3E
-
-                var eye_sprite = [].concat(...split_em(ex_bitmap_sprites[8].map(x => x > 0 ? 2 : 0), 8).map(x => x.reduce(bc2)))
-
-                var big_sheet = []
-                ex_big.uniques.map(x => big_sheet.push(...split_em(x, 8)))
-                while(big_sheet.length < 64) big_sheet.push(...split_em(eye_sprite, 8))
-                big_sheet = big_sheet.slice(0, 64)
-
-                var sml_sheet = []
-                ex_small.uniques.map(x => sml_sheet.push(...split_em(x, 8)))
-                while(sml_sheet.length < 64) sml_sheet.push(...split_em(eye_sprite, 8))
-                sml_sheet = sml_sheet.slice(0, 64)
-
-                var ex_sheet = []
-                ex_stretch.uniques.map(x => ex_sheet.push(...split_em(x, 8)))
-                while(ex_sheet.length < 64) ex_sheet.push(...split_em(eye_sprite, 8))
-                ex_sheet = ex_sheet.slice(0, 64)
-
-                var indices = sprite_mask(ex_bitmap_sprites.length, 2, 2)
-                console.debug(indices)
-
-                var select_sheet = []
-                indices.slice(0,32).map(x => select_sheet.push(...
-                    split_em(split_em(ex_bitmap_sprites[x], 8).map(x => x.reduce(bc2)), 8)))
-
-                write_sprites_to_rom(currentRom, mem_locs, 
-                    select_sheet.slice(0,8), 0x30, character*16)  
-                select_sheet.slice(0,8).map((x,y) =>
-                    sprites.all_sheets[0x30][y + character*16] = x)
-
-                write_sprites_to_rom(currentRom, mem_locs, 
-                    select_sheet.slice(8,16), 0x30, character*8 + 0x20)  
-                select_sheet.slice(8,16).map((x,y) =>
-                    sprites.all_sheets[0x30][y + character*16 + 0x20] = x)
-
-                write_sprites_to_rom(currentRom, mem_locs, 
-                    select_sheet.slice(16,24), 0x31, character*8)  
-                select_sheet.slice(16,24).map((x,y) =>
-                    sprites.all_sheets[0x31][y + character*16] = x)
-
-                write_sprites_to_rom(currentRom, mem_locs, 
-                    select_sheet.slice(24,32), 0x31, character*16 + 0x20)  
-                select_sheet.slice(24,32).map((x,y) =>
-                    sprites.all_sheets[0x31][y + character*16 + 0x20] = x)
-
-                var indices = sprite_mask(ex_bitmap_sprites.length, 1, 1)
-                console.debug(indices, 'windices')
-
-                var select_sheet = []
-                indices.slice(9,11).map(x => select_sheet.push(...
-                    split_em(split_em(ex_bitmap_sprites[x], 8).map(x => x.reduce(bc2)), 8)))
-
-                write_sprites_to_rom(currentRom, mem_locs, 
-                    select_sheet, 0x48, character*4)  
-                select_sheet.map((x,y) =>
-                    sprites.all_sheets[0x48][y + character*4] = x)
-
-
-                var char_sheet = characters[character].sheet_num
-                var x_sheet = characters[character].ex_sheet
-                console.log(char_sheet)
-                sprites.all_sheets[char_sheet[0]] = big_sheet
-                sprites.all_sheets[char_sheet[1]] = sml_sheet
-                sprites.all_sheets[x_sheet] = ex_sheet
-
-                write_sprites_to_rom(currentRom, mem_locs, big_sheet, char_sheet[0])  
-                write_sprites_to_rom(currentRom, mem_locs, sml_sheet, char_sheet[1])  
-                write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
-                write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
-
-                console.log(char_sheet, x_sheet)
-
-                set_memory_location(currentRom, mem_locs, 'CharacterOne_Frames', 
-                    characters[character].frames.reduce(
-                        (a=[], x) => a.concat(x)), 0x30*character)
-                set_memory_location(currentRom, mem_locs, 'CharacterOne_FramesSmall', 
-                    characters[character].s_frames.reduce(
-                        (a=[], x) => a.concat(x)), 0x30*character)
-                set_memory_location(currentRom, mem_locs, 'CO_ExtraFramesOne', 
-                    characters[character].w_frames.reduce(
-                        (a=[], x) => a.concat(x)), 24*character)
-
-                console.log(ex_big.meta, ex_small.meta)
-                ex_big.meta.map(x => x.reverse())
-                ex_small.meta.map(x => x.reverse())
-                set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFrames', 
-                    ex_big.meta.map(x => x.reduce(bc1)), 12*character)
-                set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFramesSmall', 
-                    ex_small.meta.map(x => x.reduce(bc1)), 12*character)
-
-                //set_memory_location(currentRom, mem_locs, 'CharacterOne_Frames', 
-                //    characters[character].frames.reduce((a=[], x) => a.concat(x)), 0x2c*character)
-
-                set_memory_location(currentRom, mem_locs, 
-                    'CharacterEyeTiles', [characters[character].eyes], character)
-                console.log(characters[character].eyes)
-
-                my_obj.write_to_character(evt)
-                my_obj.show_character(evt)
-                $("#char_sheet_load")[0].value = '';
-                return
-
-            };
-            img.src = dataURL;
-        }
+        reader.onload = function(){my_obj.load_img(this.result)}
         reader.readAsDataURL(file)
     }
 
@@ -677,15 +787,20 @@ var char_viewer = function (id='char_viewer') {
         var characters = info.meta_info.characters
         var char_dict = characters[character]
 
-        var stats_tags = $('#char_stats input#Character_Stats')
+        var stats_tags = $('#char_stats #Character_Stats .sub_option')
         char_dict.name = $('#char_stats #Name').val()
+        char_dict.priority = $('#char_stats #Slot_Priority').val()
         for (var i in char_dict.stats){
             char_dict.stats[i] = stats_tags[i].value
         }
         char_dict.heights[0] = stats_tags[23].value
         char_dict.heights[1] = stats_tags[24].value
-        char_dict.carry[0] = stats_tags[25].value
-        char_dict.carry[2] = stats_tags[26].value
+        char_dict.carry_duck[0] = stats_tags[25].value
+        char_dict.carry_duck[1] = stats_tags[26].value
+        char_dict.carry[1] = stats_tags[27].value
+        char_dict.carry[3] = stats_tags[28].value
+        char_dict.carry[0] = stats_tags[29].value
+        char_dict.carry[2] = stats_tags[30].value
 
         var s_i = $('#char_stats select#Characteristics').val()
         char_dict.characteristics = 0
@@ -701,6 +816,10 @@ var char_viewer = function (id='char_viewer') {
         }
         var s_p = $('#char_stats select#Starting_Power-Up').val()
         char_dict.inventory[3] = parseInt(s_p)
+        var s_p = $('#char_stats select#Starting_Up-B').val()
+        char_dict.inventory[4] = parseInt(s_p)
+        if (char_dict.inventory[4])
+            char_dict.inventory[4] += 0x80
 
         console.log(char_dict)
 
@@ -712,13 +831,19 @@ var char_viewer = function (id='char_viewer') {
         set_memory_location(currentRom, mem_locs, 'CarryYOffsets', [char_dict.carry[1]], character+4)
         set_memory_location(currentRom, mem_locs, 'CarryYOffsets', [char_dict.carry[2]], character+8)
         set_memory_location(currentRom, mem_locs, 'CarryYOffsets', [char_dict.carry[3]], character+12)
+        set_memory_location(currentRom, mem_locs, 'CharacterYOffsetCrouch', [char_dict.carry_duck[0]], character)
+        set_memory_location(currentRom, mem_locs, 'CharacterYOffsetCrouch', [char_dict.carry_duck[1]], character+4)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[0]], character)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[1]], character+4)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[2]], character+8)
         set_memory_location(currentRom, mem_locs, 'StartingProjectile', [char_dict.inventory[3]], character)
+        set_memory_location(currentRom, mem_locs, 'StartingHold', [char_dict.inventory[4]], character)
         set_memory_location(currentRom, mem_locs, 'CharacterPalette', char_dict.pal, 4*character)
         set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettes', char_dict.spal, char_dict.soff + 3)
         set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettesDark', char_dict.dspal, 3 + 4*character)
+        set_memory_location(currentRom, mem_locs, 'EndingCelebrationText_MARIO', convertByTbl(char_dict.name, 8).slice(0, 8), 3 + 12*character)
+        set_memory_location(currentRom, mem_locs, 'TEXT_Mario', convertByTbl(char_dict.name, 8).slice(0, 8), 4 + 13*character)
+
     }
 
     this.outputSpriteSelect = function(evt) {
@@ -735,27 +860,17 @@ var char_viewer = function (id='char_viewer') {
         div.append(img)
     }
 
+    // AAA
     this.my_div.find('#char_stats input').on('change', my_obj.write_to_character)
     this.my_div.find('#char_stats select').on('change', my_obj.write_to_character)
     this.my_div.find('.nespalette_select').on('change', my_obj.show_character)
     this.my_div.find('.nespalette_select').on('change', my_obj.write_to_character)
     this.my_div.find('#char_sheet_load').on('input', my_obj.handleSpriteSelect)
+    this.my_div.find('#char_sheet_load').on('input', function (evt){my_obj.handleSpriteSelect(evt); this.value=null})
     this.my_div.find('#char_sheet_save').on('click', my_obj.outputSpriteSelect)
+    this.my_div.find('#load_character').on('input', function (evt){my_obj.load_character_file_input(evt); this.value=null})
+    this.my_div.find('#save_character').on('click', my_obj.save_character)
     this.my_div.find('.char_read').on('input', my_obj.show_character)
 
 }
-
-var character_frames = [
-    "Walk1",
-    "Carry1",
-    "Walk2",
-    "Carry2",
-    "Duck",
-    "DuckCarry",
-    "Jump",
-    "Death",
-    "Lift",
-    "Throw",
-    "Climb"
-]
 

@@ -1,10 +1,10 @@
 
 var c_rand = ['blue', 'black', 'green', 'purple']
+var poses = [up, down, left, right]
 var up = [0, -1],
     down = [0, 1],
     left = [-1, 0],
     right = [1, 0]
-var poses = [up, down, left, right]
 
 function ping_spots (map, x, y){
     var start_dirs = []
@@ -42,7 +42,7 @@ function ping_spots (map, x, y){
     return start_dirs
 }
 
-function test_door_randomizer(num){
+function test_door_randomizer(my_levels, num){
     if (Math.seedrandom)
         Math.seedrandom(rando_seed)
     canvas = document.getElementById("myCanvas"),
@@ -62,7 +62,7 @@ function test_door_randomizer(num){
 
     var num_out = 0
     var oe = objEnum
-    for (var my_l of info.my_levels.slice(0, num)) {
+    for (var my_l of my_levels) {
         if (my_l == undefined)
             continue
         num_out++
@@ -219,4 +219,100 @@ function render_connection (map, node, parent, dir){
         x += node.vertical ? 0 : 1
     }
     return candidates
+}
+
+function RandomAlgo2(my_levels, meta_info){
+    var modified_my_l = []
+    var free_nodes = []
+    var odd_nodes = []
+    var boss_nodes = []
+    for (var pos = 0; pos < my_levels.length; pos++){
+        if (my_levels[pos] === undefined || pos >= 200){
+            modified_my_l.push(undefined)
+            continue
+        }
+        var my_l = my_levels[pos]
+        var my_h = my_l.header
+        var my_e = my_l.enemies
+        var world = my_l.world
+        var level = my_l.level
+        var room = my_l.room
+        var code = "" + world + "," + level + "," + room 
+        // handle world stuff in another not crappy function
+        console.log(code)
+        var isBoss = my_e.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+        var oddPath = code in metadata
+        if (my_l.is_jar){
+            console.log('this is jar')
+        }
+        else if (isBoss){
+            var result = create_room_node(my_l, my_h, my_e, meta_info)
+            boss_nodes.push(result)
+            console.log('this is boss')
+        }
+        else if (oddPath){
+            var result = create_room_node(my_l, my_h, my_e, meta_info)
+            odd_nodes.push(result)
+            console.log('this is odd')
+        }
+        else {
+            var result = create_room_node(my_l, my_h, my_e, meta_info)
+            free_nodes.push(result)
+            console.log('this is ok')
+            console.log(result.max_doors, my_h.pages + 1)
+        }
+        modified_my_l.push(my_l)
+    }
+    extendRandom2(free_nodes, boss_nodes, odd_nodes)
+    
+    return {
+        my_l: modified_my_l,
+        f_n: free_nodes,
+        b_n: boss_nodes,
+        o_n: odd_nodes
+    }
+}
+
+function flood_fill(map, my_tile, vertical, open={}, steps=999) {
+    steps = steps - 1
+    if (!steps)
+        return open
+    if (!(my_tile != null && map[my_tile.pos_page])) return open
+    if (!open[my_tile.id()]) open[my_tile.id()] = true
+    else return open
+
+    var start_tile = map[my_tile.pos_page][my_tile.pos_y][my_tile.pos_x]
+    if (start_tile.solidity > 1) return
+    var new_tile = my_tile.adjust(down, vertical)
+    var gravity = false
+
+    if (new_tile != null && map[new_tile.pos_page]) {
+        var alexander_bottom_tile = map[new_tile.pos_page][new_tile.pos_y][new_tile.pos_x]
+        if (alexander_bottom_tile.solidity || gravity){
+            var new_tile = my_tile.adjust(up, vertical)
+            flood_fill(map, new_tile, vertical, open)
+            var new_tile = my_tile.adjust(left, vertical)
+            flood_fill(map, new_tile, vertical, open)
+            var new_tile = my_tile.adjust(right, vertical)
+            flood_fill(map, new_tile, vertical, open)
+        }
+        else
+            flood_fill(map, new_tile, vertical, open)
+    }
+    return open
+}
+
+function flood_fill_to_cursor(map, my_tile, vertical){
+    var output = flood_fill(map, my_tile, vertical)
+    var poses = []
+    for (var key in output){
+        var pose = key.split(',')
+        var new_pose = [pose[1] * 16, pose[0] * 16]
+        if (!vertical)
+            new_pose[1] += pose[2] * 256
+        if (vertical)
+            new_pose[0] += pose[2] * 240
+        poses.push(new_pose)
+    }
+    draw_tiles_select(poses)
 }

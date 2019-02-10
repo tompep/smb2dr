@@ -1,4 +1,48 @@
 
+// basic tile locator
+//
+var pos_tile = function(x, y, page){
+    this.pos_x = x
+    this.pos_y = y
+    this.pos_page = page
+    this.id = function(){
+        return [this.pos_x, this.pos_y, this.pos_page]
+    }
+    this.adjust = function(dir, vert){
+        var j = dir[0] + this.pos_x
+        var i = dir[1] + this.pos_y
+        var page_offset = 0
+
+        if (j < 0) {
+            if (!vert) page_offset--
+            else return null
+            j = j + 16
+        }
+        else if (j > 15){
+            if (!vert) page_offset++
+            else return null
+            j -= 16
+        }
+        if (i < 0) {
+            if (vert) page_offset--
+            else return null
+            i = i + 15
+        }
+        else if (i > 14){
+            if (vert) page_offset++
+            else return null
+            i -= 15
+        }
+
+        return new pos_tile(j, i, this.pos_page + page_offset)
+    }
+}
+
+var up = [0, -1],
+    down = [0, 1],
+    left = [-1, 0],
+    right = [1, 0]
+
 // Function to write bytes to output
 
 function write_enemy_bytes(enemies, page_cnt, vertical){
@@ -34,60 +78,9 @@ function write_header_bytes(h){
     return [byte1, byte2, byte3, byte4]
 }
     
-function RandomAlgo2(my_levels, meta_info){
-    var modified_my_l = []
-    var free_nodes = []
-    var odd_nodes = []
-    var boss_nodes = []
-    for (var pos = 0; pos < my_levels.length; pos++){
-        if (my_levels[pos] === undefined || pos >= 200){
-            modified_my_l.push(undefined)
-            continue
-        }
-        var my_l = my_levels[pos]
-        var my_h = my_l.header
-        var my_e = my_l.enemies
-        var world = my_l.world
-        var level = my_l.level
-        var room = my_l.room
-        var code = "" + world + "," + level + "," + room 
-        // handle world stuff in another not crappy function
-        console.log(code)
-        var isBoss = my_e.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-        var oddPath = code in metadata
-        if (my_l.is_jar){
-            console.log('this is jar')
-        }
-        else if (isBoss){
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            boss_nodes.push(result)
-            console.log('this is boss')
-        }
-        else if (oddPath){
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            odd_nodes.push(result)
-            console.log('this is odd')
-        }
-        else {
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            free_nodes.push(result)
-            console.log('this is ok')
-            console.log(result.max_doors, my_h.pages + 1)
-        }
-        modified_my_l.push(my_l)
-    }
-    extendRandom2(free_nodes, boss_nodes, odd_nodes)
-    
-    return {
-        my_l: modified_my_l,
-        f_n: free_nodes,
-        b_n: boss_nodes,
-        o_n: odd_nodes
-    }
-}
 
 function create_ground_modifier(data){
-    return [0xfa, 0xfa].concat(data.slice(1))
+    return [0xfa].concat(data.slice(1))
 }
 
 function push_modifier(mod, code=0xf9){
@@ -97,7 +90,7 @@ function push_modifier(mod, code=0xf9){
     var length = mod.contents.length
     if (mod.repeat){
         contents = mod.contents[0]
-        length = 0x40 + length
+        length = 0x40 + mod.repeat
     }
     if (mod.vertical){
         length = 0x80 + length
@@ -119,10 +112,12 @@ function write_level_bytes(my_l, world=0){
     sorted_ground = grounds.sort(function(a,b){
         return  a.pos_page - b.pos_page || a.column_tile - b.column_tile
     })
+    var current_modifiers = my_l.modifiers
 
     if (Array.isArray(my_l.header.ground_type)){
-        var mod = create_ground_modifier(my_l.header.ground_type)
-        output.push(...mod)
+        var b = create_ground_modifier(my_l.header.ground_type)
+        output.push(...b, my_l.world + 1)
+        console.debug(output)
     }
 
     // for each layer that isn't empty
@@ -227,16 +222,23 @@ function write_level_bytes(my_l, world=0){
             var pos_yx = pos_y << 4
             pos_yx += pos_x
             var contents = mod.contents
+            while (contents.length < 3)
+                contents.push(0x00)
             output_content.push(...([pos_page, pos_yx].concat(contents.slice(0, 3))))
         }
-        output.concat(output_content)
+        output.push(...output_hot)
+        output.push(output_content.length)
+        output.push(...output_content)
+        console.log(my_l.hotspots, output_content)
     }
-        
-    if (my_l.modifiers.length){
-        for(var mod of my_l.modifiers){
+
+    if (current_modifiers.length){
+        for(var mod of current_modifiers){
             output.push(...push_modifier(mod))
         }
+        current_modifiers = []
     }
+        
 
     if (my_l.is_jar){
         output.push(...push_modifier({
@@ -348,7 +350,14 @@ function create_smb_object(type, x, y, page, layer=0, param=0){
         pos_x: x,
         pos_y: y,
         pos_page: page,
-        layer: layer
+        layer: layer,
+        to_pos_tile: function () {new pos_tile(this.pos_x, this.pos_y, this.pos_page)},
+        adjust_obj: function (dir, vert) {
+            var new_pos = this.to_pos_tile().adjust(dir, vert)
+            this.pos_x = new_pos.pos_x
+            this.pos_y = new_pos.pos_y
+            this.pos_page = new_pos.pos_page
+        }
     }
 }
 
@@ -359,7 +368,14 @@ function create_smb_enemy(type, y, x, page, vertical){
         obj_type: type,
         pos_x: x,
         pos_y: vertical ? (y + 16 * page) % 15 : y,
-        pos_page: vertical ? ~~((y + 16 * page) / 15) : page
+        pos_page: vertical ? ~~((y + 16 * page) / 15) : page,
+        to_pos_tile: function () {new pos_tile(this.pos_x, this.pos_y, this.pos_page)},
+        adjust_obj: function (dir, vert) {
+            var new_pos = this.to_pos_tile().adjust(dir, vert)
+            this.pos_x = new_pos.pos_x
+            this.pos_y = new_pos.pos_y
+            this.pos_page = new_pos.pos_page
+        }
     }
 }
 
@@ -389,14 +405,14 @@ function extract_tile_bytes(contents, mem_locs={}){
     var bytes = contents.slice(tile_block)
     // 8000, 16 * 7, 12 * 3
     var backgr_pal_ptrs = extract_ptrs(bytes, 14).map(x => x - bank_offset)
-    var background_pals = backgr_pal_ptrs.slice(0,7).map(x => split_em(split_em(bytes.slice(x, x+4*4*8), 4), 4))
-    var sprite_pals = backgr_pal_ptrs.slice(7,14).map(x => split_em(split_em(bytes.slice(x, x+3*4*4), 4), 3))
+    var background_pals = backgr_pal_ptrs.slice(0,7).map(x => Array.split(Array.split(bytes.slice(x, x+4*4*8), 4), 4))
+    var sprite_pals = backgr_pal_ptrs.slice(7,14).map(x => Array.split(Array.split(bytes.slice(x, x+3*4*4), 4), 3))
 
     //
     var remainder = bytes.slice(14*2 + 7*16*7 + 7*12*3)
     var horiz_ptrs = extract_ptrs(remainder, 14).map(x => x - bank_offset)
-    var horiz_tiles = horiz_ptrs.slice(0,7).map(x => split_em(bytes.slice(x, x+8*4), 4))
-    var vert_tiles = horiz_ptrs.slice(7,14).map(x => split_em(bytes.slice(x, x+8*4), 4))
+    var horiz_tiles = horiz_ptrs.slice(0,7).map(x => Array.split(bytes.slice(x, x+8*4), 4))
+    var vert_tiles = horiz_ptrs.slice(7,14).map(x => Array.split(bytes.slice(x, x+8*4), 4))
 
     //
     var remainder = bytes.slice(0x1200)
@@ -409,7 +425,7 @@ function extract_tile_bytes(contents, mem_locs={}){
 
     var obj_tiles = extract_ptr_mem_block(contents, mem_locs, 'WorldObjectTilePointersLo', 7, 0xFF)
     var tileq = extract_ptr_mem_block(contents, mem_locs, 'TileQuadPointersLo', 4, 0xFF) 
-    for (q in tileq) tileq[q] = split_em(tileq[q], 4)
+    for (q in tileq) tileq[q] = Array.split(tileq[q], 4)
 
     return {
         bpals: background_pals,
@@ -420,8 +436,8 @@ function extract_tile_bytes(contents, mem_locs={}){
         vset: vert_set,
         obj_tiles: obj_tiles,
         tile_quads: tileq,
-        world_single: split_em(extract_mem_block(contents, mem_locs, 'World1thru6SingleBlocks', 14), 7),
-        object_tiles: split_em(split_em(extract_mem_block(contents, mem_locs, 'World1ObjectTiles', 9*7*4), 4), 9)
+        world_single: Array.split(extract_mem_block(contents, mem_locs, 'World1thru6SingleBlocks', 14), 7),
+        object_tiles: Array.split(Array.split(extract_mem_block(contents, mem_locs, 'World1ObjectTiles', 9*7*4), 4), 9)
     }
     
 }
@@ -506,8 +522,8 @@ function extract_all_info (contents_full, mem_locs={}){
     var level_start = extract_mem_block(contents, mem_locs, 'Data_StartLevel', 4)
     var char_start = extract_mem_block(contents, mem_locs, 'CharLockVar', 1)
 
-    var enemy_1 = split_em(extract_mem_block(contents, mem_locs, 'EnemyTilemap1', 0xFF), 2)
-    var enemy_2 = split_em(extract_mem_block(contents, mem_locs, 'EnemyTilemap2', 0xFF), 2)
+    var enemy_1 = Array.split(extract_mem_block(contents, mem_locs, 'EnemyTilemap1', 0xFF), 2)
+    var enemy_2 = Array.split(extract_mem_block(contents, mem_locs, 'EnemyTilemap2', 0xFF), 2)
     var a_tiles = extract_mem_block(contents, mem_locs, 'EnemyAnimationTable', 0xFF)
     var data_46e = extract_mem_block(contents, mem_locs, 'EnemyArray_46E_Data', 0xFF)
     var obj_attr_data = extract_mem_block(contents, mem_locs, 'ObjectAttributeTable', 0xFF)
@@ -677,7 +693,7 @@ function read_object(level_bytes, world=0) {
                     loc_r: p_right,
                     contents: contents,
                     length: tru_count,
-                    repeat: repeat,
+                    repeat: repeat ? tru_count : 0,
                     vertical: vert
                 })
             }
@@ -825,27 +841,27 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
 
 
     var final_bytes = [...ptr_order]
-    console.log('len-og-s', final_bytes.length)
+    console.debug('len-og-s', final_bytes.length)
     final_bytes.push(...all_new_ptrs_l)
-    console.log('len-og-s', final_bytes.length)
+    console.debug('len-og-s', final_bytes.length)
     while(final_bytes.length < allcnt - 210){
         final_bytes.push(0xFF)
     }
     final_bytes.push(...all_new_ptrs_h)
-    console.log('len-og-s', final_bytes.length)
+    console.debug('len-og-s', final_bytes.length)
     while(final_bytes.length < allcnt){
         final_bytes.push(0xFF)
     }
     final_bytes.push(...all_new_data)
-    console.log('padding', 0xa500 - final_bytes.length - 0x8000)
-    console.log('len-og-s', final_bytes.length)
-    console.log('len-level', final_bytes.length.toString(16))
+    console.debug('padding', 0xa500 - final_bytes.length - 0x8000)
+    console.debug('len-og-s', final_bytes.length)
+    console.debug('len-level', final_bytes.length.toString(16))
     while(final_bytes.length < 0xa500 - 0x8000){
         final_bytes.push(0xFF)
     }
-    console.log('len-og-s', final_bytes.length.toString(16))
+    console.debug('len-og-s', final_bytes.length.toString(16))
     final_bytes.push(...eptr_order)
-    console.log('len-og', final_bytes.length.toString(16))
+    console.debug('len-og', final_bytes.length.toString(16))
     var h_pieces = []
     var l_pieces = []
     for(var i = 0; i < 210; i++) h_pieces.push(all_new_e_ptrs_h.slice(10*i, 10*i+10))
@@ -854,17 +870,17 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
         final_bytes.push(...h_pieces[i])
         final_bytes.push(...l_pieces[i])
     }
-    console.log('len-lptr', final_bytes.length.toString(16))
+    console.debug('len-lptr', final_bytes.length.toString(16))
     while(final_bytes.length < 0xa500 - 0x8000 + 420){
         final_bytes.push(0xFF)
     }
-    console.log('len-ptr-pad', final_bytes.length.toString(16))
+    console.debug('len-ptr-pad', final_bytes.length.toString(16))
     final_bytes.push(...all_new_enmy)
-    console.log('lenfinal', final_bytes.length.toString(16))
+    console.log('Final length of level bytes', final_bytes.length.toString(16))
     while(final_bytes.length < 0x4000){
         final_bytes.push(0xFF)
     }
-    console.log('lenfinal', final_bytes.length.toString(16))
+    console.debug('lenfinal', final_bytes.length.toString(16))
 
     // bugs to fix
     // no doors on page0 column0

@@ -30,10 +30,11 @@
             <img src="css/titletop2.png"></img>
             </br>
             </br>
-            <div class="option_div">
-            Live Page: <a href="https://smb2randomizer.github.io/smb2dr/">https://smb2randomizer.github.io/smb2dr/</a>
+            <div class="option_div" id="links">
+            Live Page: <a target='_blank' href="https://smb2randomizer.github.io/smb2dr/">https://smb2randomizer.github.io/smb2dr/</a>
             </br>
-            Live Src: <a href="https://github.com/smb2randomizer">https://github.com/smb2randomizer/</a>
+            Live Src: <a target='_blank' href="https://github.com/smb2randomizer">https://github.com/smb2randomizer/</a>
+            </br>
             </div>
             </br>
             <div id="top_nav" class="pad5">
@@ -100,20 +101,22 @@
 
             <div id="randomizer_body" class="main_item">
                 <label style="display: block">Seed <input type="text" class="input" id="seed"/></label>
+                <button id="random_seed" onclick="starting_seed()">Daily Seed </button>
                 <button id="random_seed" onclick="$('#seed').val(rand_seed(Math.seedrandom()))">Random Seed </button>
                 <br/>
                 <br/>
+                <div>Preset Configurations</div>
                 <div class='option_div'>
                     <div id='preset_images'></div>
-                    <select id="preset_game" class="a_preset" oninput="reload_options(presets[this.value].config, '#randomizer_body')">
+                    <select id="preset_game" class="a_preset" oninput="reload_options(presets[this.value].config, $('#randomizer'))">
                         <option value='-1'>Select Preset</option>
                     </select>
                     <button onclick="$('#option_load').trigger('click')">Load Preset </button>
                     <div class="hide_me">
-                        <input type="file" id="option_load" class="hide_me" name="files[]"
-                            onchange="load_options(event.target.files, '#randomizer_body')"></input>
+                        <input type="file" id="option_load" class="hide_me" name="files[]" multiple
+                            onchange="load_options(event.target.files, $('#randomizer'))"></input>
                     </div>
-                    <button onclick="save_options('#randomizer_body', 'smb2dr_options.json')">Save Preset </button>
+                    <button onclick="save_options($('#randomizer'), 'smb2dr_options.json')">Save Preset </button>
                 </div>
                 <br/>
                 <div class="" id="randomizer">
@@ -146,6 +149,7 @@
                     <input id="unk3" type="number" class="level_read" min="-1" max="7" value="-1"/>
                     Render BX/CX
                     <input id="unk4" type="number" class="level_read" min="-1" max="3" value="-1"/>
+                    <br/>
                     Object Steps 
                     <input id="steps" type="number" class="level_read" min="-1" max="255" value="-1"/>
                     Render Sky
@@ -214,6 +218,16 @@ console.log(char_component.my_div)
 
 $('input[type=number]').on('focusout', number_cap)
 
+var discord_page = 'https://discord.gg/z8CMDqg'
+var d_link = $('<a target="_blank">')
+d_link.attr('href', discord_page)
+d_link.text(discord_page)
+$('#links').append('Discord: ')
+$('#links').append(d_link)
+$('#links').append("</br>")
+$('#links').append('Current page: ')
+$('#links').append('<a target="_blank" href="">' + window.location.href + '</a>')
+
 console.log('Document ready...')
 var oReq = new XMLHttpRequest();
 oReq.open("GET", "patch/smb2-patch.ips", true);
@@ -235,15 +249,12 @@ oReq_A.onload = function(oEvent) {
 }
 oReq_A.send();
 
-for (var i = 0; i < 9; i++){
-    $.ajax({contentType: "text",
-            url: "patch/smb2.nes." + i.toString() + ".nl",
-            success: function(result){
-                console.log(this.url + ' grabbed')
-                mem_locs = Object.assign({}, mem_locs, 
-                        setupLabels(result, parseInt(this.url.split('.')[2])))
-    }});
-}
+$.ajax({contentType: "text",
+        url: "patch/smb2.lst",
+        success: function(result){
+            console.log(this.url + ' grabbed')
+            mem_locs = setupLabelsLst(result) 
+}});
 
 var preset_names = ['Sample Config.json', 'Adventure.json']
 

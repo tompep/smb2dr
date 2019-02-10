@@ -16,6 +16,10 @@ Array.split = function (array, amnt){
     return result
 }
 
+Array.pick_random = function(array){
+    return array[~~(Math.random() * array.length)]
+}
+
 var split_em = Array.split
 
 function html_logger(id='log', refresh_lines = 100) {

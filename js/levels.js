@@ -1,5 +1,6 @@
 
 var currentMap
+var currentRender
 var cursor = [0, 0]
 var drag_cursor = [0, 0]
 var b_box
@@ -63,9 +64,18 @@ function bounding_box_cursor(poses){
     }
 }
 
-function draw_cursor_block(poses, blank=true) {
+function draw_tiles_select(poses, blank=true) {
+    var canvas = document.getElementById("myCanvas")
+    for (var pose of poses){
+        draw_cursor_block([pose], blank, canvas)
+        blank = false
+    }
+
+}
+
+function draw_cursor_block(poses, blank=true){
     var canvas = document.getElementById("myCanvas"),
-        ctx = canvas.getContext("2d")
+    ctx = canvas.getContext("2d")
     if (blank){
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.putImageData(currentMap, 0, 0)
@@ -103,11 +113,7 @@ function draw_cursor(poses, blank=true) {
     }
 }
 
-function get_canvas_coord(canvas, event, vertical){
-    var rect = canvas.getBoundingClientRect()
-    var x = event.clientX - rect.left
-    var y = event.clientY - rect.top
-    console.log("x: " + x + " y: " + y)
+function coord_to_tile(x, y, vertical){
     var j = x >> 4,
         i = y >> 4
     var page_num = !vertical ? ~~(j/16) : ~~(i/15)
@@ -115,6 +121,14 @@ function get_canvas_coord(canvas, event, vertical){
         i = (y >> 4) % 15
     console.log('clicked once on', x, y, j, i, page_num)
     return [i, j, page_num, x, y]
+}
+
+function get_canvas_coord(canvas, event, vertical){
+    var rect = canvas.getBoundingClientRect()
+    var x = event.clientX - rect.left
+    var y = event.clientY - rect.top
+    console.log("x: " + x + " y: " + y)
+    return coord_to_tile(x, y, vertical)
 }
 
 function test_render() {
@@ -168,6 +182,9 @@ var map_click = function(event, c_j, canvas, vertical, rendered, enemies) {
         c_j.unbind("mousemove")
     })
 }
+
+
+    
 
 function show_level(evt) {
     var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
@@ -229,6 +246,7 @@ function show_level(evt) {
     new_header.unk4 = render_x
 
     var rendered = render_level(level, new_header, level.enemies, info.meta_info, step_num)
+    currentRender = rendered
     var outputted_bytes = write_level_bytes(level, render_world)
     console.log('Bytes of level:', outputted_bytes.length)
 

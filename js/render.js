@@ -5,6 +5,10 @@
  *
  */
 
+// TODO:
+// get this from the ROM itself...
+// also specify specific tile properties i.e quicksand
+// ultimately, replace this with tile definitions
 function is_tile_solid(type){
     if ([0x1a].includes(type)) return 0
     if (type < 0x1) return 0
@@ -124,6 +128,7 @@ function render_column(w){
 }
 
 function render_ladder(w){
+    // correctly render shadowed ladder
     tile_type = w < 6 ? 0x80 : 0x07
     return render_vert_tiles(tile_type, 'extend')
 }
@@ -137,14 +142,15 @@ function render_horiz_meta(tile_type, w, r, m, len){
 
 function render_vert_meta(tile_type, w, r, m, len){
     var new_r = r % 4
-    if (tile_type == 7)
-        new_r = r >> 2
+    if (tile_type >= 7) // 3,4,5,6,7,8,9
+        new_r = (r >> 2) % 4
     tile_type = m.object_tiles[w][tile_type][new_r]
 
     return render_vert_tiles([tile_type], 'fixed', len)
 }
 
 function render_single_tile_meta(tile_type, w, r, m){
+    // correctly render shadowed ladder
     if (w < 6)
         tile_type = m.world_single[0][tile_type]
     else
@@ -447,6 +453,7 @@ function render_level(level, header, enemies, meta_info, steps=-1){
     return decoded_level_data
 }
 
+// dated but works
 function write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header){
     var traversed = 0
     var vertical = header.vertical
@@ -469,7 +476,7 @@ function write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header)
             if (map_tile.obj_type === 0x00 && style == 'extend_plat' && i > 0){
                 continue
             }
-            if (map_tile.solidity > 0 && style == 'extend' && i > 0){
+            if (map_tile.obj_type != 0x40 && style == 'extend' && i > 0){
                 i = tiles.length - 1
                 y -= tiles.length - 1
                 if (traversed == 1){
@@ -491,7 +498,9 @@ function write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header)
         }
         if ((style == 'extend_over' || style == 'extend_plat' || style == 'extend') && i == 1){
             y++
-            if (y > 13)
+            if (y > 13 && !vertical)
+                break
+            if (traversed > 250)
                 break
         }
         else {

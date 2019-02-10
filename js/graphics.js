@@ -451,7 +451,7 @@ function create_sprites_from_bitmap(img, tile_width, tile_height,
         m_context.clearRect(x_in, y_in, tile_width, tile_height)
 
         var data = imgData.data;
-        var pixels = split_em(data, 4).map(x => x.slice(0, 3))
+        var pixels = Array.split(data, 4).map(x => x.slice(0, 3))
         var new_spr = []
         for(var j=0; j<pixels.length; j++) {
             if (unique_pixels.find(x => find_sprite(x, pixels[j])) == undefined){
@@ -508,8 +508,8 @@ function convert_sprite_to_8x16(frame, width=2, mirror=[]){
     var sprite_tiles = []
     if (!width)
         width = 2
-    frame = split_em([...frame], width)
-    mirror = split_em([...mirror], width)
+    frame = Array.split([...frame], width)
+    mirror = Array.split([...mirror], width)
     for (var r in frame){
         var row = frame[r]
         var mirror_row = mirror[r] ? mirror[r] : []

@@ -24,6 +24,8 @@ var sprites
 
 var presets = []
 
+// palette constructor
+// I'm new to this...
 var select_color = $('<select class="nespalette_select"></select>')
 select_color.on('input', function(evt){
     var x = this.value
@@ -110,29 +112,62 @@ function randomize_rom(evt) {
     rando_seed = $('#seed').val();
 
     // extract
-    var option_tags = $('.option, .option_form, .option_select')
-    var mem_loc_tags = $('.option.mem_location')
+    var option_tags = $('#randomizer').find('.option, .option_form, .option_select')
+    var mem_loc_tags = $('#randomizer').find('.option.mem_location')
 
     var option_vals = {}
-    option_tags.map(x => 
+    option_tags.map(function(x){
         option_vals[option_tags[x].id] = {
         val: option_tags[x].value, 
         checked: option_tags[x].checked,
         radio: $(option_tags[x]).find('input:checked').val()
+        }
     })
 
     Math.seedrandom(rando_seed)
 
     var r_header = option_vals['Randomize_World_Appearance'].radio
-    if (r_header != 'Do Not Randomize'){
-        for(var l of info.my_levels){
+    var segments = []
+    if (r_header == 'Per World')
+        segments = Array.split(info.my_levels, 30)
+    else if (r_header == 'Per Level')
+        segments = Array.split(info.my_levels, 10)
+    else if (r_header == 'Per Room')
+        segments = Array.split(info.my_levels, 1)
+    else
+        console.log('No Header Randomize...')
+    for(var s of segments){
+        var new_pal_a = ~~(Math.random() * 6)
+        var new_pal_b = ~~(Math.random() * 3)
+        for(var l of s){
             if (l != undefined){
                 var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-                if (l.is_jar > 0 || isBoss) continue
-                randomize_header(l, info.meta_info.world_metadata)
+                if (l.is_jar > 0 || isBoss) console.debug('do not override')
+                else randomize_header(l, info.meta_info.world_metadata)
+                l.header.pal_a = new_pal_a
+                l.header.pal_b = new_pal_a
             }
         }
     }
+
+    // note: ASM likely needs to consider Stars and Subspace situations that change the music between levels
+    var r_header = option_vals['Randomize_Music'].checked
+    console.log(r_header, option_vals['Randomize_Music'])
+    if (r_header){
+        if (!segments.length) segments = Array.split(info.my_levels, 1)
+        var header_music = 0
+        for(var s of segments){
+            var new_music = ~~(Math.random() * 9)
+            for(var l of s){
+                if (l != undefined){
+                    if (new_music < 8) l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [1 << new_music]}) // pipe loc
+                    else l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [0x84]}) // pipe loc
+                    l.header.music = header_music
+                }
+            }
+        }
+    }
+
 
     Math.seedrandom(rando_seed)
 
@@ -162,8 +197,9 @@ function randomize_rom(evt) {
 
     Math.seedrandom(rando_seed)
 
-    level_order_randomizer(info.my_levels, currentRom, mem_locs, {
+    var active_levels = level_order_randomizer(info.my_levels, currentRom, mem_locs, {
         'ShuffleType': option_vals["Level_Randomization"].val,
+        'GameScale': option_vals["Game_Scale"].val,
         'BossOrder': option_vals["Boss_Randomization"].val,
         'EndWart': option_vals['End_with_Wart'].checked,
         'ScrambleWorld': option_vals['Scramble_Levels_in_World'].checked,
@@ -171,68 +207,23 @@ function randomize_rom(evt) {
     }, info)
 
 
-    if (option_vals["Level_Randomization"].val == 'Experimental_Door_Randomizer'){
-        RandomAlgo2(info.my_levels, info.meta_info)
-        set_memory_location(currentRom, mem_locs, 'Data_StartLevel', [0, 2, 0, 0], offset=0)
-    }
-
-    // skipped
-    var level_sets = split_em(info.my_levels, 10).map(x => x.filter(y => y != undefined))
-    var locking = 'Do Not Randomize'
-    if (locking != 'Do Not Randomize'){
-        var world_sets = split_em(level_sets, 3)
-        if (locking == 'Per World')
-            for (var w of world_sets){
-                var new_pal_a = (Math.random() * 6)
-                var new_pal_b = (Math.random() * 3)
-                var new_music = (Math.random() * 2)
-                for (var l of w) {
-                    for (var r of l){
-                        console.log(r)
-                        r.header.pal_a = new_pal_a
-                        r.header.pal_b = new_pal_a
-                    } 
-                }
-            }
-        if (locking == 'Per Level')
-            for (var w of world_sets){
-                for (var l of w){
-                    var new_pal_a = (Math.random() * 6)
-                    var new_pal_b = (Math.random() * 3)
-                    var new_music = (Math.random() * 2)
-                    for (var r of l){
-                        console.log(r)
-                        r.header.pal_a = new_pal_a
-                        r.header.pal_b = new_pal_a
-                    } 
-                } 
-            }
-        if (locking == 'Per Room')
-            for (var w of world_sets){
-                for (var l of w){
-                    for (var r of l){
-                        var new_pal_a = (Math.random() * 6)
-                        var new_pal_b = (Math.random() * 3)
-                        var new_music = (Math.random() * 2)
-                        console.log(r)
-                        r.header.pal_a = new_pal_a
-                        r.header.pal_b = new_pal_a
-                    } 
-                } 
-            }
+    if (option_vals["Enemy_Randomization_early"].checked)
+    {
+        Math.seedrandom(rando_seed)
+        enemy_randomizer(active_levels, currentRom, mem_locs, info.meta_info)
     }
 
     Math.seedrandom(rando_seed)
 
-    item_randomizer(info.my_levels, currentRom, mem_locs, info.meta_info, option_vals)
+    item_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
 
     Math.seedrandom(rando_seed)
 
-    player_randomizer(info.my_levels, currentRom, mem_locs, info.meta_info, option_vals)
+    player_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
 
     Math.seedrandom(rando_seed)
 
-    handle_boss_options(info.my_levels, option_vals)
+    handle_boss_options(active_levels, option_vals)
 
     mem_loc_tags.map(function(ele){
         var ele = mem_loc_tags[ele]
@@ -260,10 +251,10 @@ function randomize_rom(evt) {
         'FunkyLittleSeedBlock3', convertByTbl(' '), 3)
 
     set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock4', convertByTbl(' '), 3)
+        'FunkyLittleSeedBlock4', convertByTbl(''), 3)
 
     set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock5', convertByTbl(' '), 3)
+        'FunkyLittleSeedBlock5', convertByTbl(''), 3)
 
     set_memory_location(currentRom, mem_locs,
         'FunkyLittleSeedBlock6', convertByTbl(' '), 3)
@@ -275,44 +266,72 @@ function randomize_rom(evt) {
         'TitleStoryText_Line01', convertByTbl(
             fit_text('I THOUGHT ABOUT ALL THE COOL STUFF I COULD PUT HERE, BUT INSTEAD I DECIDED TO SLEEP...', 20), 16*20))
 
-    console.log(option_vals)
-
 
     write_to_file(currentRom, info.my_levels, info.meta_info)
     
     blob = new Blob([currentRom])
-    url = window.URL.createObjectURL(blob);
-    downloadURL(url, 'smb2-output.nes');
+    url = window.URL.createObjectURL(blob)
+    downloadURL(url, 'smb2-output.nes')
     setTimeout(function() {
-            return window.URL.revokeObjectURL(url);
+            return window.URL.revokeObjectURL(url)
           
-    }, 1000);
+    }, 1000)
 
 } 
 
 function fit_text(string, width){
-    string = string.split(' ')
+    string = string.split(" ")
     var output = []
-    var outrow = ''
+    var outrow = ""
     for (var s of string){
         if (outrow.length + s.length > width){
             if (outrow.length) {
                 while(outrow.length < width)
-                    outrow += ' '
+                    outrow += " "
                 output.push(outrow)
             }
-            outrow = ''
+            outrow = ""
         }
-        outrow += s + ' '
+        outrow += s + " "
     }
     if (outrow.length) {
         while(outrow.length < width)
-            outrow += ' '
+            outrow += " "
         output.push(outrow)
     }
-    return output.join('')
+    return output.join("")
 }
 
+function setupLabelsLst (text){
+    /*
+        Sets up labels from asm6f lst file 
+    */
+    var offset = 0
+    var last_address = 0x0
+    var mem_locs_new = {}
+    var ram_offset = 0x8000
+    for (var entry of text.split('\n')){
+        var mem_address = entry.slice(0, 5)
+        if (isNaN('0x' + mem_address))
+            continue
+        var mem_address = parseInt('0x' + mem_address)
+        if (mem_address < 0x8000)
+            continue
+
+        var isAddress = entry.search(':')
+        if (isAddress === -1)
+            continue
+
+        if (mem_address - 0x8000 < last_address){
+            offset += 0x4000
+        }
+        var new_entry = entry.slice(5, isAddress).trim()
+        mem_locs_new[new_entry] = mem_address - 0x8000 + offset
+        last_address = mem_address - 0x8000
+
+    }
+    return mem_locs_new
+}
 function setupLabels (text, num){
     /*
         Sets up labels from asm6f Symbol files    
@@ -333,10 +352,6 @@ function setupLabels (text, num){
     return mem_locs_new
 }
 
-var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-function rand_seed(){
-    return Array(10).fill(0).map(x => chars[~~(Math.random() * 36)]).join('')
-}
 
 function handle_options (jsn){
     /*
@@ -347,41 +362,45 @@ function handle_options (jsn){
     for (var key in jsn){
         var option = jsn[key]
         var title_name = key
-        key = key.replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')
+        key = key.replaceAll(" ", "_").replaceAll("(", "").replaceAll(")", "")
         // if array, create select out of it (top layer)
         // this determines different modes of randomization
         // if only one of it, always use it
         if (Array.isArray(option)){
-            var tag = $("<select class='option_select' id='" + key + "'></select>")
+            var tag = $("<select class='option_select'></select>")
+            tag.attr("id", key)
             tag.prepend = title_name 
-            var outer_tag = $("<div class='option_div' id='" + key + "_Option'></div>")
+            var outer_tag = $("<div class='option_div'></div>")
+            outer_tag.attr("id", key + "_Option")
             for (var o of option){
-                var inner_name = o.name.replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')
-                var inner_tag = $("<option value='" + inner_name + "'>" + o.name + "</option>")
+                var inner_name = o.name.replaceAll(" ", "_").replaceAll("(", "").replaceAll(")", "")
+                var inner_tag = $("<option>")
+                inner_tag.append(o.name)
+                inner_tag.attr("value", inner_name)
                 tag.append(inner_tag)
                 var specific_ops = handle_options(o.options)
                 var specific_tag = $("<div class='hide_me'></div>")
-                specific_tag.attr('id', inner_name)
-                if (o.name == 'Default')
-                    specific_tag.removeClass('hide_me')
+                specific_tag.attr("id", inner_name)
+                if (o.name == "Default")
+                    specific_tag.removeClass("hide_me")
                 specific_tag.append(specific_ops)
                 outer_tag.append(specific_tag)
             }
             tags.push(title_name)
             if (option.length > 1){
                 tags.push(tag)
-                tag.on('input', function(){
+                tag.on("input", function(){
                     var search_target = this.id + "_Option"
-                    var targets = $('.option_div')
+                    var targets = $(".option_div")
                     var target = targets.filter((x, y) => y.id == search_target)[0]
                     for (var x of target.childNodes)
-                        if (x.id != 'Default' && x.id != this.value) $(x).addClass('hide_me')
-                        else $(x).removeClass('hide_me')
+                        if (x.id != "Default" && x.id != this.value) $(x).addClass("hide_me")
+                        else $(x).removeClass("hide_me")
 
                 })
             }
             tags.push(outer_tag)
-            tags.push('<br/>')
+            tags.push("<br/>")
         }
         // otherwise, treat as simple description div or own option
         // create option itself also takes arrays and turns them into radios
@@ -389,7 +408,7 @@ function handle_options (jsn){
             if (option.tag){
                 var tag = $("<div></div>")
                 if (option.class){
-                    tag.attr('class', option.class)
+                    tag.attr("class", option.class)
                 }
                 tag.append(...handle_options(option.options))
                 tags.push(option.tag)
@@ -408,15 +427,16 @@ function handle_options (jsn){
 
 
 function create_option(name, description, start, min=0, max=100, cl=null){
-    var tag = $('<label title="'+ description +'"></label>')
+    var tag = $("<label>")
+    tag.attr("title", description)
     var title_name = name
-    name = name.replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')
-    var type = 'number'
+    name = name.replaceAll(" ", "_").replaceAll("(", "").replaceAll(")", "")
+    var type = "number"
     if (typeof start === "boolean"){
-        type = 'checkbox' 
+        type = "checkbox" 
     }
     else if (typeof start === "string" && isNaN(start)){
-        type = 'text' 
+        type = "text" 
     }
     else if (Array.isArray(start) && cl == "palette"){
         type = "form" 
@@ -428,89 +448,97 @@ function create_option(name, description, start, min=0, max=100, cl=null){
         tag.append((new palette_selector(name, 4)).tag)
         return tag
     }
-    else if (Array.isArray(start) && cl == 'mem_array'){
-        type = 'form' 
+    else if (Array.isArray(start) && cl == "mem_array"){
+        type = "form" 
         var tag_name = $("<label></label>")
         tag_name.append(title_name)
         tag.append(tag_name)
-        tag.attr('name', title_name)
-        tag.attr('id', name)
-        tag.attr('class', 'option_form')
+        tag.attr("name", title_name)
+        tag.attr("id", name)
+        tag.attr("class", "option_form")
         for (var index in start){
-            var o = start[index]
+            var item = start[index]
             var label = $("<label></label>")
             var innertag = $("<input class='sub_option' style='width: 48px;' type='number' value='0'> </input>")
-            innertag.attr('id', name)
+            var item_name = item.replaceAll(" ", "_").replaceAll("(", "").replaceAll(")", "")
+            innertag.attr('id', item_name)
             innertag.attr('min', min)
             innertag.attr('max', max)
             label.append(innertag)
-            label.append(" ", o)
+            label.append(" ", item)
             tag.append(label)
         }
         return tag
     }
-    else if (Array.isArray(start) && (cl == 'add_up' || cl == 'add_up_multi')){
-        type = 'select' 
+    else if (Array.isArray(start) && (cl == "add_up" || cl == "add_up_multi")){
+        type = "select" 
         var tag_name = $("<div></div>")
         tag_name.append(title_name)
         tag.append(tag_name)
-        var form = $("<select class='option_select' style='height: 100%' size='"+start.length+"' id='" + name + "'></select>")
-        if (cl == 'add_up_multi')
-            form.attr('multiple', 'multiple')
-        form.attr('id', name)
-        form.attr('name', title_name)
+        var form = $("<select class='option_select' style='height: 100%'></select>")
+        form.attr("size", start.length)
+        form.attr("id", name)
+        if (cl == "add_up_multi")
+            form.attr("multiple", "multiple")
+        form.attr("id", name)
+        form.attr("name", title_name)
         tag.append(form)
         for (var index in start){
-            var o = start[index]
-            var innertag = $("<option class='option_radio' value='"+o+"'>"+o+"</input>")
-            innertag.attr('name', name)
-            innertag.attr('value', index)
+            var item = start[index]
+            var innertag = $("<option class='option_radio'></input>")
+            innertag.append(item)
+            innertag.attr("name", name)
+            innertag.attr("value", index)
             form.append(innertag)
         }
         return tag
     }
     else if (Array.isArray(start)){
-        type = 'form' 
+        type = "form" 
         var tag_name = $("<div></div>")
         tag_name.append(title_name)
         tag.append(tag_name)
         var form = $("<form class='option_div option_form'></form>")
-        form.attr('id', name)
-        form.attr('name', title_name)
+        form.attr("id", name)
+        form.attr("name", title_name)
         tag.append(form)
         for (var index in start){
-            var o = start[index]
+            var item = start[index]
             var label = $("<label></label>")
-            var innertag = $("<input class='option_radio' type='radio' value='"+o+"'></input>")
+            var innertag = $("<input class='option_radio' type='radio'></input>")
+            innertag.attr('value', item)
             if (index == 0)
                 innertag.attr('checked', true)
             innertag.attr('name', name)
             label.append(innertag)
-            label.append(" ", o)
+            label.append(" ", item)
             form.append(label)
         }
         return tag
     }
-    var innertag = $("<input class='option' type='"+type+"' id='"+name+"'/>")
-    if (type == 'checkbox')
-        innertag.attr('checked', start)
+    var innertag = $("<input class='option'>")
+    innertag.attr("type", type)
+    innertag.attr("id", name)
+    if (type == "checkbox")
+        innertag.attr("checked", start)
     else{
-        innertag.attr('value', start)
-        innertag.attr('step', start % 1 == 0 ? 1 : 0.1)
+        innertag.attr("value", start)
+        innertag.attr("step", start % 1 == 0 ? 1 : 0.1)
     }
     if (cl){
         innertag.addClass(cl)
     }
-    innertag.attr('min', min)
-    innertag.attr('max', max)
-    innertag.attr('maxlength', max);
+    innertag.attr("min", min)
+    innertag.attr("max", max)
+    innertag.attr("maxlength", max);
     tag.append(innertag)
-    if(type == 'text')
-        tag.prepend(title_name + ' ')
+    if(type == "text")
+        tag.prepend(title_name + " ")
     else
-        tag.append(' ' + title_name)
+        tag.append(" " + title_name)
     return tag
 }
+
 
 function handleFileSelect(evt) {
     var file = evt.target.files[0]
@@ -529,61 +557,85 @@ function handleFileSelect(evt) {
     reader.readAsArrayBuffer(file)
 }
 
-function load_options(files, id){
-    var reader = new FileReader();
-    reader.onload = function(e){
+function load_options(files, tag){
+    var loader = function(e){
         console.log('Loading config...')
         var result = JSON.parse(e.target.result);
         var my_name = file.name.replace('.json', '')
         $('#preset_game').append('<option value="' + presets.length + '">' + my_name + '</option>')
         presets.push({'name': my_name, 'config': result})
-        reload_options(result, id)
+        reload_options(result, tag)
     }
 
     for (var file of files){
+        var reader = new FileReader();
+        reader.onload = loader
         reader.readAsText(file)
         console.log(file)
     }
 }
 
 
-function reload_options(json, tag_id){
-    for (var json_id in json) {
-        var option = json[json_id]
-        var option_tag = $('.option, .option_form, .option_select'.replaceAll('.', tag_id + ' #' + json_id + '.'))
-        option_tag[0].checked = option.checked
-        option_tag[0].value = option.val
+function reload_options(json, tag){
+    // this is not xss safe I'm sure
+    var option_tags = tag.find('.option, .option_form, .option_select')
+    for (var t in Array.range(option_tags.length)) {
+        tag = option_tags[t]
+        var option = json[tag.id]
+        if (option == undefined)
+            continue
+        tag.checked = option.checked
+        tag.value = option.val
         if (option.radio){
-            option_tag.find('input').attr('checked', false)
-            option_tag.find('input[value="' + option.radio + '"]').attr('checked', true)
+            tag = $(tag)
+            tag.find('input').attr('checked', false)
+            if (isNaN(option.radio))
+                var selected_tag = tag.find('input[value="' + option.radio + '"]')
+            else
+                var selected_tag = tag.find('input')[option.radio]
+            if (selected_tag && selected_tag.length)
+                selected_tag.attr('checked', true)
+            else
+                tag.find('input')[0].checked = true
+            console.log(selected_tag)
+            console.log(tag)
+            console.log(option.radio)
         }
     }
 
 }
 
-function save_options(tag_id, filename){
+function collect_options(tag, query='.option, .option_form, .option_select, .sub_option'){
     var option_vals = {}
-    var option_tags = $('.option, .option_form, .option_select'.replaceAll('.', tag_id + ' .'))
+    var option_tags = tag.find(query)
 
     option_tags.each( function(x){
         var opt_val = {}
         option_vals[option_tags[x].id] = opt_val
 
-        if (option_tags[x].value == "on")
+        if (option_tags[x].type == 'checkbox')
             opt_val.checked = option_tags[x].checked
-        else if (option_tags[x].value == undefined)
+        else if (option_tags[x].tagName == 'FORM')
             opt_val.radio = $(option_tags[x]).find('input:checked').val()
         else 
             opt_val.val = option_tags[x].value
     })
-    console.log(JSON.stringify(option_vals))
-    var data = new Blob([JSON.stringify(option_vals)], {
-            type: 'application/json',
-            name: filename
+    return option_vals
+}
 
-    });
-    blob = new Blob([JSON.stringify(option_vals)])
-    url = window.URL.createObjectURL(blob);
+function save_options(tag, filename){
+    var option_vals = collect_options(tag)
+    console.log(JSON.stringify(option_vals))
+    downloadJSON(option_vals, filename)
+}
+
+function downloadJSON(js_data, filename){
+    var data = new Blob([JSON.stringify(js_data)], {
+        type: "application/json",
+        name: filename
+    })
+    var blob = new Blob([JSON.stringify(js_data)])
+    var url = window.URL.createObjectURL(blob)
     downloadURL(url, filename)
 }
 
