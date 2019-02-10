@@ -95,6 +95,7 @@ function push_modifier(mod, code=0xf9){
     if (mod.vertical){
         length = 0x80 + length
     }
+    console.debug([code, memory_l, memory_r, length].concat(contents))
     return [code, memory_l, memory_r, length].concat(contents)
 }
 
@@ -112,12 +113,11 @@ function write_level_bytes(my_l, world=0){
     sorted_ground = grounds.sort(function(a,b){
         return  a.pos_page - b.pos_page || a.column_tile - b.column_tile
     })
-    var current_modifiers = my_l.modifiers
 
     if (Array.isArray(my_l.header.ground_type)){
         var b = create_ground_modifier(my_l.header.ground_type)
         output.push(...b, my_l.world + 1)
-        console.debug(output)
+        console.debug(output.map(x => decimalToHexString(x)))
     }
 
     // for each layer that isn't empty
@@ -194,7 +194,7 @@ function write_level_bytes(my_l, world=0){
                     if (obj.ground_type != undefined){
                         if (Array.isArray(obj.ground_type)){
                             var mod = create_ground_modifier(obj.ground_type)
-                            output.push(...mod)
+                            output.push(...mod, my_l.world + 1)
                         }
                         else {
                             output.push(0xF6)
@@ -209,6 +209,12 @@ function write_level_bytes(my_l, world=0){
                     destobj = undefined
                 }
             }
+        }
+    }
+
+    if (my_l.modifiers.length){
+        for(var mod of my_l.modifiers){
+            output.push(...push_modifier(mod))
         }
     }
 
@@ -231,14 +237,6 @@ function write_level_bytes(my_l, world=0){
         output.push(...output_content)
         console.log(my_l.hotspots, output_content)
     }
-
-    if (current_modifiers.length){
-        for(var mod of current_modifiers){
-            output.push(...push_modifier(mod))
-        }
-        current_modifiers = []
-    }
-        
 
     if (my_l.is_jar){
         output.push(...push_modifier({

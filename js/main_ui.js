@@ -29,7 +29,6 @@ var presets = []
 var select_color = $('<select class="nespalette_select"></select>')
 select_color.on('input', function(evt){
     var x = this.value
-    console.log(x)
     var color_string = NES_palette[x].toString()
     color_string = color_string.slice(1, color_string.length)
     color_string = 'rgba(' + NES_palette[x].toString() + ')'

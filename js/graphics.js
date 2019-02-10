@@ -398,7 +398,6 @@ function crop_bitmap(img, x, y, right, down){
 }
 
 function sprite_mask(length, width, height){
-    console.log(length, width, height)
     if (length % width) console.error('Indivisible')
     var row_length = ~~(length / height)
     if (row_length % width) console.error('Indivisible')

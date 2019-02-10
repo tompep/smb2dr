@@ -145,7 +145,6 @@ function extract_characters(my_rom, mem_locs){
 
     var char_sheet = Array.split(extract_mem_block(my_rom, mem_locs, 'CHRBank_CharacterSize', 8), 2) 
     var ex_sheet = extract_mem_block(my_rom, mem_locs, 'CharacterExtraSheets', 4) 
-    console.log(char_meta_frames, s_char_meta_frames)
     var char_eyes = extract_mem_block(my_rom, mem_locs, 'CharacterEyeTiles', 4) 
     var char_options = extract_mem_block(my_rom, mem_locs, 'DokiMode', 4)
     var char_heights = Array.split(extract_mem_block(my_rom, mem_locs, 'HeightOffset', 8), 4)
@@ -240,7 +239,6 @@ function extract_frames(bitmaps, width, height, offset=0, limit=32, og_uniques) 
             sprite_frame.push(sprite_num * 2)
         }
         if(sprite_frame.length == width * height){
-            console.log(sprite_frame)
             all_frames.push(sprite_frame)
             var s_m = sprite_meta
             if (s_m.length < 6)
@@ -282,7 +280,6 @@ function sprite_frames_to_canvas (character, c_id, sprites) {
     var ctx = canvas.getContext("2d")
 
     var a_s = sprites.all_sheets
-    console.log(character, c_id, sprites)
 
     var frame_data = character.frames
     var s_frame_data = character.s_frames
@@ -373,25 +370,25 @@ var char_viewer = function (id='char_viewer') {
     this.my_stats = {}
     this.loaded_characters = {}
     
-    this.preset_characters = {}
+    this.preset_characters = []
     this.preset_characters_sets = {}
     this.id = id
-
 
     // setup controls
     this.my_div = $('<div id="' + this.id + '" class="main_item"></div>')
 
     this.load_sheet = $('<input type="file" style="display: none" class="input" id="char_sheet_load" name="file"/>')
-    this.load_char = $('<input type="file" style="display: none" class="input" id="load_character" name="file"/>')
+    this.load_char = $('<input type="file" style="display: none" class="input" id="load_character" name="file" multiple/>')
     
     this.preset_control = $('<div class="option_div">')
-    var load_char = $("<button>Load Char File</button> ")
+    this.preset_chars_div = $('<select id="preset_char" class="a_preset_char"> <option value="-1">Select Preset Character</option> </select>')
+    this.preset_control.append(this.preset_chars_div)
+
+    this.preset_control.append('<div style="color: red">In beta, be wary of uploading unknown files</div>')
+    var load_char = $("<button>Load Character Presets</button> ")
     load_char.on('click', function() { my_obj.load_char.trigger('click') })
     this.preset_control.append(this.load_char)
     this.preset_control.append(load_char)
-
-    var save_sheet = $(" <button id='save_character'>Save Char File</button> ")
-    this.preset_control.append(save_sheet)
 
     this.my_div.append(this.preset_control)
 
@@ -406,6 +403,9 @@ var char_viewer = function (id='char_viewer') {
     this.option_control.append(load_sheet)
 
     var save_sheet = $(" <button id='char_sheet_save'>Save Sheet</button> ")
+    this.option_control.append(save_sheet)
+
+    var save_sheet = $(" <button id='save_character'>Save Char File</button> ")
     this.option_control.append(save_sheet)
                 
     this.my_div.append(this.option_control)
@@ -428,7 +428,6 @@ var char_viewer = function (id='char_viewer') {
     this.load_character_to_form = function(char_dict){
         var char_name = char_dict.name
         var priority = char_dict.priority
-        console.log(char_dict)
         var char_stats = new Int8Array([...char_dict.stats].concat([...char_dict.heights, 
             char_dict.carry_duck[0], char_dict.carry_duck[1],
             char_dict.carry[1], char_dict.carry[3],
@@ -438,7 +437,6 @@ var char_viewer = function (id='char_viewer') {
         my_stats['Name'].val(char_name)
         my_stats['Slot_Priority'].val(priority)
         var stats_tags = my_stats['Character_Stats'].find('.sub_option')
-        console.log(my_stats['Character_Stats'], stats_tags)
         for (var i in char_stats){
             stats_tags[i].value = char_stats[i]
         }
@@ -455,7 +453,6 @@ var char_viewer = function (id='char_viewer') {
                 if (char_dict.inventory[c] & (1 << x))
                     c_vals.push(parseInt(x) + parseInt(c*8))
             }
-        console.log(c_vals)
         my_stats['Starting_Inventory'].val(c_vals)
         my_stats['Starting_Power-Up'].val(char_dict.inventory[3])
         my_stats['Starting_Up-B'].val(char_dict.inventory[4] > 0x80 ? char_dict.inventory[4] - 0x80 : 0)
@@ -488,6 +485,7 @@ var char_viewer = function (id='char_viewer') {
             characters[character].pal = palette
             characters[character].spal = ex_palette
 
+            // TODO: decouple from jquery 
             var palette = $('.nespalette_select')
             var player_pal = characters[character].pal.concat(characters[character].spal).concat([...characters[character].dspal])
             palette.map(x => palette[x].value = player_pal[x])
@@ -583,7 +581,6 @@ var char_viewer = function (id='char_viewer') {
             write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
             write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
 
-            console.log(char_sheet, x_sheet)
 
             set_memory_location(currentRom, mem_locs, 'CharacterOne_Frames', 
                 characters[character].frames.reduce(
@@ -595,7 +592,6 @@ var char_viewer = function (id='char_viewer') {
                 characters[character].w_frames.reduce(
                     (a=[], x) => a.concat(x)).slice(0, 24), 24*character)
 
-            console.log(ex_big.meta, ex_small.meta)
             ex_big.meta.map(x => x.reverse())
             ex_small.meta.map(x => x.reverse())
             set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFrames', 
@@ -605,7 +601,6 @@ var char_viewer = function (id='char_viewer') {
 
             set_memory_location(currentRom, mem_locs, 
                 'CharacterEyeTiles', [characters[character].eyes], character)
-            console.log(characters[character].eyes)
 
             my_obj.write_to_character()
             my_obj.show_character()
@@ -641,15 +636,17 @@ var char_viewer = function (id='char_viewer') {
     }
 
     this.load_character_file_input = function (evt){
-        var loader = function(e){
+        var output_chars = []
+        var loader = function(e, my_name){
             console.log('Loading config...')
             var result = JSON.parse(e.target.result);
-            var my_name = file.name.replace('.json', '')
-            my_obj.load_character(result)
+            console.log(my_name)
+            output_chars.push(result)
         }
         for (var file of evt.target.files){
             var reader = new FileReader();
-            reader.onload = loader
+            reader.param = file.name.replace('.json', '')
+            reader.onload = function(e){ loader(e, this.param) }
             reader.readAsText(file)
             console.log(file)
         }
@@ -667,10 +664,10 @@ var char_viewer = function (id='char_viewer') {
 
         characters[character] = new_char_dict
 
-        console.log(new_char_dict)
-        my_obj.load_character_to_form(new_char_dict)
         my_obj.load_img(new_char_dict.sheet)
         delete new_char_dict.sheet
+
+        my_obj.load_character_to_form(new_char_dict)
         my_obj.write_to_character()
     }
 
@@ -775,7 +772,7 @@ var char_viewer = function (id='char_viewer') {
     this.handleSpriteSelect = function (evt) {
         var file = evt.target.files[0]
         var reader = new FileReader();
-        console.log('Loading file...?')
+        console.log('Loading file...')
 
         reader.onload = function(){my_obj.load_img(this.result)}
         reader.readAsDataURL(file)
@@ -821,8 +818,6 @@ var char_viewer = function (id='char_viewer') {
         if (char_dict.inventory[4])
             char_dict.inventory[4] += 0x80
 
-        console.log(char_dict)
-
         set_memory_location(currentRom, mem_locs, 'CharacterStats', char_dict.stats, char_dict.stats_off)
         set_memory_location(currentRom, mem_locs, 'DokiMode', [char_dict.characteristics], character)
         set_memory_location(currentRom, mem_locs, 'HeightOffset', [char_dict.heights[0]], character)
@@ -840,7 +835,9 @@ var char_viewer = function (id='char_viewer') {
         set_memory_location(currentRom, mem_locs, 'StartingHold', [char_dict.inventory[4]], character)
         set_memory_location(currentRom, mem_locs, 'CharacterPalette', char_dict.pal, 4*character)
         set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettes', char_dict.spal, char_dict.soff + 3)
-        set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettesDark', char_dict.dspal, 3 + 4*character)
+        set_memory_location(currentRom, mem_locs, 'PlayerSelectSpritePalettesDark', char_dict.dspal, 3 + 4*c_id)
+        set_memory_location(currentRom, mem_locs, 'EndingCelebrationPaletteFade1', char_dict.spal, 16 + 3 + 4*c_id)
+        set_memory_location(currentRom, mem_locs, 'MarioDream_Palettes', char_dict.spal.slice(1), 16 + 4 + 4 * c_id)
         set_memory_location(currentRom, mem_locs, 'EndingCelebrationText_MARIO', convertByTbl(char_dict.name, 8).slice(0, 8), 3 + 12*character)
         set_memory_location(currentRom, mem_locs, 'TEXT_Mario', convertByTbl(char_dict.name, 8).slice(0, 8), 4 + 13*character)
 

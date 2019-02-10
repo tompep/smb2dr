@@ -36,6 +36,7 @@ function html_logger(id='log', refresh_lines = 100) {
 
     this.log = function ( ...text ){
         var my_obj = this
+        console.debug((new Error).stack.split('\n')[3])
         console.normal_log( ...text )
         clearTimeout(this.update_log)
         this.new_lines.push(text.map(x => String(x)).join(" "))

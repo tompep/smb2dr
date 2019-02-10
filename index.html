@@ -229,91 +229,121 @@ $('#links').append('Current page: ')
 $('#links').append('<a target="_blank" href="">' + window.location.href + '</a>')
 
 console.log('Document ready...')
-var oReq = new XMLHttpRequest();
-oReq.open("GET", "patch/smb2-patch.ips", true);
-oReq.responseType = "arraybuffer";
-oReq.onload = function(oEvent) {
-    var arrayBuffer = oReq.response;
-    currentPatch = new Uint8Array(arrayBuffer);
-    console.log('Patch grabbed', currentPatch.length)
-}
-oReq.send();
 
-var oReq_A = new XMLHttpRequest();
-oReq_A.open("GET", "patch/smb2-patch-reva.ips", true);
-oReq_A.responseType = "arraybuffer";
-oReq_A.onload = function(oEvent) {
-    var arrayBuffer = oReq_A.response;
-    currentPatch_A = new Uint8Array(arrayBuffer);
-    console.log('Patch smb2 REVA grabbed length:', currentPatch_A.length)
-}
-oReq_A.send();
+function finish_page_setup(){
+    var oReq = new XMLHttpRequest();
+    oReq.open("GET", "patch/smb2-patch.ips", true);
+    oReq.responseType = "arraybuffer";
+    oReq.onload = function(oEvent) {
+        var arrayBuffer = oReq.response;
+        currentPatch = new Uint8Array(arrayBuffer);
+        console.log('Patch grabbed', currentPatch.length)
+    }
+    oReq.send();
 
-$.ajax({contentType: "text",
-        url: "patch/smb2.lst",
-        success: function(result){
-            console.log(this.url + ' grabbed')
-            mem_locs = setupLabelsLst(result) 
-}});
+    var oReq_A = new XMLHttpRequest();
+    oReq_A.open("GET", "patch/smb2-patch-reva.ips", true);
+    oReq_A.responseType = "arraybuffer";
+    oReq_A.onload = function(oEvent) {
+        var arrayBuffer = oReq_A.response;
+        currentPatch_A = new Uint8Array(arrayBuffer);
+        console.log('Patch smb2 REVA grabbed length:', currentPatch_A.length)
+    }
+    oReq_A.send();
 
-var preset_names = ['Sample Config.json', 'Adventure.json']
-
-$.when(...preset_names.map(x => 
-    $.ajax({contentType: "json",
-            url: "presets/" + x,
-            indexValue: i,
+    $.ajax({contentType: "text",
+            url: "patch/smb2.lst",
             success: function(result){
                 console.log(this.url + ' grabbed')
-                var my_name = this.url.replace('.json', '').replace('presets/', '')
-                presets.push({'name': my_name, 'config': result})
+                mem_locs = setupLabelsLst(result) 
+    }});
+
+    var preset_names = ['Sample Config.json', 'Adventure.json']
+
+    $.when(...preset_names.map(x => 
+        $.ajax({contentType: "json",
+                url: "presets/" + x,
+                indexValue: i,
+                success: function(result){
+                    console.log(this.url + ' grabbed')
+                    var my_name = this.url.replace('.json', '').replace('presets/', '')
+                    presets.push({'name': my_name, 'config': result})
+                }
             }
+    ))).done(function(){
+        while (presets.length != preset_names.length){}
+        for(var i in presets)
+            $('#preset_game').append('<option value="' + i + '">' + presets[i].name + '</option>')
+    })
+
+    var char_names = ['Mario.json', 'Luigi.json', 'Peach.json', 'Toad.json',
+        'Imajin.json', 'Lina.json', 'Mama.json', 'Papa.json', 'Wario (WL3).json']
+
+    var queue_chars = []
+
+    $.when(...char_names.map(x => 
+        $.ajax({contentType: "json",
+                url: "preset-chars/" + x,
+                indexValue: i,
+                success: function(result){
+                    console.log(this.url + ' grabbed')
+                    var my_name = this.url.replace('.json', '').replace('preset-chars/', '')
+                    queue_chars.push({'name': my_name, 'config': result})
+                }
+            }
+    ))).done(function(){
+        while (char_names.length != queue_chars.length){}
+        var my_preset_list = char_component.preset_chars_div
+        for(var i in queue_chars){
+            var queue_char = queue_chars[i]
+            char_component.preset_characters.push(queue_char)
+            my_preset_list.append('<option value="' + i + '">' + queue_char.name + '</option>')
         }
-))).done(function(){
-    console.log('dimmadone', presets)
-    while (presets.length != preset_names.length){}
-    for(var i in presets)
-        $('#preset_game').append('<option value="' + i + '">' + presets[i].name + '</option>')
-})
+    })
 
-$.ajax({contentType: "text",
-        url: "README.md",
-        success: function(result){
-            console.log(this.url + ' grabbed')
-            $("#summarytext").text()
-            $("#summarytext").text(result)
-}});
+    $.ajax({contentType: "text",
+            url: "README.md",
+            success: function(result){
+                console.log(this.url + ' grabbed')
+                $("#summarytext").text()
+                $("#summarytext").text(result)
+    }});
 
-$.ajax({contentType: "text",
-        url: "CHANGELOG.md",
-        success: function(result){
-            console.log(this.url + ' grabbed')
-            $("#changelogtext").text()
-            $("#changelogtext").text(result)
-}});
+    $.ajax({contentType: "text",
+            url: "CHANGELOG.md",
+            success: function(result){
+                console.log(this.url + ' grabbed')
+                $("#changelogtext").text()
+                $("#changelogtext").text(result)
+    }});
 
 
-$('#a_enemy').append(EnemyIds.map((x, y) => 
-    $('<option value="' + y + '">' + x.replace('Enemy_', '') + '</option>')));
-$('#a_tiles').append(BackgroundTileIds.map((x, y) => 
-    $('<option value="' + y + '">' + x.replace('Tile_', '') + '</option>')));
-$('#a_object').append(MapObjectIds.map((x, y) => 
-    $('<option value="' + y + '">' + x + '</option>')));
-$('#a_object').append(MapObjectIdsExtendable.slice(3).map((x, y) => 
-    $('<option value="' + (y * 0x10 + 0x30) + '">' + x + '</option>')));
+    $('#a_enemy').append(EnemyIds.map((x, y) => 
+        $('<option value="' + y + '">' + x.replace('Enemy_', '') + '</option>')));
+    $('#a_tiles').append(BackgroundTileIds.map((x, y) => 
+        $('<option value="' + y + '">' + x.replace('Tile_', '') + '</option>')));
+    $('#a_object').append(MapObjectIds.map((x, y) => 
+        $('<option value="' + y + '">' + x + '</option>')));
+    $('#a_object').append(MapObjectIdsExtendable.slice(3).map((x, y) => 
+        $('<option value="' + (y * 0x10 + 0x30) + '">' + x + '</option>')));
 
 
-$('input[type=number]').on('focusout', number_cap)
+    $('input[type=number]').on('focusout', number_cap)
 
-$('#files').on('input', handleFileSelect);
-$('.level_read').on('input', show_level);
-$('#writeJSON').click(writeJSON);
-$('#readJSON').click(readJSON);
+    $('#files').on('input', handleFileSelect);
+    $('.level_read').on('input', show_level);
+    $('#writeJSON').click(writeJSON);
+    $('#readJSON').click(readJSON);
 
-var canvas = document.getElementById("myCanvas")
-var ctx = canvas.getContext("2d");
-ctx.fillStyle='white'
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-ctx.stroke()
+    var canvas = document.getElementById("myCanvas")
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle='white'
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.stroke()
+
+}
+
+finish_page_setup()
 
 window.onload = function(){
     $('body').fadeIn()

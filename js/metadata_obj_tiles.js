@@ -520,7 +520,6 @@ function convertByTbl(string, minlength=0xF){
 }
 
 function invertByTbl(bytes){
-    console.log(bytes)
     return [...bytes].map(x => i_tbl[x] != undefined ? i_tbl[x] : "?").join('')
 }
 

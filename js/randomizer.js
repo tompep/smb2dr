@@ -236,7 +236,7 @@ function handle_boss_options(my_levels, options){
             if (mini_boss.length){
                 my_l.modifiers.push({
                     loc_l: 0x76,
-                    loc_r: 0xF7,
+                    loc_r: 0xF6,
                     contents: [parseInt(~~(Math.random() * (rmmax - rmmin))) + parseInt(rmmin)]
                 })
                 continue
@@ -505,7 +505,7 @@ var shuffle_enemy_data = [
     { 
         targets: [ne.FallingLogs],
         additional: [ne.Trouter, ne.FallingLogs],
-        process: function () { return Array.pick_random(this.targets).concat(this.additional) }
+        process: function () { return Array.pick_random(this.targets.concat(this.additional)) }
     },
     { 
         targets: [ne.BossMouser], 
@@ -700,6 +700,8 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             var l = my_l.i
             mush_counts[l] = 2
         }
+        console.debug(mush_counts)
+        mush_counts = mush_counts.fill(2)
         inventory = inventory.slice(0, horizontal_levels.length * 2)
     }
     else {
@@ -771,7 +773,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             }
         }
 
-        var level_inventory = inventory.slice(0, targets.length)
+        var level_inventory = inventory.slice(0, targets.length).filter(x => x != 0)
         if(level_inventory.length > 0){
             my_l.modifiers.push({
                 loc_l: 0x76,
@@ -783,7 +785,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             })
         }
         inventory = inventory.slice(targets.length)
-        return
+        continue
 
         my_l.objs = my_l.objs.filter(x => !(x.obj_type >= 32 && x.obj_type < 46))
         my_l.objs = my_l.objs.filter(x => ![0x50].includes(x.obj_type & 0xF0))
@@ -831,7 +833,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         }
     }
     if (inventory.length > 0)
-        console.log('Inventory still present', inventory.map(x => all_item_names[x]))
+        console.error('Inventory still present', inventory.map(x => all_item_names[x]))
 }
 
 function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
