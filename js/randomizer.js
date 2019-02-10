@@ -282,7 +282,11 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     console.debug(level_sets)
     var all_levels = [].concat.apply([], level_sets)
 
-    if (options['ShuffleType'] == 'World_Order_Randomizer'){
+    if(options['ShuffleType'] == 'Hub World'){
+
+        return all_levels
+    }
+    else if (options['ShuffleType'] == 'World_Order_Randomizer'){
         var world_sets = Array.split(level_sets, 3)
         if (options['ScrambleWorld'])
             world_sets = shuffle(world_sets).map(x => shuffle(x))
