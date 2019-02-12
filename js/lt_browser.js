@@ -808,6 +808,14 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
             enemy_data = [1,1,1,1,1,1,1,1,1,1].concat(enemy_data)
         enemy_data.push(1)
         var level_data = write_level_bytes(my_l, ((i-(i%30))/30))
+        if (level_data.length > 255) {
+            console.error('level data too big!!')
+            alert(my_l.i + ' level data too big!!  reducing footprint...')
+            my_l.hotspots = []
+            my_l.modifiers = my_l.modifiers.reduce((a, x) => x.id ? a.push(x) : x, [])
+            level_data = write_level_bytes(my_l, ((i-(i%30))/30))
+            header_data = write_header_bytes(my_h)
+        }
         console.debug('size of level:', level_data.length, enemy_data.length)
         // fs.writeFileSync("./levels-random/" + (((i-(i%30))/30)).toString() + "/" + i.toString() + ".json", JSON.stringify(my_l, undefined, 4))
 

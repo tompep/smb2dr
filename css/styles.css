@@ -22,7 +22,19 @@ a.button, button{
     background-color: gray;
     color: white;
     padding: 10px;
-    border-radius: 4px 
+    border-radius: 4px;
+    margin: 4px;
+    position: relative;
+    outline-style:none;
+}
+
+a, canvas {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 a.button:hover { 
@@ -40,7 +52,6 @@ body {
 }
 
 img {
-    image-rendering: pixelated;
 }
 
 label {
@@ -52,15 +63,21 @@ textarea {
     font-size: x-small;
 }
 
-input[type="number"]{
-    width:48px
-}
 
 select{
     background-color: white;
     color: black;
-    margin: auto;
+    margin: 4px auto;
     display: block;
+}
+#intro{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -50px;
+        margin-left: -50px;
+        width: 64px;
+        height: 64px;
 }
 
 #Mario,#Luigi,#Peach,#Toad {width:48px; height: 48px;display:inline-block;}
@@ -72,6 +89,10 @@ select{
     background-color: purple;
     width: 100%;
     max-width: 32px
+}
+
+.sprite_text{
+    height: 8px;
 }
 
 .pad5 {
@@ -104,14 +125,12 @@ select{
 .input{
     background-color: white;
     color: black;
-    margin: auto;
     width: 50%;
 }
 
 .option, .sub_option{
     background-color: white;
     color: black;
-    margin: auto;
     display: inline-block;
 }
 
@@ -145,7 +164,16 @@ select{
     color: white;
     margin: 0 auto;
     border: solid 2px;
-    width: 80%
+    float: left;
+}
+
+.option_block{
+    background-color: black;
+    color: white;
+    border: solid 2px;
+    margin: 0 auto;
+    width: 80%;
+    float: none;
 }
 
 .log{
@@ -171,4 +199,18 @@ select{
     text-align: center;
     text-decoration-color: #000000;
     font-family: "system"
+}
+
+input, input[type="radio"], input[type="checkbox"] {
+    float: none;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+input[type="number"]{
+    width:48px
+}
+
+input[type="file"]{
+    margin: 0 auto
 }

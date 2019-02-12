@@ -37,7 +37,7 @@ Visit us at the SMB2R Discord!
     Select + LR to switch characters (if Always Switch is on)
 
 ## Credits
-    Programmed by pepperpowerhour (@pepperpowerhor)
+    Programmed by pepperpowerhour (@pepperpowerhour)
     Prog assist by kmck, xkeeper
 
     Custom player graphics by Pako

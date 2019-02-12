@@ -25,15 +25,18 @@
         <script>!window.jQuery && document.write('<script src="jquery-3.3.1.min.js"><\/script>')</script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.4/seedrandom.min.js"> </script>
     </head>
-    <body class='hide_me'>
-        <div id='center' class='center'>
+    <body>
+        <div id='intro'>
+        <img src="css/animatedwow.png"></img>
+        </div>
+        <div id='center' class='center no_pixel hide_me'>
             <img src="css/titletop2.png"></img>
             </br>
             </br>
-            <div class="option_div" id="links">
-            Live Page: <a target='_blank' href="https://smb2randomizer.github.io/smb2dr/">https://smb2randomizer.github.io/smb2dr/</a>
+            <div class="option_block no_pixel" id="links">
+            Live Page: <a class="no_pixel" target='_blank' href="https://smb2randomizer.github.io/smb2dr/">https://smb2randomizer.github.io/smb2dr/</a>
             </br>
-            Live Src: <a target='_blank' href="https://github.com/smb2randomizer">https://github.com/smb2randomizer/</a>
+            Live Src: <a class="no_pixel" target='_blank' href="https://github.com/smb2randomizer">https://github.com/smb2randomizer/</a>
             </br>
             </div>
             </br>
@@ -61,7 +64,9 @@
                 <img src='css/chr000.png'></img>
                 </div>
                 <div>
+                <div>
                 From left to right:
+                </div>
                 <div>
                     <div>Power Throw - Charge Crouch then throw items with B</div>
                     <div>Power Charge - Decreases charge time</div>
@@ -95,7 +100,7 @@
                 <div id="changelogtext" class="summarytext">Failed to grab CHANGELOG.md                </div>
             </div>
                 
-            <div id="fileupload" class="main_item">
+            <div id="fileupload" class="main_item option_block">
                 <label><input type="file" class="input" id="files" name="file"/></label>
             </div>
 
@@ -106,7 +111,7 @@
                 <br/>
                 <br/>
                 <div>Preset Configurations</div>
-                <div class='option_div'>
+                <div class='option_block'>
                     <div id='preset_images'></div>
                     <select id="preset_game" class="a_preset" oninput="reload_options(presets[this.value].config, $('#randomizer'))">
                         <option value='-1'>Select Preset</option>
@@ -128,7 +133,7 @@
                 In Progress
                 <br/>
                 World Select
-                <form class='option_div'>
+                <form class='option_block'>
                     World
                     <input id="world" type="number" class="level_read" min="0" max="6" value="0"/>
                     Level
@@ -137,7 +142,7 @@
                     <input id="room" type="number" class="level_read" min="0" max="9" value="0"/>
                 </form>
                 Force Info
-                <form class='option_div'>
+                <form class='option_block'>
                     Orientation
                     <input id="vert" type="number" class="level_read" min="0" max="1" value="0"/>
                     Pal A
@@ -166,7 +171,7 @@
                 </textarea>
                 </div>
                 Auditing
-                <form class='option_div'>
+                <form class='option_block'>
                 Audit Enemy
                 <select id="a_enemy" class="level_audit">
                     <option value='-1'>Select Enemy</option>
@@ -210,7 +215,6 @@
         <script>
 var log_component = new html_logger('log_div')
 log_component.rebind_console_log()
-$('body').append(log_component.log_div)
 
 var char_component = new char_viewer('char_viewer')
 $('#center').append(char_component.my_div)
@@ -220,13 +224,14 @@ $('input[type=number]').on('focusout', number_cap)
 
 var discord_page = 'https://discord.gg/z8CMDqg'
 var d_link = $('<a target="_blank">')
+d_link.attr('class', 'no_pixel')
 d_link.attr('href', discord_page)
 d_link.text(discord_page)
 $('#links').append('Discord: ')
 $('#links').append(d_link)
 $('#links').append("</br>")
 $('#links').append('Current page: ')
-$('#links').append('<a target="_blank" href="">' + window.location.href + '</a>')
+$('#links').append('<a class="no_pixel" target="_blank" href="">' + window.location.href + '</a>')
 
 console.log('Document ready...')
 
@@ -341,14 +346,19 @@ function finish_page_setup(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.stroke()
 
+    textify_everything(9999)
+    hashed_bitmap = {}
 }
 
 finish_page_setup()
 
 window.onload = function(){
-    $('body').fadeIn()
+    $('#intro').fadeOut()
+    $('#center').fadeIn()
     $('.main_item').fadeOut(0)
     $('#summary').fadeIn()
+    $('body').append(log_component.log_div)
+    $(window).scrollTop(0);
 }
 
         </script>

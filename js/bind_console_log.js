@@ -27,6 +27,7 @@ function html_logger(id='log', refresh_lines = 100) {
      *  
      */
 
+    var my_obj = this
     this.update_log = null
     this.new_lines = []
     this.id = id
@@ -35,10 +36,9 @@ function html_logger(id='log', refresh_lines = 100) {
     this.log_div = $('<pre id="' + this.id + '" class="log">>___</pre>')
 
     this.log = function ( ...text ){
-        var my_obj = this
         console.debug((new Error).stack.split('\n')[3])
         console.normal_log( ...text )
-        clearTimeout(this.update_log)
+        clearTimeout(my_obj.update_log)
         this.new_lines.push(text.map(x => String(x)).join(" "))
         if (this.new_lines.length > this.refresh_lines)
             my_obj.apply_lines_to_log()
@@ -59,11 +59,10 @@ function html_logger(id='log', refresh_lines = 100) {
         }
         my_log_tag.text(oldtext)
         my_log_tag.scrollTop(my_log_tag[0].scrollHeight)
-        clearTimeout(this.update_log)
+        clearTimeout(my_obj.update_log)
     }
 
     this.rebind_console_log = function () {
-        var my_obj = this
         console.normal_log = console.log
         console.log = function( ...text ) { my_obj.log( ...text ) }
     }

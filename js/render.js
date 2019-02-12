@@ -9,8 +9,11 @@
 // get this from the ROM itself...
 // also specify specific tile properties i.e quicksand
 // ultimately, replace this with tile definitions
+
+var te = tileEnum
+
 function is_tile_solid(type){
-    if ([0x1a].includes(type)) return 0
+    if ([te.Spikes].includes(type)) return 0
     if (type < 0x1) return 0
     if (type < 0x12) return 0
     if (type < 0x18) return 1
@@ -316,9 +319,8 @@ function render_level(level, header, enemies, meta_info, steps=-1){
                 var gs_bytes = world_metadata.hset[gs.ground_set].slice(0)
             else
                 var gs_bytes = world_metadata.vset[gs.ground_set].slice(0)
-            if (Array.isArray(gtype)){
-                var tile_types = gtype
-            }
+            if (Array.isArray(gtype) || gtype instanceof Uint8Array || gtype instanceof Int8Array)
+                var tile_types = [...gtype]
             else {
                 if (!vertical) 
                     var tile_types = world_metadata.htiles[current_world][gtype]

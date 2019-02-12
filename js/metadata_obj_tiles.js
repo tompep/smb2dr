@@ -260,7 +260,7 @@ var BackgroundTileIds = [
 ]
 
 var tileEnum = {}
-BackgroundTileIds.map((x,y) => tileEnum[x] = y)
+BackgroundTileIds.map((x,y) => tileEnum[x.replace('Tile_')] = y)
 
 
 var EnemyIds = [
@@ -503,6 +503,7 @@ var metadata = {
 }
 
 var tbl= {
+    "*":0XCF,
     "0":0xD0, "1":0xD1, "2":0xD2, "3":0xD3, "4":0xD4, "5":0xD5, "6":0xD6, "7":0xD7, "8":0xD8, "9":0xD9,
     "A":0xDA, "B":0xDB, "C":0xDC, "D":0xDD, "E":0xDE, "F":0xDF, "G":0xE0, "H":0xE1, "I":0xE2, "J":0xE3,
     "K":0xE4, "L":0xE5, "M":0xE6, "N":0xE7, "O":0xE8, "P":0xE9, "Q":0xEA, "R":0xEB, "S":0xEC, "T":0xED,
@@ -516,7 +517,7 @@ for (var key in tbl)
 
 function convertByTbl(string, minlength=0xF){
     string = string.toUpperCase().split("")
-    return string.map(x => x in tbl ? tbl[x] : 0xF5).concat(Array(Math.max(minlength - string.length, 0)).fill(0xFB))
+    return string.map(x => x in tbl ? tbl[x] : 0xCF).concat(Array(Math.max(minlength - string.length, 0)).fill(0xFB))
 }
 
 function invertByTbl(bytes){

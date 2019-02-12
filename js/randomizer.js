@@ -50,6 +50,10 @@ var randomizer_config_form = {
         {
             "name": "Simple Door Randomizer",
             "options": []
+        },
+        {
+            "name": "Open-World Door Randomizer V1",
+            "options": []
         }
     ],
     "Character Randomization": [
@@ -729,8 +733,8 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     while (inventory.length < mush_sum)
         inventory.push(invEnum.Coin)
     inventory = inventory.slice(0, mush_sum)
-    console.log('Final inventory', inventory.map(x => all_item_names[x]))
     inventory = shuffle(inventory)
+    console.log('Final inventory', inventory.map(x => all_item_names[x]))
 
     for (var my_l of my_levels){
         if (my_l == undefined)
@@ -755,7 +759,11 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
                     var lpage = target.pos_page
                     var new_door = create_smb_object(43, lx, ly-1, lpage, 1)
                     my_l.objs.push(new_door)
-                    new_door = create_smb_object(15, lx, ly, lpage, 1) // rebalance this
+                    // replcae this with a "prefab"
+                    var pick_obj = Array.pick_random([...Array.range(6), oe.Small_cloud, 
+                        oe.Vine_extends_to_ground, oe.Herb_with_coin,
+                        oe.Red_pillar_extends_to_ground, oe.Herb_with_potion])
+                    new_door = create_smb_object(pick_obj, lx, ly, lpage, 1) // rebalance this
                     my_l.objs.push(new_door)
                     my_columns = shuffle(my_columns.slice(1))
                     for (var em of my_l.enemies.filter(x => x.pos_x == lx && x.pos_page == lpage))
@@ -780,6 +788,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         var level_inventory = inventory.slice(0, targets.length).filter(x => x != 0)
         if(level_inventory.length > 0){
             my_l.modifiers.push({
+                id: 'MushItems',
                 loc_l: 0x76,
                 loc_r: 0x00,
                 contents: level_inventory,
@@ -1199,8 +1208,10 @@ function get_valid_columns(rendered){
 
 function compare_ground_type (){}
 
+var te = tileEnum
+
 function repair_ground_type (my_h, og_gt, og_world, new_world, world_metadata){
-    if (Array.isArray(og_gt)){
+    if (Array.isArray(og_gt) || og_gt instanceof Uint8Array || og_gt instanceof Int8Array){
         return og_gt
     }
     if (my_h.vertical){
@@ -1213,22 +1224,23 @@ function repair_ground_type (my_h, og_gt, og_world, new_world, world_metadata){
         var target = world_metadata.htiles[new_world][og_gt]
         var og_target = world_metadata.htiles[og_world][og_gt]
     }
-    
-    /*
-    for (var tiles_num in all_tiles){
-        var tiles = all_tiles[tiles_num]
-        for (var i=0; i < tiles.length; i++){
-            if (is_tile_solid(tiles[i]) != is_tile_solid(og_target[i]))
-                break
-            else if (i == 3){
-                console.log('ok we found it?', world, new_world, og_gt, tiles_num)
-                console.log(tiles.map(x => is_tile_solid(x)), 'matches', og_target.map(x => is_tile_solid(x)))
-                return parseInt(tiles_num)
+    var problem_tiles = [te.QuicksandSlow, te.QuicksandFast, te.Sky, te.Black, te.JumpThroughIce, te.DiggableSand]
+    if (problem_tiles.every(x => !problem_tiles.includes(x))){
+        if (Math.random() < 0.70) {
+            for (var tiles_num in all_tiles){
+                var tiles = all_tiles[tiles_num]
+                for (var i=0; i < tiles.length; i++){
+                    if (is_tile_solid(tiles[i]) != is_tile_solid(og_target[i]))
+                        break
+                    else if (i == 3){
+                        console.log(tiles.map(x => is_tile_solid(x)), 'matches', og_target.map(x => is_tile_solid(x)))
+                        return tiles
+                    }
+                }
             }
+            console.log('uh oh')
         }
     }
-    console.log('uh oh')
-    */
 
 
     var new_tiles = []
@@ -1260,7 +1272,7 @@ function randomize_header(my_l, world_metadata, options){
     var world = my_l.world
     my_l.header.pala = new_pal_a
     my_l.header.palb = new_pal_b
-    header_json.unk3 = ~~(Math.random() * 6)
+    header_json.unk3 = ~~(Math.random() * 7)
     header_json.unk4 = og_unk4[world]
 
 }
@@ -1302,6 +1314,16 @@ function equalize_header(my_l, world_metadata){
     var new_world = header_json.unk3
     // convert into chart
     if (new_world != my_l.world){
+        if (my_l.world == 4) {
+            var my_o = my_l.objs
+            var brick_walls = my_l.objs.filter(function(ele){return ele.obj_type == 31})
+            if (brick_walls.length > 0)
+                for (var w of brick_walls){
+                    if (w === undefined)
+                        continue
+                    w.obj_type = 14
+                }
+        }
         if (new_world == 6){
             var my_o = my_l.objs
             var brick_walls = my_l.objs.filter(function(ele){return ele.obj_type == 24})

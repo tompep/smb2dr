@@ -342,12 +342,23 @@ var NES_palette = [
 // euclidean distance example from ?
 function colorDifference (pal1, pal2) {
     var sumOfSquares = 0
-
-    sumOfSquares += Math.pow(pal1[0] - pal2[0], 2)
-    sumOfSquares += Math.pow(pal1[1] - pal2[1], 2)
-    sumOfSquares += Math.pow(pal1[2] - pal2[2], 2)
-
+    for (var x in pal1)
+        sumOfSquares += Math.pow(pal1[x] - pal2[x], 2)
     return Math.sqrt(sumOfSquares)
+}
+
+function get_nearest_color (color, color_set){
+    color = color.slice(0,3)
+    var diff_min = 99999
+    var target_color = 0
+    for (var c in color_set){
+        var diff = colorDifference(color, color_set[c])
+        if (diff < diff_min){
+            diff_min = diff
+            target_color = c
+        }
+    }
+    return target_color
 }
 
 function sprites_to_bytes(sheet){
@@ -361,25 +372,6 @@ function sprites_to_bytes(sheet){
         output.push(...new_hi.slice(8,16).concat(new_lo.slice(8,16)))
     }
     return output
-}
-
-
-function get_nearest_color (pal) {
-    var output_pal = []
-    for (var color1 of pal) {
-        color1 = color1.slice(0,3)
-        var diff_min = 99999
-        var target_color = 0
-        for (var c in NES_palette){
-            var diff = colorDifference(color1, NES_palette[c])
-            if (diff < diff_min){
-                diff_min = diff
-                target_color = c
-            }
-        }
-        output_pal.push(target_color)
-    }
-    return output_pal
 }
 
 var find_sprite = function(l, r){

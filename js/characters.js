@@ -257,7 +257,7 @@ function extract_frames(bitmaps, width, height, offset=0, limit=32, og_uniques) 
 }
 
 function normalizePlayerPal(palette){
-    palette = get_nearest_color(palette)
+    palette = palette.map(x => get_nearest_color(x, NES_palette))
     palette[0] = 0xF
     pal_left = palette[1]
     palette[1] = palette[2]
@@ -380,7 +380,7 @@ var char_viewer = function (id='char_viewer') {
     this.load_sheet = $('<input type="file" style="display: none" class="input" id="char_sheet_load" name="file"/>')
     this.load_char = $('<input type="file" style="display: none" class="input" id="load_character" name="file" multiple/>')
     
-    this.preset_control = $('<div class="option_div">')
+    this.preset_control = $('<div class="option_block">')
     this.preset_chars_div = $('<select id="preset_char" class="a_preset_char"> <option value="-1">Select Preset Character</option> </select>')
     this.preset_control.append(this.preset_chars_div)
 
@@ -392,7 +392,7 @@ var char_viewer = function (id='char_viewer') {
 
     this.my_div.append(this.preset_control)
 
-    this.option_control = $('<div class="option_div">')
+    this.option_control = $('<div class="option_block">')
     this.option_control.append(' <label> Character <input id="a_character" type="number" class="char_read" min="0" max="3" value="0"/> </label>')
     this.option_control.append(' <label> Frame <input id="a_frame" type="number" class="char_read" min="-1" max="10" value="0"/> </label>')
     this.option_control.append(' <label> <input id="a_size" type="checkbox" class="char_read"/> Small </label> ')
@@ -418,7 +418,7 @@ var char_viewer = function (id='char_viewer') {
     this.my_div.append(this.char_stat_control)
 
     var stat_tags = handle_options(character_config_form)
-    var option_tags = stat_tags[1].find('.option, .option_form, .option_select, .option_pal, .sub_option')
+    var option_tags = stat_tags[0].find('.option, .option_form, .option_select, .option_pal, .sub_option')
     for(var stat of [...option_tags]){
         this.my_stats[stat.id] = $(stat)
     }
