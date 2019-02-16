@@ -43,7 +43,7 @@ function html_logger(id='log', refresh_lines = 100) {
         if (this.new_lines.length > this.refresh_lines)
             my_obj.apply_lines_to_log()
         else 
-            return setTimeout(function(){ my_obj.apply_lines_to_log() }, 200)
+            my_obj.update_log = setTimeout(function(){ my_obj.apply_lines_to_log() }, 80)
         return null
     }
 

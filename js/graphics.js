@@ -531,7 +531,14 @@ function convert_to_8x16(frame, mirror){
 }
 
 
+var hashed_bitmap = {}
+
 function create_bitmap(sprite, palette, transparency, x_flipped, y_flipped) {
+    var hash = [sprite, palette, transparency, x_flipped, y_flipped].toString()
+    if (hashed_bitmap[hash]){
+        return hashed_bitmap[hash]
+    }
+    console.debug('no cache hit small')
     var i_offset = y_flipped ? 7 : 0
     var j_offset = x_flipped ? 7 : 0
     var bitmap_sprite = []
@@ -551,10 +558,9 @@ function create_bitmap(sprite, palette, transparency, x_flipped, y_flipped) {
             bitmap_sprite.push(...[color.r, color.g, color.b, (pixel == 0 && transparency) ? 0: 255])
         }
     }
+    hashed_bitmap[hash] = bitmap_sprite
     return bitmap_sprite
 }
-
-var hashed_bitmap = {}
 
 function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute){
     /*

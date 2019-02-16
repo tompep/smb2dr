@@ -109,6 +109,8 @@ var render_length = [
    function(w, r, m, len) { return render_waterfall(w, r, m, len)}, // "water",
 ]
 
+// world, r, m, length
+
 var render_enemy = [
     function(sheets) { }
 ]
@@ -127,29 +129,31 @@ var world_to_column = [0, 1, 0, 0, 0, 1, 2]
 function render_column(w){
     w = world_to_column[w]
     tile_type = column_types[w]
-    return render_vert_tiles(tile_type, 'extend')
+    return render_vert_tiles(tile_type, "extend")
 }
 
 function render_ladder(w){
     // correctly render shadowed ladder
     tile_type = w < 6 ? 0x80 : 0x07
-    return render_vert_tiles(tile_type, 'extend')
+    return render_vert_tiles(tile_type, "extend")
 }
 
 function render_horiz_meta(tile_type, w, r, m, len){
+    var r = r.exterior_type
     var new_r = r % 4
     tile_type = m.object_tiles[w][tile_type][new_r]
 
-    return render_horiz_tiles([tile_type], 'fixed', len)
+    return render_horiz_tiles([tile_type], "fixed", len)
 }
 
 function render_vert_meta(tile_type, w, r, m, len){
+    var r = r.exterior_type
     var new_r = r % 4
     if (tile_type >= 7) // 3,4,5,6,7,8,9
         new_r = (r >> 2) % 4
     tile_type = m.object_tiles[w][tile_type][new_r]
 
-    return render_vert_tiles([tile_type], 'fixed', len)
+    return render_vert_tiles([tile_type], "fixed", len)
 }
 
 function render_single_tile_meta(tile_type, w, r, m){
@@ -162,40 +166,41 @@ function render_single_tile_meta(tile_type, w, r, m){
 }
 
 function render_waterfall(w, r, m, len){
-    var top1 = render_horiz_tiles([0x4, 0x4], 'fixed', len)
-    var top2 = render_horiz_tiles([0x5, 0x5], 'fixed', len)
-    var row = render_horiz_tiles([0x6, 0x6], 'fixed', len)
+    var top1 = render_horiz_tiles([0x4, 0x4], "fixed", len)
+    var top2 = render_horiz_tiles([0x5, 0x5], "fixed", len)
+    var row = render_horiz_tiles([0x6, 0x6], "fixed", len)
 
     return {
         tiles: top1.tiles.concat(top2.tiles),
-        render_type: 'extend_over',
-        render_name: 'water'
+        render_type: "extend_over",
+        render_name: "water"
     }
 
 }
 
 function render_platform_b(w, r, m, len){
-    var top1 = render_horiz_tiles([0xca, 0xcc, 0xce], 'fixed', len)
-    var top2 = render_horiz_tiles([0xcb, 0xcd, 0xcf], 'fixed', len)
-    var row = render_horiz_tiles([0xc7, 0xc8, 0xc9], 'fixed', len)
+    var top1 = render_horiz_tiles([0xca, 0xcc, 0xce], "fixed", len)
+    var top2 = render_horiz_tiles([0xcb, 0xcd, 0xcf], "fixed", len)
+    var row = render_horiz_tiles([0xc7, 0xc8, 0xc9], "fixed", len)
 
+    var r = r.world
     return {
         tiles: top1.tiles.concat(row.tiles),
-        render_type: 'extend_plat',
-        render_name: 'bx'
+        render_type: w == 6 ? "extend" : "extend_plat",
+        render_name: "bx"
     }
 
 }
 
 function render_platform_c(w, r, m, len){
-    var top1 = render_horiz_tiles([0xca, 0xcc, 0xce], 'fixed', len)
-    var top2 = render_horiz_tiles([0xcb, 0xcd, 0xcf], 'fixed', len)
-    var row = render_horiz_tiles([0xc7, 0xc8, 0xc9], 'fixed', len)
+    var top1 = render_horiz_tiles([0xca, 0xcc, 0xce], "fixed", len)
+    var top2 = render_horiz_tiles([0xcb, 0xcd, 0xcf], "fixed", len)
+    var row = render_horiz_tiles([0xc7, 0xc8, 0xc9], "fixed", len)
 
     return {
         tiles: top1.tiles.concat(row.tiles),
-        render_type: 'extend_plat',
-        render_name: 'cx'
+        render_type: w == 6 ? "extend" : "extend_plat",
+        render_name: "cx"
     }
 
 }
@@ -203,19 +208,19 @@ function render_platform_c(w, r, m, len){
 function render_single_tile(tile_type){
     return {
         tiles: [[create_tile(tile_type)]],
-        render_type: 'single'
+        render_type: "single"
     }
 }
 
-function extend_tiles(tile_type, render_type='normal', length=1){
+function extend_tiles(tile_type, render_type="normal", length=1){
     var new_tiles = [tile_type[0]]
 
     var next_tile = tile_type[0]
 
-    if (render_type == 'fixed' && new_tiles.length >= length)
+    if (render_type == "fixed" && new_tiles.length >= length)
         return new_tiles 
 
-    if (render_type == 'fixed' && new_tiles.length + 1 >= length){
+    if (render_type == "fixed" && new_tiles.length + 1 >= length){
         new_tiles.push(tile_type[tile_type.length - 1])
         return new_tiles
     }
@@ -231,8 +236,8 @@ function extend_tiles(tile_type, render_type='normal', length=1){
     return new_tiles
 }
 
-function render_horiz_tiles(tile_type, render_type='normal', length=1){
-    if (render_type != 'rle')
+function render_horiz_tiles(tile_type, render_type="normal", length=1){
+    if (render_type != "rle")
         var new_tiles = extend_tiles(tile_type, render_type, length)
     else{
         var new_tiles = tile_type.slice(0)
@@ -246,8 +251,8 @@ function render_horiz_tiles(tile_type, render_type='normal', length=1){
     }
 }
 
-function render_vert_tiles(tile_type, render_type='normal', length=1){
-    if (render_type != 'rle')
+function render_vert_tiles(tile_type, render_type="normal", length=1){
+    if (render_type != "rle")
         var new_tiles = extend_tiles(tile_type, render_type, length)
     else{
         var new_tiles = tile_type.slice(0)
@@ -357,7 +362,6 @@ function render_level(level, header, enemies, meta_info, steps=-1){
                     console.log(JSON.stringify(last_obj))
 
                 }
-                level.decoded = decoded_level_data
                 return decoded_level_data
             }
             steps--
@@ -373,12 +377,12 @@ function render_level(level, header, enemies, meta_info, steps=-1){
 
             var output = render_object[obj_type]
             if (output != undefined){
-                output = output(current_world, header.exterior_type, world_metadata)
+                output = output(current_world, header, world_metadata)
             }
 
             if (mod_len.includes(obj_type_len)){
                 output = render_length[obj_type_len]
-                output = output(current_world, header.exterior_type, world_metadata, obj_length)
+                output = output(current_world, header, world_metadata, obj_length)
             }
             var x = obj.pos_x
             var y = obj.pos_y
@@ -451,7 +455,6 @@ function render_level(level, header, enemies, meta_info, steps=-1){
             }
         }
     }
-    level.decoded = decoded_level_data
     return decoded_level_data
 }
 

@@ -1,4 +1,11 @@
 
+var sheet_names = {
+    "Sheet_CharSelect": 0x30,
+    "Sheet_CharCheer": 0x31,
+    "Sheet_CharMini": 0x48,
+}
+
+
 // enum definitions (rewrite to consts)
 var BackgroundTileIds = [
     "Tile_Black", // $00
@@ -260,7 +267,7 @@ var BackgroundTileIds = [
 ]
 
 var tileEnum = {}
-BackgroundTileIds.map((x,y) => tileEnum[x.replace('Tile_')] = y)
+BackgroundTileIds.forEach((x,y) => tileEnum[x.replace('Tile_')] = y)
 
 
 var EnemyIds = [
@@ -395,7 +402,7 @@ var EnemyIds = [
 ]
 
 var enemyEnum = {}
-EnemyIds.map((x,y) => enemyEnum[x.replace('Enemy_', '')] = y)
+EnemyIds.forEach((x,y) => enemyEnum[x.replace('Enemy_', '')] = y)
 
 // thx loginsinex
 var MapObjectIds = [
@@ -450,7 +457,7 @@ var MapObjectIds = [
 ]
 
 var objEnum = {}
-MapObjectIds.map((x,y) => objEnum[x.replaceAll(' ', '_')] = y)
+MapObjectIds.forEach((x,y) => objEnum[x.replaceAll(' ', '_')] = y)
 
 function get_map_obj_id (num) {
     if (num < 0x30)
@@ -480,26 +487,28 @@ var MapObjectIdsExtendable = [
 
 MapObjectIdsExtendable.map((x,y) => objEnum[x] = y * 0x10)
 
-var metadata = {
+var blacklist = {
     "0,0,5":[0,1,2],
     "0,1,0":[3,4,5,6,7,8,9],
-    "0,1,1":"0>3",
-    "1,2,3":"0>36",
-    "2,0,1":"06>9",
-    "2,0,4":"01<3",
-    "2,1,0":"01/23/45/6",
-    "2,1,1":"1<2/34/5<7",
-    "2,1,2":"1<3",
-    "3,2,1":"1>6<78",
-    "3,2,3":"0>36",
-    "4,0,1":"0>8",
-    "4,1,3":"0>6",
-    "5,2,4":"02<4",
-    "6,0,1":"0<26",
-    "6,0,3":"0<3",
-    "6,1,2":"0/12/34/56/78/9",
-    "6,1,4":"04<123/79",
-    "6,1,6":"03/69"
+    "0,1,1":[0,1,2],
+    "1,2,3":[3,4,5,6],
+    "2,0,4":[0,1],
+    "2,1,0":null,
+    "2,1,1":null,
+    "5,2,4":[0, 1, 2],
+    "6,1,2":null,
+    "6,1,4":null,
+    "6,1,6":[6, 7, 8, 9]
+}
+
+var patches = {
+    "2,0,1": [{page: [6], add: objEnum.Herb_with_rocket, target: 0}],
+    "3,2,1": [{page: [4], add: objEnum.Herb_with_rocket, target: 0}],
+    "3,2,3": [{page: [6], add: objEnum.Herb_with_rocket, target: 0}],
+    "4,0,1": [{page: [8], add: objEnum.Herb_with_rocket, target: 0}],
+    "4,1,3": [{page: [6], add: objEnum.Herb_with_rocket, target: 0}],
+    "6,0,1": [{page: [0], add: objEnum.Herb_with_rocket, target: 6}],
+    "6,0,3": [{page: [0], add: objEnum.Herb_with_rocket, target: 3}],
 }
 
 var tbl= {

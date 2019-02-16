@@ -1,4 +1,6 @@
 
+// config form
+
 var randomizer_config_form = {
     "Objective": [
         {
@@ -49,11 +51,18 @@ var randomizer_config_form = {
         },
         {
             "name": "Simple Door Randomizer",
-            "options": []
+            "options": [
+                {"name": "Door Chance", "desc": "Possibility of spawning one of X doors",
+                    "val": "50.0", "max": "100"},
+                {"name": "Max Possible Doors", "desc": "Max amount of extra doors",
+                    "val": "3", "max": "4", "min": "1"}
+            ]
         },
         {
-            "name": "Open-World Door Randomizer V1",
-            "options": []
+            "name": "Door Randomizer V1",
+            "options": [
+
+            ]
         }
     ],
     "Character Randomization": [
@@ -72,13 +81,12 @@ var randomizer_config_form = {
                             "val": true}
                     ]},
                     {"name": "Character Lock", "desc": "Restrict choice of character (incompatible with Rescue)",
-                        "val": [ "No Locking", "Per World", "Per Level", "Per Room" 
-                        ]},                
+                        "val": [ "No Locking", "Per World", "Per Level", "Per Room" ]},                
                     {"name": "Change Character on Death", "desc": "Gives character select screen on life lost",
                         "val": false, "class": "mem_location", "mem_loc_name": "CharSelectDeath"},
                     {"name": "Change Character at any time", "desc": "Switch character any time (Select+LR)",
                         "val": false, "class": "mem_location", "mem_loc_name": "CharSelectAnytime"},
-                    {"name": "Elimination Mode", "desc": "Gives each character it's own lives, and removes a character from the game when out of lives",
+                    {"name": "Elimination Mode", "desc": "Gives each character their own lives, and removes a character from the game when out of lives",
                         "val": false, "class": "mem_location", "mem_loc_name": "IndependentLives"},
                     {"name": "Independent Player Powerups", "desc": "Upgrades are only for individual characters",
                         "val": false, "class": "mem_location", "mem_loc_name": "IndependentPlayers"},
@@ -87,6 +95,10 @@ var randomizer_config_form = {
                     {"name": "Starting Gift", "desc": "Gives a random upgrade to each character",
                         "val": false}
                 ]
+        },
+        {
+            "name": "Randomized Pool",
+            "options": []
         }
     ],
     "Object Randomization": [
@@ -273,36 +285,36 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     var LevelStart = mem_locs['Data_StartLevel'] + 0x10
     var WinLevel = mem_locs['WinLevel'] + 0x10
 
-    var level_sets = [] 
-    Array.split([...my_levels], 10).map(x => !x.every(y => y == undefined) ? level_sets.push(x) : x) 
+    var level_groups = [] 
+    Array.split([...my_levels], 10).map(x => !x.every(y => y == undefined) ? level_groups.push(x) : x) 
 
     var game_scale = options['GameScale']
-    console.debug(level_sets)
-    while(game_scale > 0 && level_sets.length > game_scale){
-        var target_num = ~~(Math.random() * level_sets.length)
-        level_sets.splice(target_num, 1)
-        console.log(target_num, level_sets)
+    console.debug(level_groups)
+    while(game_scale > 0 && level_groups.length > game_scale){
+        var target_num = ~~(Math.random() * level_groups.length)
+        level_groups.splice(target_num, 1)
+        console.log(target_num, level_groups)
     }
-    console.debug(level_sets)
-    var all_levels = [].concat.apply([], level_sets)
+    console.debug(level_groups)
+    var all_levels = [].concat.apply([], level_groups)
 
     if(options['ShuffleType'] == 'Hub World'){
 
         return all_levels
     }
     else if (options['ShuffleType'] == 'World_Order_Randomizer'){
-        var world_sets = Array.split(level_sets, 3)
+        var world_sets = Array.split(level_groups, 3)
         if (options['ScrambleWorld'])
             world_sets = shuffle(world_sets).map(x => shuffle(x))
         else 
             world_sets = shuffle(world_sets)
-        level_sets = [].concat.apply([], world_sets)
+        level_groups = [].concat.apply([], world_sets)
     }
     else if(options['ShuffleType'] == 'Level_Order_Randomizer'){
-        level_sets = shuffle(level_sets) 
+        level_groups = shuffle(level_groups) 
     }
     else if(options['ShuffleType'] == 'Simple_Door_Randomizer'){
-        level_sets = shuffle(level_sets) 
+        level_groups = shuffle(level_groups) 
 
         for (var i = 0; i < 3; i++)
         {
@@ -399,10 +411,10 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     var last_boss = boss_rooms[boss_rooms.length - 1]
 
     console.log('Stringing levels together')
-    for(var n in level_sets){
-        console.debug('level_sets', n)
+    for(var n in level_groups){
+        console.debug('level_groups', n)
         n = parseInt(n)
-        var set = level_sets[n]
+        var set = level_groups[n]
 
 
         if (set[0] == undefined) continue
@@ -420,13 +432,13 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
             continue
         }
 
-        var next_set = level_sets[n + 1]
+        var next_set = level_groups[n + 1]
         if (next_set == undefined){
-            next_set = level_sets[0]
+            next_set = level_groups[0]
             console.error('End of sets, loop to beginning', n + 1)
         }
         if (next_set[0] == undefined){
-            next_set = level_sets[n + 2]
+            next_set = level_groups[n + 2]
         }
 
         console.log('WorldLevel', set[0].world+1, '-', set[0].level+1)
@@ -443,12 +455,12 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
         target_ptr = target_ptr >= 0 ? target_ptr : ptrs.length
 
 
-        if (n % 3 == 2 || n == level_sets.length - 1){
+        if (n % 3 == 2 || n == level_groups.length - 1){
             console.log('boss')
             var boss_room = boss_rooms[0]
             boss_rooms = boss_rooms.slice(1)
 
-            if (n == level_sets.length - 1)
+            if (n == level_groups.length - 1)
                 boss_room = last_boss
 
             var boss = boss_room.enemies.filter(
@@ -479,9 +491,9 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
         }
     }
 
-    my_rom[LevelStart] = level_sets[0][0].world * 3 + level_sets[0][0].level
-    my_rom[LevelStart + 1] = level_sets[0][0].room
-    my_rom[LevelStart + 2] = level_sets[0][0].page
+    my_rom[LevelStart] = level_groups[0][0].world * 3 + level_groups[0][0].level
+    my_rom[LevelStart + 1] = level_groups[0][0].room
+    my_rom[LevelStart + 2] = level_groups[0][0].page
     my_rom[LevelStart + 3] = 0
     my_rom[WinLevel] = last_boss.world * 3 + last_boss.level
 
@@ -681,7 +693,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
     inventory = inventory.concat(powerups)
     inventory = inventory.concat(common)
 
-    console.log('Initial inventory', inventory.map(x => all_item_names[x]))
+    console.debug('Initial inventory', inventory.map(x => all_item_names[x]))
     
     var horizontal_levels = my_levels.filter(x => (x != undefined && !x.header.vertical &&
         x.is_jar == 0 && !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0)))
@@ -900,11 +912,11 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
     var character = 0xf
     var segments = []
     if (r_header == 'Per World')
-        segments = Array.split(info.my_levels, 30)
+        segments = Array.split(my_levels, 30)
     else if (r_header == 'Per Level')
-        segments = Array.split(info.my_levels, 10)
+        segments = Array.split(my_levels, 10)
     else if (r_header == 'Per Room')
-        segments = Array.split(info.my_levels, 1)
+        segments = Array.split(my_levels, 1)
     else
         console.log('No Character Locking...')
     for(var s of segments){
@@ -1017,7 +1029,7 @@ function inverse_level(my_l, all_levels){
     my_l.objs = new_lvl
 
     if (!my_h.vertical){
-        my_l.ptrs.map(x => x.pos_page = Math.abs(x.pos_page - my_l.header.pages))
+        my_l.ptrs.forEach(x => x.pos_page = Math.abs(x.pos_page - my_l.header.pages))
         var change_ptrs = all_levels.filter(x => x != undefined).map(x => x.ptrs.filter(y => 
             y.world == my_l.world &&
             y.level == my_l.level &&

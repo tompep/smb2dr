@@ -1,4 +1,6 @@
 
+var level_sets = []
+
 var currentMap
 var currentRender
 var cursor = [0, 0]
@@ -14,7 +16,7 @@ function writeJSON(evt) {
         console.log('Cannot render level, no rom loaded')
         return
     }
-    var level = info.my_levels[my_level_index]
+    var level = level_sets[level_sets.length - 1][my_level_index]
     level.rendered = []
     level.decoded = []
     level.objs = level.objs.map(x => {delete x.obj_name; return x;})
@@ -33,7 +35,7 @@ function readJSON(evt) {
     var level = JSON.parse(
         $('#info_dump').val())
 
-    info.my_levels[my_level_index] = level
+    level_sets[0][my_level_index] = level
 
     show_level(evt)
 }
@@ -132,7 +134,7 @@ function get_canvas_coord(canvas, event, vertical){
 }
 
 function test_render() {
-    for (var my_l of info.my_levels){
+    for (var my_l of level_sets[level_sets.length - 1]){
         if (my_l != undefined){
             var t0 = performance.now();
 
@@ -203,7 +205,7 @@ function show_level(evt) {
     }
     var page_num = $('#page').val()
     var step_num = $('#steps').val()
-    var level = info.my_levels[my_level_index]
+    var level = level_sets[level_sets.length - 1][my_level_index]
     console.log('Rendering Level', 
         level.world + 1, "-", level.level + 1, "room", level.room)
     var my_objects = level.objs

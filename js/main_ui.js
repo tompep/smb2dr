@@ -136,53 +136,51 @@ function parseColor(input) {
     }
 
 function textify_this(div){
-    var loaded_sheets = [bbptext]
     for (var n in div.childNodes) {
         var node = div.childNodes[n]
         if (node.nodeType != 3) continue
         var text = node.nodeValue
         if (text == undefined || text.length == 0 ) continue
         text = text.trim()
-        node.nodeValue = ''
         if (text.length == 0) continue
+
         var pal_col = get_nearest_color(parseColor($(div).css('color')), NES_palette)
-        var div_new = $("<text>")
+        var div_new = $("<text class='replaced_text'>")
         var text_paragraphs = text.split('\n')
         for (var p in text_paragraphs) {
             var paragraph = text_paragraphs[p]
             var text_words = paragraph.split(' ')
             for (var t in text_words) {
                 var text = text_words[t]
-                if (text.length == 0)
-                    continue
+                if (text.length == 0) continue
 
                 var text_tiles = []
                 text_tiles.push(...convertByTbl(text, text.length).map(x => x % 0x40))
 
                 if (t < text_words.length - 1) text_tiles.push(0xFB)
-                var gfx = bitmap_from_graphics(loaded_sheets, 
+                var gfx = bitmap_from_graphics([bbptext], 
                     text_tiles, Math.min(256, text_tiles.length), [0xF,pal_col, pal_col, pal_col], true).data_url
                 var img = $("<img class='sprite_text'></img>")
-                img.attr('aria-label', text)
+                img.attr('og-text', text)
                 img.attr('src', gfx)
                 div_new.append(img)
             }
             if (p < text_paragraphs.length - 1) div_new.append('</br>')
         }
+        div_new.attr('aria-label', text)
         div.replaceChild(div_new[0], node)
     }
 }
 
 function textify_everything(num=9999){
-    var all_divs = $('button, a, select, label, div, form').not('.no_pixel,#summarytext')
+    var all_divs = $('button, a, select, label, div, form').not('.no_pixel')
     for (var d in all_divs){
         if (d > num)
             break
         var div = all_divs[d]
-        textify_this(div)
+        setTimeout(textify_this(div))
     }
 }
-
 
 
 function read_info_file_info (targetRom){
@@ -199,8 +197,12 @@ function read_info_file_info (targetRom){
             console.log('This ROM has not been tested to patch, but we will attempt anyway')
             alert('This ROM is untested or not the correct game!')
             currentRom = patch_ips(targetRom, currentPatch_A)
-            info = extract_all_info(currentRom, mem_locs)
-            sprites = extract_graphics(currentRom.slice(0x20010))
+            setTimeout(function() {
+                    info = extract_all_info(currentRom.slice(0x10), mem_locs)
+                    level_sets = [info.my_levels]
+                    sprites = extract_graphics(currentRom.slice(0x20010)) 
+                    info.meta_info.characters = extract_characters(currentRom.slice(0x10), mem_locs, sprites.all_sheets)
+            })
             console.normal_log(info)
             console.normal_log(sprites)
             return true
@@ -218,8 +220,12 @@ function read_info_file_info (targetRom){
         else if (crc32_rom == smb2_crcs[1] || crc32_rom == smb2_crcs2[1]){
             currentRom = patch_ips(targetRom, currentPatch_A)
         }
-        info = extract_all_info(currentRom, mem_locs)
-        sprites = extract_graphics(currentRom.slice(0x20010))
+        setTimeout(function() {
+                info = extract_all_info(currentRom, mem_locs)
+                level_sets = [info.my_levels]
+                sprites = extract_graphics(currentRom.slice(0x20010)) 
+                info.meta_info.characters = extract_characters(currentRom.slice(0x10), mem_locs, sprites.all_sheets)
+        })
         console.normal_log(info)
         console.normal_log(sprites)
         return true
@@ -240,14 +246,18 @@ var downloadURL = function(data, fileName) {
 function randomize_rom(evt) {
     console.log('Randomizing ROM...')
     // patch
+    //
+    //
     rando_seed = $('#seed').val();
+    level_sets[1] = JSON.parse(JSON.stringify(level_sets[0]))
+    var current_level_set = level_sets[1]
 
     // extract
     var option_tags = $('#randomizer').find('.option, .option_form, .option_select')
     var mem_loc_tags = $('#randomizer').find('.option.mem_location')
 
     var option_vals = {}
-    option_tags.map(function(x){
+    option_tags.each(function(x){
         option_vals[option_tags[x].id] = {
         val: option_tags[x].value, 
         checked: option_tags[x].checked,
@@ -260,11 +270,11 @@ function randomize_rom(evt) {
     var r_header = option_vals['Randomize_World_Appearance'].radio
     var segments = []
     if (r_header == 'Per World')
-        segments = Array.split(info.my_levels, 30)
+        segments = Array.split(current_level_set, 30)
     else if (r_header == 'Per Level')
-        segments = Array.split(info.my_levels, 10)
+        segments = Array.split(current_level_set, 10)
     else if (r_header == 'Per Room')
-        segments = Array.split(info.my_levels, 1)
+        segments = Array.split(current_level_set, 1)
     else
         console.log('No Header Randomize...')
     for(var s of segments){
@@ -285,7 +295,7 @@ function randomize_rom(evt) {
     var r_header = option_vals['Randomize_Music'].checked
     console.log(r_header, option_vals['Randomize_Music'])
     if (r_header){
-        if (!segments.length) segments = Array.split(info.my_levels, 1)
+        if (!segments.length) segments = Array.split(current_level_set, 1)
         var header_music = 0
         for(var s of segments){
             var new_music = ~~(Math.random() * 9)
@@ -302,7 +312,7 @@ function randomize_rom(evt) {
 
     Math.seedrandom(rando_seed)
 
-    for(var l of info.my_levels){
+    for(var l of current_level_set){
         if (l != undefined){
             equalize_header(l, info.meta_info.world_metadata)
             var WarpPipe = l.objs.filter(function(ele){return ele.obj_type == 0x8})
@@ -315,12 +325,12 @@ function randomize_rom(evt) {
             if (Math.random() * 100< (option_vals['Curse_Rate'].val))
                 l.modifiers.push({
                 loc_l: 0x76, 
-                loc_r: 0xed, 
+                loc_r: 0xee, 
                 contents: [0x01]}) // curse
             var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
             if (Math.random() * 100 < (option_vals['Inverted_Rate'].val) && !isBoss){
                 console.log('inverted...')
-                inverse_level(l, info.my_levels)
+                inverse_level(l, current_level_set)
 
             }
         }
@@ -328,7 +338,7 @@ function randomize_rom(evt) {
 
     Math.seedrandom(rando_seed)
 
-    var active_levels = level_order_randomizer(info.my_levels, currentRom, mem_locs, {
+    var active_levels = level_order_randomizer(current_level_set, currentRom, mem_locs, {
         'ShuffleType': option_vals["Level_Randomization"].val,
         'GameScale': option_vals["Game_Scale"].val,
         'BossOrder': option_vals["Boss_Randomization"].val,
@@ -356,7 +366,7 @@ function randomize_rom(evt) {
 
     handle_boss_options(active_levels, option_vals)
 
-    mem_loc_tags.map(function(ele){
+    mem_loc_tags.each(function(ele){
         var ele = mem_loc_tags[ele]
         console.debug(ele)
         var values = [ele.value]
@@ -398,7 +408,19 @@ function randomize_rom(evt) {
             fit_text('I THOUGHT ABOUT ALL THE COOL STUFF I COULD PUT HERE, BUT INSTEAD I DECIDED TO SLEEP...', 20), 16*20))
 
 
-    write_to_file(currentRom, info.my_levels, info.meta_info)
+    /*
+    for (var l in level_sets[0]){
+        if (level_sets[0][l]){
+            var len1 = write_level_bytes(level_sets[0][l])
+            var len2 = write_level_bytes(level_sets[1][l])
+            console.debug(len1, len2)
+            console.debug('level diff in bytes...', len1.length, len2.length, len2.length - len1.length)
+        }
+
+    }
+    */
+
+    write_to_file(currentRom, level_sets[level_sets.length - 1], info.meta_info)
     
     blob = new Blob([currentRom])
     url = window.URL.createObjectURL(blob)
@@ -463,6 +485,7 @@ function setupLabelsLst (text){
     }
     return mem_locs_new
 }
+
 function setupLabels (text, num){
     /*
         Sets up labels from asm6f Symbol files    
@@ -520,12 +543,12 @@ function handle_options (jsn){
             if (option.length > 1){
                 outer_tag.prepend(tag)
                 tag.on("input", function(){
-                    var search_target = this.id + "_Option"
-                    var targets = $(".option_div")
-                    var target = targets.filter((x, y) => y.id == search_target)[0]
-                    for (var x of target.childNodes)
+                    var target = this.parentElement
+                    for (var x of target.childNodes) {
+                        if (x.tagName != "DIV") continue
                         if (x.id != "Default" && x.id != this.value) $(x).addClass("hide_me")
                         else $(x).removeClass("hide_me")
+                    }
 
                 })
             }
@@ -682,18 +705,26 @@ function handleFileSelect(evt) {
         if (!read_info_file_info(startingRom)){
             return
         }
-        $('#a_character').trigger('input')
-        $('#world').trigger('input')
+        var start_interface = function(){
+            if (sprites == undefined || info.meta_info.characters == undefined)
+                setTimeout(start_interface, 1000)
+            else {
+                $('#a_character').trigger('input')
+                $('#world').trigger('input')
+            }
+        }
+        setTimeout(start_interface, 1000)
     }
     reader.readAsArrayBuffer(file)
 }
+
 
 function load_options(files, tag){
     var loader = function(e){
         console.log('Loading config...')
         var result = JSON.parse(e.target.result);
         var my_name = file.name.replace('.json', '')
-        $('#preset_game').append('<option value="' + presets.length + '">' + my_name + '</option>')
+        $('#preset_game').append('<option value="' + presets.length - 1 + '">' + my_name + '</option>')
         presets.push({'name': my_name, 'config': result})
         reload_options(result, tag)
     }
@@ -814,25 +845,25 @@ $('#start_character_viewer').click(function(){
 
 $('#auditByRoom').click(function(){
     var my_level_index = $('#world').val() * 30 + $('#level').val() * 10 + $('#room').val() * 1
-    var levels = [info.my_levels[my_level_index]]
+    var levels = [level_sets[level_sets.length - 1][my_level_index]]
     audit_function(levels)
 })
 
 
 $('#auditByLevel').click(function(){
     var my_level_index = $('#world').val() * 30 + $('#level').val() * 10
-    var levels = info.my_levels.slice(my_level_index, my_level_index + 10).filter(x => x != undefined)
+    var levels = level_sets[level_sets.length - 1].slice(my_level_index, my_level_index + 10).filter(x => x != undefined)
     audit_function(levels)
 })
 
 $('#auditByWorld').click(function(){
     var my_level_index = $('#world').val() * 30 + $('#level').val() * 10
-    var levels = info.my_levels.slice(my_level_index, my_level_index + 30).filter(x => x != undefined)
+    var levels = level_sets[level_sets.length - 1].slice(my_level_index, my_level_index + 30).filter(x => x != undefined)
     audit_function(levels)
 })
 
 $('#auditByGame').click(function(){
-    var levels = info.my_levels.filter(x => x != undefined)
+    var levels = level_sets[level_sets.length - 1].filter(x => x != undefined)
     audit_function(levels)
 })
 

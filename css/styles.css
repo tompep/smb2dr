@@ -57,6 +57,7 @@ img {
 label {
     padding: 2px;
     display: block;
+    margin-bottom: 2px;
 }
 
 textarea {
@@ -70,6 +71,7 @@ select{
     margin: 4px auto;
     display: block;
 }
+
 #intro{
         position: absolute;
         top: 50%;

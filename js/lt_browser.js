@@ -235,7 +235,7 @@ function write_level_bytes(my_l, world=0){
         output.push(...output_hot)
         output.push(output_content.length)
         output.push(...output_content)
-        console.log(my_l.hotspots, output_content)
+        console.debug(my_l.hotspots, output_content)
     }
 
     if (my_l.is_jar){
@@ -593,7 +593,6 @@ function extract_all_info (contents_full, mem_locs={}){
         mem_locs: mem_locs,
         data_46e: data_46e,
         obj_attr_data: obj_attr_data,
-        characters: extract_characters(contents, mem_locs)
     }
     return {
         my_levels: modified_my_l, 
@@ -788,7 +787,7 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
     var ptr_order = my_world_metadata.level_ptr_order
     var eptr_order = my_world_metadata.enemy_ptr_order
     for (var i = 0; i < my_levels.length + 10; i++){
-        if (my_levels[i] === undefined || i >= 200){
+        if (my_levels[i] == undefined || i >= 200){
             var new_ptr = 0x8000 + allcnt
             all_new_ptrs_h.push(new_ptr >> 8)
             all_new_ptrs_l.push(new_ptr % 256)
@@ -809,8 +808,9 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
         enemy_data.push(1)
         var level_data = write_level_bytes(my_l, ((i-(i%30))/30))
         if (level_data.length > 255) {
-            console.error('level data too big!!')
-            alert(my_l.i + ' level data too big!!  reducing footprint...')
+            console.error('level data too big!!  try reducing some options...')
+            alert(my_l.i + ' level data too big!!  try reducing some options...')
+            throw 'Level generated too big to store...'
             my_l.hotspots = []
             my_l.modifiers = my_l.modifiers.reduce((a, x) => x.id ? a.push(x) : x, [])
             level_data = write_level_bytes(my_l, ((i-(i%30))/30))
@@ -883,6 +883,11 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
     console.debug('len-ptr-pad', final_bytes.length.toString(16))
     final_bytes.push(...all_new_enmy)
     console.log('Final length of level bytes', final_bytes.length.toString(16))
+    if(final_bytes.length > 0x4000){
+        console.error('level data too big!!  try reducing some options...')
+        alert('full level data too big!!  try reducing some options...')
+        throw 'Game generated too big to store...'
+    }
     while(final_bytes.length < 0x4000){
         final_bytes.push(0xFF)
     }

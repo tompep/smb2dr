@@ -50,7 +50,7 @@
             </br>
 
             <div id="summary" class="main_item">
-                <div id="summarytext" class="summarytext">Failed to grab README.md                </div>
+                <div id="summarytext" class="summarytext no_pixel">Failed to grab README.md                </div>
                 <div>
                 <img src="css/smb2-output-5.png"> </img>
                 <img src="css/smb2-output-0.png"> </img>
@@ -97,7 +97,7 @@
             </div>
 
             <div id="changelog" class="main_item">
-                <div id="changelogtext" class="summarytext">Failed to grab CHANGELOG.md                </div>
+                <div id="changelogtext" class="summarytext no_pixel">Failed to grab CHANGELOG.md                </div>
             </div>
                 
             <div id="fileupload" class="main_item option_block">
@@ -346,19 +346,22 @@ function finish_page_setup(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.stroke()
 
-    textify_everything(9999)
-    hashed_bitmap = {}
+    console.log(window.location.hash)
+    if ( !(window.location.hash && window.location.hash == '#nosprite')  )
+        textify_everything(9999)
 }
 
 finish_page_setup()
 
 window.onload = function(){
-    $('#intro').fadeOut()
+
+    $('#intro').fadeOut(0)
     $('#center').fadeIn()
+    window.scrollTo(0, 0);
     $('.main_item').fadeOut(0)
     $('#summary').fadeIn()
     $('body').append(log_component.log_div)
-    $(window).scrollTop(0);
+
 }
 
         </script>
