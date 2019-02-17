@@ -72,3 +72,55 @@ function extract_mem_block (bytes, mem_locs, name, size, offset=0){
     return null
 }
 
+function setupLabelsLst (text){
+    /*
+        Sets up labels from asm6f lst file 
+    */
+    var offset = 0
+    var last_address = 0x0
+    var mem_locs_new = {}
+    var ram_offset = 0x8000
+    for (var entry of text.split('\n')){
+        var mem_address = entry.slice(0, 5)
+        if (isNaN('0x' + mem_address))
+            continue
+        var mem_address = parseInt('0x' + mem_address)
+        if (mem_address < 0x8000)
+            continue
+
+        var isAddress = entry.search(':')
+        if (isAddress === -1)
+            continue
+
+        if (mem_address - 0x8000 < last_address){
+            offset += 0x4000
+        }
+        var new_entry = entry.slice(5, isAddress).trim()
+        mem_locs_new[new_entry] = mem_address - 0x8000 + offset
+        last_address = mem_address - 0x8000
+
+    }
+    return mem_locs_new
+}
+
+function setupLabels (text, num){
+    /*
+        Sets up labels from asm6f Symbol files    
+    */
+    var offset = 0x8000
+    var mem_locs_new = {}
+    if (num == 8) num = 7
+    if (num == 7) offset = 0xC000
+    var true_location = num * 0x4000
+    for (var entry of text.split('\n')){
+        var values = entry.split('#')
+        var location = parseInt(values[0].slice(1), 16)
+        location = true_location + location - offset 
+        var value_name = values[1]
+        if (value_name != undefined && location != NaN)
+            mem_locs_new[value_name] = location
+    }
+    return mem_locs_new
+}
+
+

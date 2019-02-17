@@ -266,6 +266,10 @@ function render_vert_tiles(tile_type, render_type="normal", length=1){
     }
 }
 
+var mod = [0, 2, 15, 25, 47]
+var mod_len = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+var mod_height = [8, 9] 
+
 function render_level(level, header, enemies, meta_info, steps=-1){
     // just do the solids
     // first pass ground
@@ -347,9 +351,6 @@ function render_level(level, header, enemies, meta_info, steps=-1){
         }
     }
 
-    var mod = [0, 2, 15, 25, 47]
-    var mod_len = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    var mod_height = [8, 9] 
     var last_obj = null
     var steps_taken = steps
     // remember to consider layers
@@ -367,60 +368,7 @@ function render_level(level, header, enemies, meta_info, steps=-1){
             steps--
             last_obj = obj
 
-            var x = obj.pos_x
-            var y = obj.pos_y
-            var page = obj.pos_page
-            var obj_type = obj.obj_type
-            var obj_type_len = obj.obj_type >> 4
-            var obj_length = (obj_type & 0xF) + 1
-
-
-            var output = render_object[obj_type]
-            if (output != undefined){
-                output = output(current_world, header, world_metadata)
-            }
-
-            if (mod_len.includes(obj_type_len)){
-                output = render_length[obj_type_len]
-                output = output(current_world, header, world_metadata, obj_length)
-            }
-            var x = obj.pos_x
-            var y = obj.pos_y
-            var page = obj.pos_page
-            if (output != undefined){
-                var tiles = output.tiles
-                var style = output.render_type
-                if (style == 'extend_up'){
-                    var new_length = 0
-                    while (page >= 0){
-                        var map_tile = decoded_level_data[page][(y) % 15][((x) % 16)]
-                        if (map_tile.solidity){
-                            new_length--
-                            if(new_length >= 0) y++
-                            if (y == 15){
-                                page++
-                                y = 0
-                            }
-                            break
-                        }
-                        if ( y == 0 && !vertical ) break
-                        else if (y == 0){
-                            if (page == 0) break
-                            page--
-                            y = 15
-                        }
-                        y--
-                        new_length++;
-                    }
-                    var new_tiles = []
-                    for (var i = 0; i < new_length; i++)
-                        new_tiles[i] = tiles[0]
-                    new_tiles.push(tiles[1])
-                    tiles = new_tiles
-                    style == 'fixed'
-                }
-                write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header)
-            }
+            write_single_obj_to_render(decoded_level_data, obj, current_world, header, world_metadata)
         } 
     }
     for (var mod of level.modifiers){
@@ -456,6 +404,62 @@ function render_level(level, header, enemies, meta_info, steps=-1){
         }
     }
     return decoded_level_data
+}
+
+function write_single_obj_to_render (decoded_level_data, obj, current_world, header, world_metadata){
+    var x = obj.pos_x
+    var y = obj.pos_y
+    var page = obj.pos_page
+    var obj_type = obj.obj_type
+    var obj_type_len = obj.obj_type >> 4
+    var obj_length = (obj_type & 0xF) + 1
+    var vertical = header.vertical
+
+
+    var output = render_object[obj_type]
+    if (output != undefined){
+        output = output(current_world, header, world_metadata)
+    }
+
+    if (mod_len.includes(obj_type_len)){
+        output = render_length[obj_type_len]
+        output = output(current_world, header, world_metadata, obj_length)
+    }
+
+    if (output != undefined){
+        var tiles = output.tiles
+        var style = output.render_type
+        if (style == 'extend_up'){
+            var new_length = 0
+            while (page >= 0){
+                var map_tile = decoded_level_data[page][(y) % 15][((x) % 16)]
+                if (map_tile.solidity){
+                    new_length--
+                    if(new_length >= 0) y++
+                    if (y == 15){
+                        page++
+                        y = 0
+                    }
+                    break
+                }
+                if ( y == 0 && !vertical ) break
+                else if (y == 0){
+                    if (page == 0) break
+                    page--
+                    y = 15
+                }
+                y--
+                new_length++;
+            }
+            var new_tiles = []
+            for (var i = 0; i < new_length; i++)
+                new_tiles[i] = tiles[0]
+            new_tiles.push(tiles[1])
+            tiles = new_tiles
+            style == 'fixed'
+        }
+        write_tiles (decoded_level_data, tiles, style, page, x, y, obj, header)
+    }
 }
 
 // dated but works

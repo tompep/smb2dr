@@ -340,6 +340,7 @@ function create_ptr_wlrp(w, l, r, p, my_page){
     return extract_door_ptr(door_ptr.wl, door_ptr.rp, my_page)
 }
 
+// TODO: Make these functions as "objects"
 function create_smb_object(type, x, y, page, layer=0, param=0){
     var obj_name = get_map_obj_id(type)
     return {
@@ -398,6 +399,7 @@ function extract_door_ptr(l, r, my_page){
 
 
 function extract_tile_bytes(contents, mem_locs={}){
+    // TODO: update this for memory.js functions
     var bank_offset = 0x8000
     var tile_block = 0x2000 * 6
     var bytes = contents.slice(tile_block)
@@ -478,7 +480,7 @@ var char_lookup_bit = [
     0b1000
 ]
 
-var char_names = ['MARIO', 'PRINCESS', 'TOAD', 'LUIGI'] // just change the order proper in ASM
+var char_names = ['MARIO', 'PRINCESS', 'TOAD', 'LUIGI'] // NOTE: just change the order proper in ASM?
 var player_table = [1, 8, 4, 2]
 var player_order = [0, 3, 2, 1] // > m l t p
 var player_order_d = [0, 2, 3, 1] // m p t l > m l t p

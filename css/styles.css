@@ -84,6 +84,9 @@ select{
 
 #Mario,#Luigi,#Peach,#Toad {width:48px; height: 48px;display:inline-block;}
 .wide label { width:64px; height: 64px; display:inline-block; }
+.bold {
+    font-weight: bold;
+} 
 
 #random_seed  { padding: 5px; }
 

@@ -16,9 +16,8 @@ Array.flip = function(array) {
 
 Array.split = function (array, amnt){
     var result = []
-    while (array.length){
-        result.push(array.slice(0, amnt))
-        array = array.slice(amnt)
+    for (var i = 0; i < array.length; i += amnt){
+        result.push(array.slice(i, i + amnt))
     }
     return result
 }
@@ -26,6 +25,36 @@ Array.split = function (array, amnt){
 Array.pick_random = function(array){
     return array[~~(Math.random() * array.length)]
 }
+
+Array.shuffle = function(array){
+    let counter = array.length;
+
+    // While there are elements in the array
+    while (counter > 0) {
+        // Pick a random index
+        let index = ~~(Math.random() * counter);
+
+        // Decrease counter by 1
+        counter--;
+
+        // And swap the last element with it
+        let temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+
+    return array;
+}
+
+Array.random_to_front = function(array){
+    var index = ~~(Math.random() * array.length) 
+    var out = array.splice(index, 1)
+    array.unshift(...out)
+    return array
+}
+
+/// helper
+var shuffle = Array.shuffle
 
 var split_em = Array.split
 

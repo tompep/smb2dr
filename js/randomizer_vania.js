@@ -42,11 +42,10 @@ function ping_spots (map, x, y){
     return start_dirs
 }
 
-function test_door_randomizer(my_levels, num){
+function door_randomizer_v1(my_levels, blacklist){
     if (Math.seedrandom)
         Math.seedrandom(rando_seed)
-    canvas = document.getElementById("myCanvas"),
-        ctx = canvas.getContext("2d");
+    var canvas = document.getElementById("myCanvas"), ctx = canvas.getContext("2d");
     var c_j = $('#myCanvas')
     canvas.width = 400
     canvas.height = 400
@@ -62,17 +61,27 @@ function test_door_randomizer(my_levels, num){
 
     var num_out = 0
     var oe = objEnum
-    for (var my_l of my_levels) {
-        if (my_l == undefined)
-            continue
-        num_out++
+    var obj_remove = [oe.Locked_door, oe.Door, oe.Jar, 
+        oe.Dark_entrance, oe.Jar_generic, oe.Jar_ptr, 
+        oe.Jar_generic, oe.Herb_with_rocket, oe.Entrance_extends_to_ground,
+        oe.Entrance_exit_light_right, oe.Entrance_exit_light_left,
+        oe.Castle_entrance_1, oe.Castle_entrance_2]
+    for (var l in my_levels) {
+        var my_l = my_levels[l]
+        if (my_l == undefined) continue
+        var hash = [my_l.world, my_l.level, my_l.room]
+        my_l.valid_pages = Array.range(my_l.header.pages + 1)
+        if (blacklist[(String(hash))] !== undefined) {
+            my_l.valid_pages = blacklist[(String(hash))]
+            if (my_l.valid_pages == null) {
+                my_levels[l] = undefined
+                continue
+            }
+        }
         my_l.ptrs = []
+        my_l.columns = get_valid_columns(ll.rendered).filter(function(ele){return ele.space > 3})
         my_l.objs = my_l.objs.filter(x => 
-            ![oe.Locked_door, oe.Door, oe.Jar, 
-            oe.Dark_entrance, oe.Jar_generic, oe.Jar_ptr, 
-            oe.Jar_generic, oe.Herb_with_rocket, oe.Entrance_extends_to_ground,
-            oe.Entrance_exit_light_right, oe.Entrance_exit_light_left,
-            oe.Castle_entrance_1, oe.Castle_entrance_2].includes(x.obj_type))
+            !obj_remove.includes(x.obj_type))
         var rendered = render_level(my_l, my_l.header, my_l.enemies, info.meta_info)
         var target_lines = []
         if (my_l.header.vertical){
@@ -113,11 +122,11 @@ function test_door_randomizer(my_levels, num){
     if (Math.seedrandom)
         Math.seedrandom(rando_seed)
     var anchor = [50, 50]
-    candidates = []
+    var candidates = []
     candidates.push(...render_connection(map, nodes_out[0], {x: anchor[0], y: anchor[1]}, null))
     nodes_out = nodes_out.slice(1)
     while (nodes_out.length && candidates.length) {
-        candidates = shuffle(candidates)
+        candidates = Array.random_to_front(candidates)
         while (candidates[0].connected) {
             candidates = candidates.slice(1)
             if (candidates.length == 0)
@@ -166,7 +175,7 @@ function test_door_randomizer(my_levels, num){
     console.log(colors, num_out)
 }
 
-function render_connection (map, node, parent, dir){
+function render_connection (map, node, parent, dir, ){
     var x = parent.x, y = parent.y
     var color = c_rand.shift()
     c_rand.push(color)
@@ -213,64 +222,13 @@ function render_connection (map, node, parent, dir){
             map[y][x].color = 'cyan'
             console.log('WAOW')
             waow = true
+
         }
         candidates.push(map[y][x])
         y += node.vertical ? 1 : 0
         x += node.vertical ? 0 : 1
     }
     return candidates
-}
-
-function RandomAlgo2(my_levels, meta_info){
-    var modified_my_l = []
-    var free_nodes = []
-    var odd_nodes = []
-    var boss_nodes = []
-    for (var pos = 0; pos < my_levels.length; pos++){
-        if (my_levels[pos] === undefined || pos >= 200){
-            modified_my_l.push(undefined)
-            continue
-        }
-        var my_l = my_levels[pos]
-        var my_h = my_l.header
-        var my_e = my_l.enemies
-        var world = my_l.world
-        var level = my_l.level
-        var room = my_l.room
-        var code = "" + world + "," + level + "," + room 
-        // handle world stuff in another not crappy function
-        console.log(code)
-        var isBoss = my_e.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-        var oddPath = code in metadata
-        if (my_l.is_jar){
-            console.log('this is jar')
-        }
-        else if (isBoss){
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            boss_nodes.push(result)
-            console.log('this is boss')
-        }
-        else if (oddPath){
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            odd_nodes.push(result)
-            console.log('this is odd')
-        }
-        else {
-            var result = create_room_node(my_l, my_h, my_e, meta_info)
-            free_nodes.push(result)
-            console.log('this is ok')
-            console.log(result.max_doors, my_h.pages + 1)
-        }
-        modified_my_l.push(my_l)
-    }
-    extendRandom2(free_nodes, boss_nodes, odd_nodes)
-    
-    return {
-        my_l: modified_my_l,
-        f_n: free_nodes,
-        b_n: boss_nodes,
-        o_n: odd_nodes
-    }
 }
 
 function flood_fill(map, my_tile, vertical, open={}, steps=999) {
@@ -316,3 +274,4 @@ function flood_fill_to_cursor(map, my_tile, vertical){
     }
     draw_tiles_select(poses)
 }
+

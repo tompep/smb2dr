@@ -267,7 +267,7 @@ var BackgroundTileIds = [
 ]
 
 var tileEnum = {}
-BackgroundTileIds.forEach((x,y) => tileEnum[x.replace('Tile_')] = y)
+BackgroundTileIds.forEach((x,y) => tileEnum[x.replace('Tile_', '')] = y)
 
 
 var EnemyIds = [

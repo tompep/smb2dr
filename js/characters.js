@@ -123,8 +123,7 @@ var character_config_form = {
 }
 
 /*
- * TODO: Learn how to work with objects in Javascript
- *          don't want to hardwire any html page stuff!  or most of it
+ * TODO: Learn how to work with objects in Javascript don't want to hardwire any html page stuff!  or most of it
  */
 
 function extract_characters(my_rom, mem_locs, sprites){
@@ -170,6 +169,8 @@ function extract_characters(my_rom, mem_locs, sprites){
     var characters = []
 
     for(var i = 0; i < 4; i++){
+        var j = player_order[i]
+        var k = player_order_d[i]
         characters.push({
             stats: char_stats[i],
             priority: player_order[i]*10,
@@ -177,6 +178,8 @@ function extract_characters(my_rom, mem_locs, sprites){
             pal: char_pal[i],
             spal: char_pal_sel[i],
             dspal: dspals[player_order[i]],
+
+            alt_pals: [(i+1)%4, (i+2)%4, (i+3)%4].map(x => [char_pal[x], char_pal_sel[x], dspals[player_order[x]]]),
             name: invertByTbl(char_names[i]),
 
             frames: Array.split(char_frames[i], 4),
@@ -185,9 +188,9 @@ function extract_characters(my_rom, mem_locs, sprites){
 
             my_sprites: char_sheet[i].map(x => sprites[x]),
             sprites_ex1: sprites[ex_sheet[i]],
-            sprites_sel: [0x0 + 8 * i, 0x20 + 8 * i].map(x => sprites[0x30].slice(x, x + 8)),
-            sprites_cheer: [0x0 + 8 * i, 0x20 + 8 * i].map(x => sprites[0x31].slice(x, x + 8)),
-            sprites_mini: [0x0 + 4 * i].map(x => sprites[0x48].slice(x, x + 4))[0],
+            sprites_sel: [0x0 + 8 * j, 0x20 + 8 * j].map(x => sprites[0x30].slice(x, x + 8)),
+            sprites_cheer: [0x0 + 8 * j, 0x20 + 8 * j].map(x => sprites[0x31].slice(x, x + 8)),
+            sprites_mini: [0x0 + 4 * k].map(x => sprites[0x48].slice(x, x + 4))[0],
 
             m_big: char_meta_frames[i],
             m_small: s_char_meta_frames[i],
@@ -201,7 +204,7 @@ function extract_characters(my_rom, mem_locs, sprites){
             carry_x: char_carry_x[i],
             char_accel: char_accel[i],
             char_decel: char_decel[i],
-            accel_control: accel_reduction[i],
+            accel_control: accel_reduction[i].map(x => Math.log2(x)),
 
             inventory: char_inventory.map(x => x[i]),
 
@@ -623,23 +626,23 @@ var char_viewer = function (id='char_viewer') {
         console.log(select_sheet)
         write_sprites_to_rom(currentRom, mem_locs, 
             select_sheet[0], 0x30, c_id*8)  
-        select_sheet.slice(0,8).map((x,y) =>
+        select_sheet[0].map((x,y) =>
             sprites.all_sheets[0x30][y + c_id*8] = x)
 
         write_sprites_to_rom(currentRom, mem_locs, 
             select_sheet[1], 0x30, c_id*8 + 0x20)  
-        select_sheet.slice(8,16).map((x,y) =>
+        select_sheet[1].map((x,y) =>
             sprites.all_sheets[0x30][y + c_id*8 + 0x20] = x)
 
         //cheer
         write_sprites_to_rom(currentRom, mem_locs, 
             select_sheet[2], 0x31, c_id*8)  
-        select_sheet.slice(16,24).map((x,y) =>
+        select_sheet[2].map((x,y) =>
             sprites.all_sheets[0x31][y + c_id*8] = x)
 
         write_sprites_to_rom(currentRom, mem_locs, 
             select_sheet[3], 0x31, c_id*8 + 0x20)  
-        select_sheet.slice(24,32).map((x,y) =>
+        select_sheet[3].map((x,y) =>
             sprites.all_sheets[0x31][y + c_id*8 + 0x20] = x)
 
         var mini_sheet = char_dict.sprites_mini
@@ -691,17 +694,19 @@ var char_viewer = function (id='char_viewer') {
     }
 
     this.load_character_file_input = function (evt){
-        var output_chars = []
-        var loader = function(e, my_name){
+        var my_preset_list = char_component.preset_chars_div
+        var loader = function(e, my_name, i){
             console.log('Loading config...')
             var result = JSON.parse(e.target.result);
-            console.log(my_name)
-            output_chars.push(result)
+            my_preset_list.append('<option value="' + i + '">' + my_name + '</option>')
+            my_obj.preset_characters[i] = {'name': my_name, 'config': result}
         }
+        var ids = Array.range(evt.target.files.length, my_obj.preset_characters.length)
         for (var file of evt.target.files){
             var reader = new FileReader();
             reader.param = file.name.replace('.json', '')
-            reader.onload = function(e){ loader(e, this.param) }
+            reader.i = ids.shift()
+            reader.onload = function(e){ loader(e, this.param, this.i) }
             reader.readAsText(file)
             console.log(file)
         }
@@ -720,7 +725,6 @@ var char_viewer = function (id='char_viewer') {
         characters[character] = new_char_dict
 
         // select
-
 
         my_obj.write_character_graphics(new_char_dict, character, c_id)
         my_obj.load_character_to_form(new_char_dict)
@@ -889,7 +893,7 @@ var char_viewer = function (id='char_viewer') {
         set_memory_location(currentRom, mem_locs, 'HeldOffset', char_dict.carry_x, character*2)
         set_memory_location(currentRom, mem_locs, 'PlayerControlAcceleration', char_dict.char_accel, character*2)
         set_memory_location(currentRom, mem_locs, 'PlayerXDeceleration', char_dict.char_decel, character*2)
-        set_memory_location(currentRom, mem_locs, 'AccelReduction', char_dict.accel_control, character*2)
+        set_memory_location(currentRom, mem_locs, 'AccelReduction', char_dict.accel_control.map(x => ~~Math.pow(2, x) - 1), character*2)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[0]], character)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[1]], character+4)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[2]], character+8)
@@ -928,7 +932,7 @@ var char_viewer = function (id='char_viewer') {
         var c_d = this.value
         console.log(this, c_d)
         my_obj.load_character(my_obj.preset_characters[c_d].config)
-
+        this.value=-1
     } )
     this.my_div.find('#char_sheet_load').on('input', function (evt){my_obj.handleSpriteSelect(evt); this.value=null})
     this.my_div.find('#char_sheet_save').on('click', my_obj.outputSpriteSelect)

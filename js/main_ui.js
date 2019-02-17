@@ -231,8 +231,7 @@ function read_info_file_info (targetRom){
 }
 
 var downloadURL = function(data, fileName) {
-      var a
-      a = document.createElement('a')
+      var a = document.createElement('a')
       a.href = data
       a.download = fileName
       document.body.appendChild(a)
@@ -240,270 +239,6 @@ var downloadURL = function(data, fileName) {
       a.click()
       a.remove()
 }
-
-function randomize_rom(evt) {
-    console.log('Randomizing ROM...')
-    // patch
-    //
-    //
-    rando_seed = $('#seed').val();
-    level_sets[1] = JSON.parse(JSON.stringify(level_sets[0]))
-    var current_level_set = level_sets[1]
-
-    // extract
-    var option_tags = $('#randomizer').find('.option, .option_form, .option_select')
-    var mem_loc_tags = $('#randomizer').find('.option.mem_location')
-
-    var option_vals = {}
-    option_tags.each(function(x){
-        option_vals[option_tags[x].id] = {
-        val: option_tags[x].value, 
-        checked: option_tags[x].checked,
-        radio: $(option_tags[x]).find('input:checked').val()
-        }
-    })
-
-    Math.seedrandom(rando_seed)
-
-    var r_header = option_vals['Randomize_World_Appearance'].radio
-    var segments = []
-    if (r_header == 'Per World')
-        segments = Array.split(current_level_set, 30)
-    else if (r_header == 'Per Level')
-        segments = Array.split(current_level_set, 10)
-    else if (r_header == 'Per Room')
-        segments = Array.split(current_level_set, 1)
-    else
-        console.log('No Header Randomize...')
-    for(var s of segments){
-        var new_pal_a = ~~(Math.random() * 6)
-        var new_pal_b = ~~(Math.random() * 3)
-        for(var l of s){
-            if (l != undefined){
-                var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-                if (l.is_jar > 0 || isBoss) console.debug('do not override')
-                else randomize_header(l, info.meta_info.world_metadata)
-                l.header.pal_a = new_pal_a
-                l.header.pal_b = new_pal_a
-            }
-        }
-    }
-
-    // note: ASM likely needs to consider Stars and Subspace situations that change the music between levels
-    var r_header = option_vals['Randomize_Music'].checked
-    console.log(r_header, option_vals['Randomize_Music'])
-    if (r_header){
-        if (!segments.length) segments = Array.split(current_level_set, 1)
-        var header_music = 0
-        for(var s of segments){
-            var new_music = ~~(Math.random() * 9)
-            for(var l of s){
-                if (l != undefined){
-                    if (new_music < 8) l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [1 << new_music]}) // pipe loc
-                    else l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [0x84]}) // pipe loc
-                    l.header.music = header_music
-                }
-            }
-        }
-    }
-
-
-    Math.seedrandom(rando_seed)
-
-    for(var l of current_level_set){
-        if (l != undefined){
-            equalize_header(l, info.meta_info.world_metadata)
-            var WarpPipe = l.objs.filter(function(ele){return ele.obj_type == 0x8})
-            if (WarpPipe.length > 0){
-                l.modifiers.push({
-                loc_l: 0x76, 
-                loc_r: 0xcd, 
-                contents: [~~(l.i / 10), l.room, WarpPipe[0].pos_page]}) // pipe loc
-            }
-            if (Math.random() * 100< (option_vals['Curse_Rate'].val))
-                l.modifiers.push({
-                loc_l: 0x76, 
-                loc_r: 0xee, 
-                contents: [0x01]}) // curse
-            var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-            if (Math.random() * 100 < (option_vals['Inverted_Rate'].val) && !isBoss){
-                console.log('inverted...')
-                inverse_level(l, current_level_set)
-
-            }
-        }
-    }
-
-    Math.seedrandom(rando_seed)
-
-    var active_levels = level_order_randomizer(current_level_set, currentRom, mem_locs, {
-        'ShuffleType': option_vals["Level_Randomization"].val,
-        'GameScale': option_vals["Game_Scale"].val,
-        'BossOrder': option_vals["Boss_Randomization"].val,
-        'EndWart': option_vals['End_with_Wart'].checked,
-        'ScrambleWorld': option_vals['Scramble_Levels_in_World'].checked,
-        'CloneBoss': option_vals['Randomize_Boss_Arenas'].checked
-    }, info)
-
-
-    if (option_vals["Enemy_Randomization_early"].checked)
-    {
-        Math.seedrandom(rando_seed)
-        enemy_randomizer(active_levels, currentRom, mem_locs, info.meta_info)
-    }
-
-    Math.seedrandom(rando_seed)
-
-    item_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
-
-    Math.seedrandom(rando_seed)
-
-    player_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
-
-    Math.seedrandom(rando_seed)
-
-    handle_boss_options(active_levels, option_vals)
-
-    mem_loc_tags.each(function(ele){
-        var ele = mem_loc_tags[ele]
-        console.debug(ele)
-        var values = [ele.value]
-        if (Array.isArray(ele.value))
-            values = ele.value
-        if (ele.checked)
-            values = [ele.checked]
-        var ele = $(ele)
-        set_memory_location(currentRom, mem_locs,
-            ele.data('mem_loc_name'), values, ele.data('offset'))
-        return ele
-    })
-
-    if (option_vals['End_Game_at_any_Exit'].checked){
-        set_memory_location(currentRom, mem_locs,
-             'WinLevel', [0xFF])
-    }
-
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock2', convertByTbl('seed-' + rando_seed), 3)
-
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock3', convertByTbl(' '), 3)
-
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock4', convertByTbl(''), 3)
-
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock5', convertByTbl(''), 3)
-
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock6', convertByTbl(' '), 3)
-
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock7', convertByTbl(' '), 3)
-    
-    set_memory_location(currentRom, mem_locs,
-        'TitleStoryText_Line01', convertByTbl(
-            fit_text('I THOUGHT ABOUT ALL THE COOL STUFF I COULD PUT HERE, BUT INSTEAD I DECIDED TO SLEEP...', 20), 16*20))
-
-
-    /*
-    for (var l in level_sets[0]){
-        if (level_sets[0][l]){
-            var len1 = write_level_bytes(level_sets[0][l])
-            var len2 = write_level_bytes(level_sets[1][l])
-            console.debug(len1, len2)
-            console.debug('level diff in bytes...', len1.length, len2.length, len2.length - len1.length)
-        }
-
-    }
-    */
-
-    write_to_file(currentRom, level_sets[level_sets.length - 1], info.meta_info)
-    
-    blob = new Blob([currentRom])
-    url = window.URL.createObjectURL(blob)
-    downloadURL(url, 'smb2-output.nes')
-    setTimeout(function() {
-            return window.URL.revokeObjectURL(url)
-          
-    }, 1000)
-
-} 
-
-function fit_text(string, width){
-    string = string.split(" ")
-    var output = []
-    var outrow = ""
-    for (var s of string){
-        if (outrow.length + s.length > width){
-            if (outrow.length) {
-                while(outrow.length < width)
-                    outrow += " "
-                output.push(outrow)
-            }
-            outrow = ""
-        }
-        outrow += s + " "
-    }
-    if (outrow.length) {
-        while(outrow.length < width)
-            outrow += " "
-        output.push(outrow)
-    }
-    return output.join("")
-}
-
-function setupLabelsLst (text){
-    /*
-        Sets up labels from asm6f lst file 
-    */
-    var offset = 0
-    var last_address = 0x0
-    var mem_locs_new = {}
-    var ram_offset = 0x8000
-    for (var entry of text.split('\n')){
-        var mem_address = entry.slice(0, 5)
-        if (isNaN('0x' + mem_address))
-            continue
-        var mem_address = parseInt('0x' + mem_address)
-        if (mem_address < 0x8000)
-            continue
-
-        var isAddress = entry.search(':')
-        if (isAddress === -1)
-            continue
-
-        if (mem_address - 0x8000 < last_address){
-            offset += 0x4000
-        }
-        var new_entry = entry.slice(5, isAddress).trim()
-        mem_locs_new[new_entry] = mem_address - 0x8000 + offset
-        last_address = mem_address - 0x8000
-
-    }
-    return mem_locs_new
-}
-
-function setupLabels (text, num){
-    /*
-        Sets up labels from asm6f Symbol files    
-    */
-    var offset = 0x8000
-    var mem_locs_new = {}
-    if (num == 8) num = 7
-    if (num == 7) offset = 0xC000
-    var true_location = num * 0x4000
-    for (var entry of text.split('\n')){
-        var values = entry.split('#')
-        var location = parseInt(values[0].slice(1), 16)
-        location = true_location + location - offset 
-        var value_name = values[1]
-        if (value_name != undefined && location != NaN)
-            mem_locs_new[value_name] = location
-    }
-    return mem_locs_new
-}
-
 
 function handle_options (jsn){
     /*
@@ -521,7 +256,6 @@ function handle_options (jsn){
         if (Array.isArray(option)){
             var tag = $("<select class='option_select'></select>")
             tag.attr("id", key)
-            tag.prepend = title_name 
             var outer_tag = $("<div class='option_div option_block'></div>")
             outer_tag.attr("id", key + "_Option")
             for (var o of option){
@@ -535,6 +269,8 @@ function handle_options (jsn){
                 specific_tag.attr("id", inner_name)
                 if (o.name == "Default")
                     specific_tag.removeClass("hide_me")
+                if (o.options.length == 0)
+                    continue
                 specific_tag.append(specific_ops)
                 outer_tag.append(specific_tag)
             }
@@ -547,10 +283,11 @@ function handle_options (jsn){
                         if (x.id != "Default" && x.id != this.value) $(x).addClass("hide_me")
                         else $(x).removeClass("hide_me")
                     }
-
                 })
             }
-            outer_tag.prepend(title_name)
+            var title_taggu = $('<div class="bold" id="Default">')
+            title_taggu.append(title_name)
+            outer_tag.prepend(title_taggu)
             tags.push(outer_tag)
             tags.push("<br/>")
         }
@@ -563,7 +300,9 @@ function handle_options (jsn){
                     tag.attr("class", option.class)
                 }
                 tag.append(...handle_options(option.options))
-                tags.push(option.tag)
+                var title = $('<label>')
+                title.append(option.tag)
+                tags.push(title)
                 tags.push(tag)
             }
             else {
@@ -758,7 +497,7 @@ function reload_options(json, tag){
             else
                 tag.find('input')[0].checked = true
         }
-        $(tag).trigger('onchange')
+        $(tag).trigger('input')
     }
 
 }

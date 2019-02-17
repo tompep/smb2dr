@@ -53,9 +53,9 @@ var randomizer_config_form = {
             "name": "Simple Door Randomizer",
             "options": [
                 {"name": "Door Chance", "desc": "Possibility of spawning one of X doors",
-                    "val": "50.0", "max": "100"},
+                    "val": "60.0", "max": "100"},
                 {"name": "Max Possible Doors", "desc": "Max amount of extra doors",
-                    "val": "3", "max": "4", "min": "1"}
+                    "val": "3", "max": "9", "min": "1"}
             ]
         },
         {
@@ -70,7 +70,7 @@ var randomizer_config_form = {
             "name": "Default",
             "options": 
                 [
-                    {"tag": "Starting Characters", "class": "wide", "options": [
+                    {"tag": "Unlocked Characters", "class": "wide option_block", "options": [
                         {"name": "Mario", "desc": "Start with character 1",
                             "val": true},
                         {"name": "Luigi", "desc": "Start with character 2",
@@ -218,15 +218,228 @@ function rand_seed(){
 }
 
 function starting_seed() {
-    if (Math.seedrandom)
-        Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
+    if (Math.seedrandom) Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
     $('#seed').val(rand_seed());
 }
 
 starting_seed()
 $('#seed').attr('maxlength', 10);
+var rando_seed = $('#seed').val();
+
+function randomize_rom(evt) {
+    console.log('Randomizing ROM...')
+    // patch
+    //
+    //
+    rando_seed = $('#seed').val();
+    level_sets[1] = JSON.parse(JSON.stringify(level_sets[0]))
+    var current_level_set = level_sets[1]
+
+    // extract
+    var option_tags = $('#randomizer').find('.option, .option_form, .option_select')
+    var mem_loc_tags = $('#randomizer').find('.option.mem_location')
+
+    var option_vals = {}
+    option_tags.each(function(x){
+        option_vals[option_tags[x].id] = {
+        val: option_tags[x].value, 
+        checked: option_tags[x].checked,
+        radio: $(option_tags[x]).find('input:checked').val()
+        }
+    })
+
+    Math.seedrandom(rando_seed)
+
+    var r_header = option_vals['Randomize_World_Appearance'].radio
+    var segments = []
+    if (r_header == 'Per World')
+        segments = Array.split(current_level_set, 30)
+    else if (r_header == 'Per Level')
+        segments = Array.split(current_level_set, 10)
+    else if (r_header == 'Per Room')
+        segments = Array.split(current_level_set, 1)
+    else
+        console.log('No Header Randomize...')
+    for(var s of segments){
+        var new_pal_a = ~~(Math.random() * 6)
+        var new_pal_b = ~~(Math.random() * 3)
+        for(var l of s){
+            if (l != undefined){
+                var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+                if (l.is_jar > 0 || isBoss) console.debug('do not override')
+                else randomize_header(l, info.meta_info.world_metadata)
+                l.header.pal_a = new_pal_a
+                l.header.pal_b = new_pal_a
+            }
+        }
+    }
+
+    // note: ASM likely needs to consider Stars and Subspace situations that change the music between levels
+    var r_header = option_vals['Randomize_Music'].checked
+    console.log(r_header, option_vals['Randomize_Music'])
+    if (r_header){
+        if (!segments.length) segments = Array.split(current_level_set, 1)
+        var header_music = 0
+        for(var s of segments){
+            var new_music = ~~(Math.random() * 9)
+            for(var l of s){
+                if (l != undefined){
+                    if (new_music < 8) l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [1 << new_music]}) // pipe loc
+                    else l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [0x84]}) // pipe loc
+                    l.header.music = header_music
+                }
+            }
+        }
+    }
+
+
+    Math.seedrandom(rando_seed)
+
+    for(var l of current_level_set){
+        if (l != undefined){
+            equalize_header(l, info.meta_info.world_metadata)
+            var WarpPipe = l.objs.filter(function(ele){return ele.obj_type == 0x8})
+            if (WarpPipe.length > 0){
+                l.modifiers.push({
+                loc_l: 0x76, 
+                loc_r: 0xcd, 
+                contents: [~~(l.i / 10), l.room, WarpPipe[0].pos_page]}) // pipe loc
+            }
+            if (Math.random() * 100< (option_vals['Curse_Rate'].val))
+                l.modifiers.push({
+                loc_l: 0x76, 
+                loc_r: 0xee, 
+                contents: [0x01]}) // curse
+            var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+            if (Math.random() * 100 < (option_vals['Inverted_Rate'].val) && !isBoss){
+                console.log('inverted...')
+                inverse_level(l, current_level_set)
+
+            }
+        }
+    }
+
+    Math.seedrandom(rando_seed)
+
+    var active_levels = level_order_randomizer(current_level_set, currentRom, mem_locs, {
+        'ShuffleType': option_vals["Level_Randomization"].val,
+        'GameScale': option_vals["Game_Scale"].val,
+        'DoorIterations': option_vals["Max_Possible_Doors"].val,
+        'DoorChance': option_vals["Door_Chance"].val,
+        'BossOrder': option_vals["Boss_Randomization"].val,
+        'EndWart': option_vals['End_with_Wart'].checked,
+        'ScrambleWorld': option_vals['Scramble_Levels_in_World'].checked,
+        'CloneBoss': option_vals['Randomize_Boss_Arenas'].checked
+    }, info)
+
+
+    if (option_vals["Enemy_Randomization_early"].checked)
+    {
+        Math.seedrandom(rando_seed)
+        enemy_randomizer(active_levels, currentRom, mem_locs, info.meta_info)
+    }
+
+    Math.seedrandom(rando_seed)
+
+    item_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
+
+    Math.seedrandom(rando_seed)
+
+    player_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
+
+    Math.seedrandom(rando_seed)
+
+    handle_boss_options(active_levels, option_vals)
+
+    mem_loc_tags.each(function(ele){
+        var ele = mem_loc_tags[ele]
+        console.debug(ele)
+        var values = [ele.value]
+        if (Array.isArray(ele.value))
+            values = ele.value
+        if (ele.checked)
+            values = [ele.checked]
+        var ele = $(ele)
+        set_memory_location(currentRom, mem_locs,
+            ele.data('mem_loc_name'), values, ele.data('offset'))
+        return ele
+    })
+
+    if (option_vals['End_Game_at_any_Exit'].checked){
+        set_memory_location(currentRom, mem_locs,
+             'WinLevel', [0xFF])
+    }
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock2', convertByTbl('seed-' + rando_seed), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock3', convertByTbl(' '), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock4', convertByTbl(''), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock5', convertByTbl(''), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock6', convertByTbl(' '), 3)
+
+    set_memory_location(currentRom, mem_locs,
+        'FunkyLittleSeedBlock7', convertByTbl(' '), 3)
+    
+    set_memory_location(currentRom, mem_locs,
+        'TitleStoryText_Line01', convertByTbl(
+            fit_text('I THOUGHT ABOUT ALL THE COOL STUFF I COULD PUT HERE, BUT INSTEAD I DECIDED TO SLEEP...', 20), 16*20))
+
+
+    for (var l in level_sets[0]){
+        if (level_sets[0][l]){
+            // var len1 = write_level_bytes(level_sets[0][l])
+            var len2 = write_level_bytes(level_sets[1][l])
+            // console.debug(len1, len2)
+            // console.debug('level diff in bytes...', len1.length, len2.length, len2.length - len1.length)
+        }
+    }
+
+    write_to_file(currentRom, level_sets[level_sets.length - 1], info.meta_info)
+    
+    var blob = new Blob([currentRom])
+    var url = window.URL.createObjectURL(blob)
+    downloadURL(url, 'smb2-output.nes')
+    setTimeout(function() {
+            return window.URL.revokeObjectURL(url)
+          
+    }, 1000)
+
+} 
+
+function fit_text(string, width){
+    /* fits string into width */
+    string = string.split(" ")
+    var output = []
+    var outrow = ""
+    for (var s of string){
+        if (outrow.length + s.length > width){
+            if (outrow.length) {
+                while(outrow.length < width)
+                    outrow += " "
+                output.push(outrow)
+            }
+            outrow = ""
+        }
+        outrow += s + " "
+    }
+    if (outrow.length) {
+        while(outrow.length < width)
+            outrow += " "
+        output.push(outrow)
+    }
+    return output.join("")
+}
 
 function handle_boss_options(my_levels, options){
+    /* Randomizes boss health per level */
     console.log('Boss Health Randomizer')
     var rboss = options['Randomize_Boss_Health'].checked
     var rmboss = options['Randomize_Mini-Boss_Health'].checked
@@ -255,7 +468,6 @@ function handle_boss_options(my_levels, options){
                     loc_r: 0xF6,
                     contents: [parseInt(~~(Math.random() * (rmmax - rmmin))) + parseInt(rmmin)]
                 })
-                continue
             }
 
         }
@@ -264,13 +476,16 @@ function handle_boss_options(my_levels, options){
             if (boss.length){
                 my_l.modifiers.push({
                     loc_l: 0x76,
-                    loc_r: 0xF7,
+                    loc_r: 0xF6,
                     contents: [parseInt(~~(Math.random() * (rmax - rmin))) + parseInt(rmin)]
                 })
-                continue
             }
         }
     }
+
+}
+
+function create_door_pair(left_level, right_level, page_l, page_r){
 
 }
 
@@ -289,17 +504,16 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     Array.split([...my_levels], 10).map(x => !x.every(y => y == undefined) ? level_groups.push(x) : x) 
 
     var game_scale = options['GameScale']
-    console.debug(level_groups)
     while(game_scale > 0 && level_groups.length > game_scale){
         var target_num = ~~(Math.random() * level_groups.length)
         level_groups.splice(target_num, 1)
         console.log(target_num, level_groups)
     }
-    console.debug(level_groups)
+
     var all_levels = [].concat.apply([], level_groups)
 
-    if(options['ShuffleType'] == 'Hub World'){
-
+    if(options['ShuffleType'] == 'Door_Randomizer_V1'){
+        door_randomizer_v1(all_levels, blacklist)
         return all_levels
     }
     else if (options['ShuffleType'] == 'World_Order_Randomizer'){
@@ -315,9 +529,12 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     }
     else if(options['ShuffleType'] == 'Simple_Door_Randomizer'){
         level_groups = shuffle(level_groups) 
+        var iterations = options['DoorIterations']
+        var chance = options['DoorChance']
+        console.log(iterations, chance)
 
-        for (var i = 0; i < 3; i++)
-        {
+        for (var i = 0; i < iterations; i++) {
+            if (Math.random() * 100 >= chance) continue
             var targets = shuffle([...all_levels])
             targets = targets.filter(x => x != undefined)
             targets = targets.filter(x => x.is_jar == 0)
@@ -329,7 +546,9 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
                 var rl = my_pairs[1]
                 if(ll == undefined || rl == undefined)
                     continue
+                //if (ll.rendered == undefined) 
                 ll.rendered = render_level(ll, ll.header, ll.enemies, info.meta_info)
+                //if (rl.rendered == undefined) 
                 rl.rendered = render_level(rl, rl.header, rl.enemies, info.meta_info)
 
                 var columns = get_valid_columns(ll.rendered).filter(function(ele){return ele.space > 3})
@@ -721,7 +940,6 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             mush_counts[l] = 2
         }
         console.debug(mush_counts)
-        mush_counts = mush_counts.fill(2)
         inventory = inventory.slice(0, horizontal_levels.length * 2)
     }
     else {
@@ -741,6 +959,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             }
         }
     }
+    mush_sum = mush_counts.reduce( (a, b) => a + b ) 
 
     while (inventory.length < mush_sum)
         inventory.push(invEnum.Coin)
@@ -761,7 +980,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
         if (!my_l.header.vertical){
             var isBoss = my_l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
             if (!isBoss && my_l.is_jar == 0){
-                var my_columns = shuffle(columns)
+                var my_columns = Array.random_to_front(columns)
                 for (var i = targets.length; i < mush_counts[my_l.i]; i++){
                     var target = my_columns[0]
                     if (target == undefined)
@@ -777,7 +996,7 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
                         oe.Red_pillar_extends_to_ground, oe.Herb_with_potion])
                     new_door = create_smb_object(pick_obj, lx, ly, lpage, 1) // rebalance this
                     my_l.objs.push(new_door)
-                    my_columns = shuffle(my_columns.slice(1))
+                    my_columns = Array.random_to_front(my_columns.slice(1))
                     for (var em of my_l.enemies.filter(x => x.pos_x == lx && x.pos_page == lpage))
                         em.pos_x = em.pos_x + (Math.random() > 0.50 ? -1 : 1)
                 }
@@ -920,7 +1139,7 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
     else
         console.log('No Character Locking...')
     for(var s of segments){
-        character = shuffle(character_pool)[0]
+        character = Array.pick_random(character_pool)
         for(var l of s){
             if (l != undefined){
                 l.modifiers.push({
@@ -940,28 +1159,6 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
 }
 
 
-
-/// helper
-function shuffle(array) {
-    let counter = array.length;
-
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        let index = ~~(Math.random() * counter);
-
-        // Decrease counter by 1
-        counter--;
-
-        // And swap the last element with it
-        let temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
-
-    return array;
-}
-
 ////// 
 ////// create functions
 //
@@ -969,17 +1166,13 @@ function shuffle(array) {
 
 function inverse_level(my_l, all_levels){
     // needs inverse ground_set hack
-    var my_level = my_l.objs
-    var my_ptrs = my_l.ptrs
-    var my_grounds = my_l.grounds
     var my_e = my_l.enemies
     var my_h = my_l.header
     var new_lvl = []
     var new_ptrs = []
     var new_grounds = []
-    var new_enemies = []
 
-    for (var cur_obj of my_level){
+    for (var cur_obj of my_l.objs){
         var cur_obj_type = cur_obj.obj_type
         var offset = 0
         if (cur_obj_type == 0x13) cur_obj_type = 0x14
@@ -1035,8 +1228,7 @@ function inverse_level(my_l, all_levels){
             y.level == my_l.level &&
             y.room == my_l.room))
         for (var p of change_ptrs){
-            for (var ptr of p)
-                ptr.dest_page = Math.abs(ptr.dest_page - my_l.header.pages)
+            for (var ptr of p) ptr.dest_page = Math.abs(ptr.dest_page - my_l.header.pages)
         }
     } 
 
@@ -1058,13 +1250,12 @@ function inverse_level(my_l, all_levels){
         if (enemy.obj_type == 0x42) enemy.obj_type = 0x43
         else if (enemy.obj_type == 0x43) enemy.obj_type = 0x42
         else if (enemy.obj_type == 0x1c) new_x = enemy.pos_x
-        var new_enemy = create_smb_enemy(enemy.obj_type, enemy.pos_y, new_x, new_page, my_l.vertical)
-        new_enemies.push(new_enemy)
+        enemy.pos_x = new_x
+        enemy.pos_page = new_page
     }
 
-    my_l.enemies = new_enemies
-
     // have to properly swap positions for grounds
+    var my_grounds = my_l.grounds
     if(my_grounds.length > 0 && !my_h.vertical){
         var init_ground = {
             obj_type: 0xF0,
@@ -1125,70 +1316,6 @@ function inverse_level(my_l, all_levels){
     }
 }
 
-function create_room_node(level, header, enemies, meta_info){
-    // strip doors
-    var max_doors = 0
-    var my_objs = level.objs
-    var my_ptrs = level.ptrs
-    var my_grounds = level.grounds
-    var my_edges = []
-    var world = header.unk3
-    if (world == 7)
-        world = level.world
-
-    // remove doors
-    var removeable_door_types = obj_doors.slice(0, obj_doors.length-3).concat([35])
-    var my_door_objs = my_objs.filter(function (ele){ return removeable_door_types.includes(ele.obj_type) })
-    var my_vase = my_objs.filter(function (ele){ return obj_vase_ptr.includes(ele.obj_type) })
-    // my_vase.push(...my_objs.filter(function (ele){ return obj_rocket.includes(ele.obj_type) }))
-    my_objs = my_objs.filter(function (ele){ return !removeable_door_types.includes(ele.obj_type) })
-    level.objs = my_objs
-
-    // remove pointers from doors
-    for (var i in my_ptrs){
-        if (my_ptrs[i] == undefined) continue
-        my_ptrs[i].l_byte = 0
-        my_ptrs[i].r_byte = 0
-        var targetDoor = my_door_objs.filter(function(ele){ return ele.pos_page == my_ptrs[i].pos_page })
-        if (targetDoor.length > 0)
-            my_ptrs[i] = undefined
-    }
-
-    // get good object for positions
-    var good_positions = []
-    
-    for (var i of my_door_objs){
-        good_positions.push(i)
-    }
-
-    var real_ptrs = my_ptrs.filter(function(ele){return ele != undefined})
-
-    var rendered = render_level(level, header, enemies, meta_info)
-
-    var columns = get_valid_columns(rendered)
-
-    var column_pages = new Set(columns.map(x => x.pos_page))
-
-    if (my_vase.length > 0){
-        var vase_page = new Set(my_vase.map(x => x.pos_page))
-        for (var vase of vase_page) 
-            column_pages.delete(vase)
-    }
-
-    max_doors = column_pages.size
-
-    var node = {
-        level: level,
-        rendered: rendered,
-        columns: columns,
-        column_pages: column_pages,
-        candidates: good_positions,
-        max_doors: max_doors,
-        out: []
-    }
-    return node
-}
-
 function get_valid_columns(rendered){
     var pages = rendered.length
     var page_columns = []
@@ -1217,8 +1344,6 @@ function get_valid_columns(rendered){
     }        
     return page_columns
 }
-
-function compare_ground_type (){}
 
 var te = tileEnum
 
@@ -1402,93 +1527,4 @@ function equalize_header(my_l, world_metadata){
         }
     }
 }
-
-
-function connect_nodes(l, r, one_way=false){
-    l.out.push(r)
-    r.out.push(l)
-}
-
-function create_doors(l, used=[]){
-    console.log(l.level.world, l.level.level, l.level.room)
-    for (var r of l.out){
-        console.log(l.level.world, l.level.level, l.level.room, 'going to', r.level.world,r.level.level,r.level.room)
-        if (used.includes(r)){
-            console.log('used')
-            continue
-        }
-        var columns = shuffle(l.columns.filter(function(ele){return ele.space > 3}))
-        var r_columns = shuffle(r.columns.filter(function(ele){return ele.space > 3}))
-
-        if(columns.length == 0 || r_columns.length == 0)
-            continue
-        var target = columns[0]
-        var lx = target.pos_x
-        var ly = target.pos_y - 2
-        var lpage = target.pos_page
-        l.columns = l.columns.filter(function(ele){return ele.pos_page != lpage})
-        
-        if (l.level.ptrs[lpage] == undefined){
-            var new_door = create_smb_object(0xa, lx, ly, lpage, 1)
-            l.level.objs.push(new_door)
-            if(target.tile_type.solidity == 1){
-                var new_door = create_smb_object(0x2, lx, ly+2, lpage, 1)
-                l.level.objs.push(new_door)
-            }
-        }
-
-        var target = r_columns[0]
-        var rx = target.pos_x
-        var ry = target.pos_y - 2 
-        var rpage = target.pos_page
-        r.columns = r.columns.filter(function(ele){return ele.pos_page != rpage})
-
-        if (r.level.ptrs[rpage] == undefined){
-            var new_door = create_smb_object(0xa, rx, ry, rpage, 1)
-            r.level.objs.push(new_door)
-            if(target.tile_type.solidity == 1){
-                var new_door = create_smb_object(0x2, rx, ry+2, rpage, 1)
-                r.level.objs.push(new_door)
-            }
-        }
-
-        var new_ptr = extract_door_ptr((r.level.world * 3) + r.level.level, (r.level.room << 4) + rpage)
-        new_ptr.pos_page = lpage
-        var r_new_ptr = extract_door_ptr((l.level.world * 3) + l.level.level, (l.level.room << 4) + lpage)
-        r_new_ptr.pos_page = rpage
-        
-        l.level.ptrs[lpage] = new_ptr
-        r.level.ptrs[rpage] = r_new_ptr
-        used.push(l)
-        used.push(r)
-        create_doors(r, used)
-    }
-}
-
-function extendRandom2(free_nodes, boss_nodes, odd_nodes){
-    var free_node_begin = free_nodes[1]
-    free_nodes = free_nodes.slice(1)
-    var new_nodes = shuffle(free_nodes)
-    for (var boss of boss_nodes){
-        console.log('boss', boss)
-        var path = new_nodes.slice(0,7)
-        while (!path.every(x => x.max_doors >= 2)){
-            new_nodes = shuffle(new_nodes)
-            path = new_nodes.slice(0,7)
-            console.log('reset')
-        }
-        console.log('ok', path, new_nodes, boss.level.world)
-        new_nodes = new_nodes.slice(7)
-        for (var i = 0; i < path.length; i++){
-            console.log(path[i])
-            if (i < path.length - 1) connect_nodes(path[i], path[i+1])
-            else {
-                connect_nodes(path[i], boss)        
-            }
-        }
-        connect_nodes(free_node_begin, path[0])
-    }
-    create_doors(free_node_begin)
-}
-
 

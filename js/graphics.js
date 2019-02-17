@@ -482,12 +482,7 @@ function extract_graphics(current_char, sheets = 0x80){
 
     console.log('Sprites extracted')
 
-    var parse_sprites = all_sprites.slice(0)
-    var all_sheets = []
-    while(parse_sprites.length && all_sheets.length < sheets){
-        all_sheets.push(parse_sprites.slice(0, 0x40))
-        parse_sprites = parse_sprites.slice(0x40)
-    }
+    var all_sheets = Array.split(all_sprites, 0x40)
 
     return {
         sprites: all_sprites,

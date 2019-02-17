@@ -199,6 +199,7 @@
         </div>
 
 
+        
         <script src="js/bind_console_log.js"> </script>
         <script src="js/memory.js"> </script>
         <script src="js/patch_ips.js"></script>
@@ -213,6 +214,7 @@
         <script src="js/randomizer_vania.js"></script>
         <script src="js/randomizer.js"></script>
         <script>
+// TODO: Look into bundling the above with some sort of toolchain build
 var log_component = new html_logger('log_div')
 log_component.rebind_console_log()
 
@@ -263,48 +265,55 @@ function finish_page_setup(){
                 mem_locs = setupLabelsLst(result) 
     }});
 
-    var preset_names = ['Sample Config.json', 'Adventure.json']
+    var preset_names = ['Short Level Randomizer.json', 'Full Level Randomizer.json',
+    'Short Simple Door Randomizer.json', 'Long Simple Door Randomizer.json',
+    'Short Open-world Door Randomizer.json', 'Long Open-world Door Randomizer.json',
+    'Short Hub-world Door Randomizer.json', 'Long Hub-world Door Randomizer.json',
+    'Open-world Rescue Mission.json']
 
-    $.when(...preset_names.map(x => 
+    $.when(...preset_names.map((x, i) => 
         $.ajax({contentType: "json",
                 url: "presets/" + x,
                 indexValue: i,
                 success: function(result){
-                    console.log(this.url + ' grabbed')
+                    console.log(this.url + ' grabbed', this.indexValue)
                     var my_name = this.url.replace('.json', '').replace('presets/', '')
-                    presets.push({'name': my_name, 'config': result})
+                    var i = this.indexValue
+                    presets[i] = ({'name': my_name, 'config': result})
+                    $('#preset_game').append('<option value="' + i + '">' + presets[i].name + '</option>')
+                },
+                error: function(result){
+                    console.log(this.url + ' not grabbed')
                 }
             }
-    ))).done(function(){
-        while (presets.length != preset_names.length){}
-        for(var i in presets)
-            $('#preset_game').append('<option value="' + i + '">' + presets[i].name + '</option>')
-    })
+    )))
 
     var char_names = ['Mario.json', 'Luigi.json', 'Peach.json', 'Toad.json',
-        'Imajin.json', 'Lina.json', 'Mama.json', 'Papa.json', 'Wario (WL3).json']
+        'Imajin.json', 'Lina.json', 'Mama.json', 'Papa.json', 'Yoshi.json', 'Wario (WL3).json', 'DK.json', 'L-Block.json',
+        'Bowser.json', 'Bowser Jr.json', 'Toadette.json', 'Dr. Mario.json', 'Pocket Bomberman.json',
+        'Link.json', 'Simon.json', 'Sonic.json', 'ShyGuy.json', 'Mouser.json', 'Birdo.json', 'Luigi with a Gun.json']
 
     var queue_chars = []
 
-    $.when(...char_names.map(x => 
+
+    $.when(...char_names.map((x, i) => 
         $.ajax({contentType: "json",
                 url: "preset-chars/" + x,
                 indexValue: i,
                 success: function(result){
                     console.log(this.url + ' grabbed')
                     var my_name = this.url.replace('.json', '').replace('preset-chars/', '')
-                    queue_chars.push({'name': my_name, 'config': result})
+                    queue_chars[this.indexValue] = ({'name': my_name, 'config': result})
+                    var i = this.indexValue
+                    char_component.preset_characters[i] = queue_chars[i]
+                    var my_preset_list = char_component.preset_chars_div
+                    my_preset_list.append('<option value="' + i + '">' + queue_chars[i].name + '</option>')
+                },
+                fail: function(result){
+                    console.log(this.url + ' not grabbed')
                 }
             }
-    ))).done(function(){
-        while (char_names.length != queue_chars.length){}
-        var my_preset_list = char_component.preset_chars_div
-        for(var i in queue_chars){
-            var queue_char = queue_chars[i]
-            char_component.preset_characters.push(queue_char)
-            my_preset_list.append('<option value="' + i + '">' + queue_char.name + '</option>')
-        }
-    })
+    )))
 
     $.ajax({contentType: "text",
             url: "README.md",
