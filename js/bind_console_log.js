@@ -7,6 +7,13 @@ Array.range = function(len, min=0) {
     return Array(len).fill(0).map((x,y) => y + min)
 }
 
+Array.flip = function(array) {
+    var output = []
+    for (var i in array)
+        output[array.length - 1 - i] = array[i]
+    return output
+}
+
 Array.split = function (array, amnt){
     var result = []
     while (array.length){

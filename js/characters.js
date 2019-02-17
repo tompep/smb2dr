@@ -166,10 +166,6 @@ function extract_characters(my_rom, mem_locs, sprites){
     var accel_reduction = Array.split(extract_mem_block(my_rom, mem_locs, 'AccelReduction', 8), 2)
 
     var char_inventory = Array.split(extract_mem_block(my_rom, mem_locs, 'StartingInventory', 16), 4)
-    var char_select_1 = Array.split(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites1', 20*4), 20) 
-    var char_select_2 = Array.split(extract_mem_block(my_rom, mem_locs, 'PlayerSelectMarioSprites2', 16*4), 16) 
-    var char_tiny1 = Array.split(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites', 16), 4) 
-    var char_tiny2 = Array.split(extract_mem_block(my_rom, mem_locs, 'MarioDream_BubbleSprites2', 16), 4) 
 
     var characters = []
 
@@ -209,11 +205,6 @@ function extract_characters(my_rom, mem_locs, sprites){
 
             inventory: char_inventory.map(x => x[i]),
 
-            char_select1: char_select_1[player_order[i]],
-            char_select2: char_select_2[player_order[i]],
-            char_tiny1: char_tiny1[player_order_d[i]],
-            char_tiny2: char_tiny2[player_order_d[i]],
-
             stats_off: char_stats_offset[i],
             soff: cps_offset[i],
             sheet_num: char_sheet[i],
@@ -243,7 +234,7 @@ function extract_frames(bitmaps, width, height, offset=0, limit=32, og_uniques) 
         //Array.split(new_spr, 8).map(x => x.reduce(bit_crush_2))
         var sprite = bitmaps[s]
         var new_spr = [].concat(...Array.split(sprite, 8).map(x => x.reduce(bc2)))
-        var new_spr_mirror = [].concat(...Array.split(sprite, 8).map(x => x.reverse().reduce(bc2)))
+        var new_spr_mirror = [].concat(...Array.split(sprite, 8).map(x => Array.flip(x).reduce(bc2)))
         // speed this up with 8 comparisons of proper shifted sprites
         if (sprite.reduce((a, c) => a + c) == 0){
             sprite_meta.push(0)
@@ -589,50 +580,14 @@ var char_viewer = function (id='char_viewer') {
             indices.slice(0,32).forEach(x => select_sheet.push(...
                 Array.split(Array.split(ex_bitmap_sprites[x], 8).map(x => x.reduce(bc2)), 8)))
 
-            // select
-            write_sprites_to_rom(currentRom, mem_locs, 
-                select_sheet.slice(0,8), 0x30, c_id*8)  
-            select_sheet.slice(0,8).map((x,y) =>
-                sprites.all_sheets[0x30][y + c_id*8] = x)
-
-            write_sprites_to_rom(currentRom, mem_locs, 
-                select_sheet.slice(8,16), 0x30, c_id*8 + 0x20)  
-            select_sheet.slice(8,16).map((x,y) =>
-                sprites.all_sheets[0x30][y + c_id*8 + 0x20] = x)
-
-            //cheer
-            write_sprites_to_rom(currentRom, mem_locs, 
-                select_sheet.slice(16,24), 0x31, c_id*8)  
-            select_sheet.slice(16,24).map((x,y) =>
-                sprites.all_sheets[0x31][y + c_id*8] = x)
-
-            write_sprites_to_rom(currentRom, mem_locs, 
-                select_sheet.slice(24,32), 0x31, c_id*8 + 0x20)  
-            select_sheet.slice(24,32).map((x,y) =>
-                sprites.all_sheets[0x31][y + c_id*8 + 0x20] = x)
-
             var indices = sprite_mask(ex_bitmap_sprites.length, 1, 1)
-            console.debug(indices, 'windices')
 
+            // mini
             var mini_sheet = []
             indices.slice(9,11).map(x => mini_sheet.push(...
                 Array.split(Array.split(ex_bitmap_sprites[x], 8).map(x => x.reduce(bc2)), 8)))
 
-            // mini
-            write_sprites_to_rom(currentRom, mem_locs, 
-                mini_sheet, 0x48, player_order_b[c_id]*4)  
-            mini_sheet.forEach((x,y) =>
-                sprites.all_sheets[0x48][y + player_order_b[c_id]*4] = x)
-
-
             // sheet write
-            var char_sheet = characters[character].sheet_num
-            var x_sheet = characters[character].ex_sheet
-            console.log(char_sheet)
-            sprites.all_sheets[char_sheet[0]] = big_sheet
-            sprites.all_sheets[char_sheet[1]] = sml_sheet
-            sprites.all_sheets[x_sheet] = ex_sheet
-
             characters[character].my_sprites[0] = big_sheet
             characters[character].my_sprites[1] = sml_sheet
             characters[character].sprites_ex1 = ex_sheet
@@ -640,37 +595,10 @@ var char_viewer = function (id='char_viewer') {
             characters[character].sprites_cheer = Array.split(select_sheet.slice(16,32), 8)
             characters[character].sprites_mini = mini_sheet
 
-            write_sprites_to_rom(currentRom, mem_locs, big_sheet, char_sheet[0])  
-            write_sprites_to_rom(currentRom, mem_locs, sml_sheet, char_sheet[1])  
-            write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
-
-
-            set_memory_location(currentRom, mem_locs, 'CharacterOne_Frames', 
-                characters[character].frames.reduce(
-                    (a=[], x) => a.concat(x)).slice(0, 0x30), 0x30*character)
-            set_memory_location(currentRom, mem_locs, 'CharacterOne_FramesSmall', 
-                characters[character].s_frames.reduce(
-                    (a=[], x) => a.concat(x)).slice(0, 0x30), 0x30*character)
-            set_memory_location(currentRom, mem_locs, 'ExtraFramesOne', 
-                characters[character].w_frames.reduce(
-                    (a=[], x) => a.concat(x)).slice(0, 24), 24*character)
-
             characters[character].m_big = ex_big.meta
             characters[character].m_small = ex_small.meta
-            ex_big.meta.map(x => x.reverse())
-            ex_small.meta.map(x => x.reverse())
 
-            set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFrames', 
-                characters[character].m_big.map(x => x.reduce(bc1)), 12*character)
-            set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFramesSmall', 
-                characters[character].m_small.map(x => x.reduce(bc1)), 12*character)
-
-            ex_big.meta.map(x => x.reverse())
-            ex_small.meta.map(x => x.reverse())
-
-            set_memory_location(currentRom, mem_locs, 
-                'CharacterEyeTiles', [characters[character].eyes], character)
-
+            my_obj.write_character_graphics(characters[character], character, c_id)
             my_obj.write_to_character()
             my_obj.show_character()
             $("#char_sheet_load")[0].value = '';
@@ -678,6 +606,65 @@ var char_viewer = function (id='char_viewer') {
 
         };
         img.src = dataURL;
+    }
+
+    this.write_character_graphics = function(char_dict, character, c_id){
+        var char_sheet = char_dict.sheet_num
+        var x_sheet = char_dict.ex_sheet
+        var big_sheet =   char_dict.my_sprites[0]
+        var sml_sheet =   char_dict.my_sprites[1]
+        var ex_sheet =    char_dict.sprites_ex1
+        sprites.all_sheets[char_sheet[0]] = big_sheet
+        sprites.all_sheets[char_sheet[1]] = sml_sheet
+        sprites.all_sheets[x_sheet] = ex_sheet
+
+        // select
+        var select_sheet = char_dict.sprites_sel.concat(char_dict.sprites_cheer)
+        console.log(select_sheet)
+        write_sprites_to_rom(currentRom, mem_locs, 
+            select_sheet[0], 0x30, c_id*8)  
+        select_sheet.slice(0,8).map((x,y) =>
+            sprites.all_sheets[0x30][y + c_id*8] = x)
+
+        write_sprites_to_rom(currentRom, mem_locs, 
+            select_sheet[1], 0x30, c_id*8 + 0x20)  
+        select_sheet.slice(8,16).map((x,y) =>
+            sprites.all_sheets[0x30][y + c_id*8 + 0x20] = x)
+
+        //cheer
+        write_sprites_to_rom(currentRom, mem_locs, 
+            select_sheet[2], 0x31, c_id*8)  
+        select_sheet.slice(16,24).map((x,y) =>
+            sprites.all_sheets[0x31][y + c_id*8] = x)
+
+        write_sprites_to_rom(currentRom, mem_locs, 
+            select_sheet[3], 0x31, c_id*8 + 0x20)  
+        select_sheet.slice(24,32).map((x,y) =>
+            sprites.all_sheets[0x31][y + c_id*8 + 0x20] = x)
+
+        var mini_sheet = char_dict.sprites_mini
+        write_sprites_to_rom(currentRom, mem_locs, 
+            mini_sheet, 0x48, player_order_b[c_id]*4)  
+        mini_sheet.forEach((x,y) =>
+            sprites.all_sheets[0x48][y + player_order_b[c_id]*4] = x)
+
+        write_sprites_to_rom(currentRom, mem_locs, big_sheet, char_sheet[0])  
+        write_sprites_to_rom(currentRom, mem_locs, sml_sheet, char_sheet[1])  
+        write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
+        set_memory_location(currentRom, mem_locs, 'CharacterOne_Frames', 
+            char_dict.frames.reduce(
+                (a=[], x) => a.concat(x)).slice(0, 0x30), 0x30*character)
+        set_memory_location(currentRom, mem_locs, 'CharacterOne_FramesSmall', 
+            char_dict.s_frames.reduce(
+                (a=[], x) => a.concat(x)).slice(0, 0x30), 0x30*character)
+        set_memory_location(currentRom, mem_locs, 'ExtraFramesOne', 
+            char_dict.w_frames.reduce(
+                (a=[], x) => a.concat(x)).slice(0, 24), 24*character)
+        set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFrames', 
+           (char_dict.m_big).map(x => Array.flip(x).reduce(bc1)), 12*character)
+        set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFramesSmall', 
+           (char_dict.m_small).map(x => Array.flip(x).reduce(bc1)), 12*character)
+        set_memory_location(currentRom, mem_locs, 'CharacterEyeTiles', [char_dict.eyes], character)
     }
 
     this.save_character = function(){
@@ -734,59 +721,8 @@ var char_viewer = function (id='char_viewer') {
 
         // select
 
-        var select_sheet = characters[character].sprites_sel.concat(characters[character].sprites_cheer)
-        write_sprites_to_rom(currentRom, mem_locs, 
-            select_sheet[0], 0x30, c_id*8)  
-        select_sheet.slice(0,8).map((x,y) =>
-            sprites.all_sheets[0x30][y + c_id*8] = x)
 
-        write_sprites_to_rom(currentRom, mem_locs, 
-            select_sheet[1], 0x30, c_id*8 + 0x20)  
-        select_sheet.slice(8,16).map((x,y) =>
-            sprites.all_sheets[0x30][y + c_id*8 + 0x20] = x)
-
-        //cheer
-        write_sprites_to_rom(currentRom, mem_locs, 
-            select_sheet[2], 0x31, c_id*8)  
-        select_sheet.slice(16,24).map((x,y) =>
-            sprites.all_sheets[0x31][y + c_id*8] = x)
-
-        write_sprites_to_rom(currentRom, mem_locs, 
-            select_sheet[3], 0x31, c_id*8 + 0x20)  
-        select_sheet.slice(24,32).map((x,y) =>
-            sprites.all_sheets[0x31][y + c_id*8 + 0x20] = x)
-
-        // mini
-        var mini_sheet = characters[character].sprites_mini
-        write_sprites_to_rom(currentRom, mem_locs, 
-            mini_sheet, 0x48, player_order_b[c_id]*4)  
-        mini_sheet.forEach((x,y) =>
-            sprites.all_sheets[0x48][y + player_order_b[c_id]*4] = x)
-
-        var char_sheet = characters[character].sheet_num
-        var x_sheet = characters[character].ex_sheet
-        var big_sheet = characters[character].my_sprites[0]
-        var sml_sheet = characters[character].my_sprites[1]
-        var ex_sheet = characters[character].sprites_ex1
-        write_sprites_to_rom(currentRom, mem_locs, big_sheet, char_sheet[0])  
-        write_sprites_to_rom(currentRom, mem_locs, sml_sheet, char_sheet[1])  
-        write_sprites_to_rom(currentRom, mem_locs, ex_sheet, x_sheet)  
-        sprites.all_sheets[char_sheet[0]] = big_sheet
-        sprites.all_sheets[char_sheet[1]] = sml_sheet
-        sprites.all_sheets[x_sheet] = ex_sheet
-
-        characters[character].m_big.map(x => x.reverse())
-        characters[character].m_small.map(x => x.reverse())
-        set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFrames', 
-            characters[character].m_big.map(x => x.reduce(bc1)), 12*character)
-        set_memory_location(currentRom, mem_locs, 'CharacterOneMetaFramesSmall', 
-            characters[character].m_small.map(x => x.reduce(bc1)), 12*character)
-        characters[character].m_big.map(x => x.reverse())
-        characters[character].m_small.map(x => x.reverse())
-
-        set_memory_location(currentRom, mem_locs, 
-            'CharacterEyeTiles', [characters[character].eyes], character)
-
+        my_obj.write_character_graphics(new_char_dict, character, c_id)
         my_obj.load_character_to_form(new_char_dict)
         my_obj.write_to_character()
         my_obj.show_character()
@@ -939,6 +875,7 @@ var char_viewer = function (id='char_viewer') {
         if (char_dict.inventory[4])
             char_dict.inventory[4] += 0x80
 
+        // TODO: overhaul any "get memory locations" with a object that is writeable
         set_memory_location(currentRom, mem_locs, 'CharacterStats', char_dict.stats, char_dict.stats_off)
         set_memory_location(currentRom, mem_locs, 'DokiMode', [char_dict.characteristics], character)
         set_memory_location(currentRom, mem_locs, 'HeightOffset', [char_dict.heights[0]], character)
@@ -949,10 +886,10 @@ var char_viewer = function (id='char_viewer') {
         set_memory_location(currentRom, mem_locs, 'CarryYOffsets', [char_dict.carry[3]], character+12)
         set_memory_location(currentRom, mem_locs, 'CharacterYOffsetCrouch', [char_dict.carry_duck[0]], character)
         set_memory_location(currentRom, mem_locs, 'CharacterYOffsetCrouch', [char_dict.carry_duck[1]], character+4)
-        set_memory_location(currentRom, mem_locs, 'HeldOffset', char_dict.carry_x, character)
-        set_memory_location(currentRom, mem_locs, 'PlayerControlAcceleration', char_dict.char_accel, character)
-        set_memory_location(currentRom, mem_locs, 'PlayerXDeceleration', char_dict.char_decel, character)
-        set_memory_location(currentRom, mem_locs, 'AccelReduction', char_dict.accel_control, character)
+        set_memory_location(currentRom, mem_locs, 'HeldOffset', char_dict.carry_x, character*2)
+        set_memory_location(currentRom, mem_locs, 'PlayerControlAcceleration', char_dict.char_accel, character*2)
+        set_memory_location(currentRom, mem_locs, 'PlayerXDeceleration', char_dict.char_decel, character*2)
+        set_memory_location(currentRom, mem_locs, 'AccelReduction', char_dict.accel_control, character*2)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[0]], character)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[1]], character+4)
         set_memory_location(currentRom, mem_locs, 'StartingInventory', [char_dict.inventory[2]], character+8)
