@@ -20,7 +20,7 @@ function writeJSON(evt) {
     level.rendered = []
     level.decoded = []
     level.objs = level.objs.map(x => {delete x.obj_name; return x;})
-    $('#info_dump').val(JSON.stringify(level))
+    $('#info_dump').val(JSON.stringify(level, space=4))
     show_level(evt)
 }
 
@@ -163,7 +163,7 @@ var map_click = function(event, c_j, canvas, vertical, rendered, enemies) {
     var render_tile = rendered[page_num][i][j]
     console.log(JSON.stringify(render_tile, null, 2))
 
-    if (render_tile.owner) console.log("Created by:", JSON.stringify(render_tile.owner))
+    if (render_tile.owner) console.log("Created by:", JSON.stringify(render_tile.owner, 2))
     console.log("Enemies:", JSON.stringify(new_enemies, null, 2))
 
     cursor = [y, x]

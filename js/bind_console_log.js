@@ -26,6 +26,10 @@ Array.pick_random = function(array){
     return array[~~(Math.random() * array.length)]
 }
 
+Array.pick_random_index = function(array){
+    return ~~(Math.random() * array.length)
+}
+
 Array.shuffle = function(array){
     let counter = array.length;
 
@@ -46,11 +50,24 @@ Array.shuffle = function(array){
     return array;
 }
 
+Array.random_to_top = function(array){
+    var index = ~~(Math.random() * array.length) 
+    var out = array.splice(index, 1)
+    array.push(...out)
+    return array
+}
+
 Array.random_to_front = function(array){
     var index = ~~(Math.random() * array.length) 
     var out = array.splice(index, 1)
     array.unshift(...out)
     return array
+}
+
+Array.random_out = function(array){
+    var index = ~~(Math.random() * array.length) 
+    var out = array.splice(index, 1)[0]
+    return out
 }
 
 /// helper

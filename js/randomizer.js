@@ -25,10 +25,13 @@ var randomizer_config_form = {
         {
             "name": "Default",
             "options": [
-                {"name": "Randomize World Appearance", "desc": "Randomize palette/tiles/music and enemies (possible softlocks unknown)",
-                    "val": [ "Do Not Randomize", "Per World", "Per Level", "Per Room"
-                    ]},
+                {"name": "Randomize World Appearance", "desc": "Randomize palette/tiles/music (possible softlocks unknown)",
+                    "val": [ "Per Similar", "Per World", "Per Level", "Per Room" ]},
+                {"name": "Randomize Palettes", "desc": "Palette Randomization",
+                    "val": false},
                 {"name": "Randomize Music", "desc": "Music Randomization",
+                    "val": false},
+                {"name": "Randomize World Appearance", "desc": "Prone to expensive output",
                     "val": false},
                 {"name": "Game Scale", "desc": "Number of Levels to compile together",
                     "val": "20", "max": "21"},
@@ -61,7 +64,14 @@ var randomizer_config_form = {
         {
             "name": "Door Randomizer V1",
             "options": [
-
+                {"name": "Scramble Levels in Hub", "desc": "Scramble levels from within a Hub, versus linear sets",
+                    "val": false},
+                {"name": "Continue after Boss Kill", "desc": "Using a continue places at boss door",
+                    "val": false},
+            ],
+            "option_beta": [
+                {"name": "Number of Hubs", "desc": "Number of hubs to generate, which can be traversed between",
+                    "val": 1, "min": 1, "max": 7}
             ]
         }
     ],
@@ -80,8 +90,8 @@ var randomizer_config_form = {
                         {"name": "Peach", "desc": "Start with character 4",
                             "val": true}
                     ]},
-                    {"name": "Character Lock", "desc": "Restrict choice of character (incompatible with Rescue)",
-                        "val": [ "No Locking", "Per World", "Per Level", "Per Room" ]},                
+                    {"name": "Force Character", "desc": "Restrict choice of character (incompatible with Rescue)",
+                        "val": [ "No Force", "Per World", "Per Level", "Per Room" ]},                
                     {"name": "Change Character on Death", "desc": "Gives character select screen on life lost",
                         "val": false, "class": "mem_location", "mem_loc_name": "CharSelectDeath"},
                     {"name": "Change Character at any time", "desc": "Switch character any time (Select+LR)",
@@ -93,6 +103,8 @@ var randomizer_config_form = {
                     {"name": "Add Rescue Items", "desc": "Adds items to rescue lost characters",
                         "val": false},
                     {"name": "Starting Gift", "desc": "Gives a random upgrade to each character",
+                        "val": false},
+                    {"name": "Random Player Palette", "desc": "Pick random palette from set of palettes",
                         "val": false}
                 ]
         },
@@ -106,25 +118,31 @@ var randomizer_config_form = {
             "name": "Default",
             "options": 
                 [
-                    {"name": "Enemy Randomization (early)", "desc": "Simple enemy randomizer (hard)",
+                    {"name": "Enemy Champion Chance", "desc": "Percent chance of 'champion' enemies",
+                        "val": 8.25},
+                    {"name": "Enemy Randomization", "desc": "Enemy randomizer (hard)",
                         "val": false},
+                    {"name": "Enemy Scaling Range", "desc": "Range of which enemies can decrease/increase in difficulty",
+                        "val": 1, "min": 0, "max": 10},
+                    {"name": "Enemy Max Score Percent", "desc": "Scales how much more dangerous enemies can be overall",
+                        "val": 50.0, "min": 0, "max": 200},
                     {"name": "Autospawn Potion Door", "desc": "Spawns a door where mushrooms exist",
                         "val": false},
                     {"name": "Randomize Mushroom Locations", "desc": "Completely randomizes mushroom locations",
                         "val": false},
                     {"name": "Boss Drops", "desc": "Bosses will drop something on death",
-                        "val": [ "Nothing", "Always Mushroom", "Subspace Item Pool" ]},                
-                    {"name": "Mushrooms", "desc": "Number of mushrooms in Subspace pool",
+                        "val": [ "Nothing", "Mushrooms and Fragments", "Major Items", "Full Item Pool" ]},                
+                    {"name": "Mushrooms", "desc": "Number of mushrooms in item pool",
                         "val": "4"},
-                    {"name": "Mushroom Fragments", "desc": "Number of mushrooms in Subspace pool",
+                    {"name": "Mushroom Fragments", "desc": "Number of mushrooms in item pool",
                         "val": "16"},
-                    {"name": "Powerups", "desc": "Number of powerups in Subspace pool",
+                    {"name": "Powerups", "desc": "Number of powerups in item pool",
                         "val": "16"},
-                    {"name": "Upgrades", "desc": "Number of upgrades in Subspace pool",
+                    {"name": "Upgrades", "desc": "Number of upgrades in item pool",
                         "val": "13"},
-                    {"name": "Common Items", "desc": "Number of common items in Subspace pool",
+                    {"name": "Common Items", "desc": "Number of common items in item pool",
                         "val": "8"},
-                    {"name": "Crystals", "desc": "Number of crystals in Subspace pool",
+                    {"name": "Crystals", "desc": "Number of crystals in item pool",
                         "val": "0"}
                 ]
         }   
@@ -188,7 +206,9 @@ var randomizer_config_form = {
                         "mem_loc_name": "MaxedHealth", "min": -1, "max": 14},
                     {"name": "Reset Health Cap", "desc": "Reduced extra health after 'completing' a level",
                         "val": "4", "class": "mem_location",
-                        "mem_loc_name": "ResetHealth", "min": 0, "max": 14}
+                        "mem_loc_name": "ResetHealth", "min": 0, "max": 14},
+                    {"name": "Include CRC Hash on Title", "desc": "Writes CRC hash to title screen (but will modify outputted file hash)",
+                        "val": false}, 
                 ]
         }
     ]
@@ -217,6 +237,10 @@ function rand_seed(){
     return Array(10).fill(0).map(x => chars[~~(Math.random() * 36)]).join('')
 }
 
+if (!Math.seedrandom){
+    Math.seedrandom = function(){}
+}
+
 function starting_seed() {
     if (Math.seedrandom) Math.seedrandom((new Date()).toUTCString().split(' ').slice(0, 4).join(' '))
     $('#seed').val(rand_seed());
@@ -228,6 +252,7 @@ var rando_seed = $('#seed').val();
 
 function randomize_rom(evt) {
     console.log('Randomizing ROM...')
+    var workingRom = currentRom.slice(0)
     // patch
     //
     //
@@ -252,11 +277,11 @@ function randomize_rom(evt) {
 
     var r_header = option_vals['Randomize_World_Appearance'].radio
     var segments = []
-    if (r_header == 'Per World')
+    if (r_header == 'Per_World')
         segments = Array.split(current_level_set, 30)
-    else if (r_header == 'Per Level')
+    else if (r_header == 'Per_Level')
         segments = Array.split(current_level_set, 10)
-    else if (r_header == 'Per Room')
+    else if (r_header == 'Per_Room')
         segments = Array.split(current_level_set, 1)
     else
         console.log('No Header Randomize...')
@@ -321,7 +346,7 @@ function randomize_rom(evt) {
 
     Math.seedrandom(rando_seed)
 
-    var active_levels = level_order_randomizer(current_level_set, currentRom, mem_locs, {
+    var active_levels = level_order_randomizer(current_level_set, workingRom, mem_locs, {
         'ShuffleType': option_vals["Level_Randomization"].val,
         'GameScale': option_vals["Game_Scale"].val,
         'DoorIterations': option_vals["Max_Possible_Doors"].val,
@@ -329,23 +354,69 @@ function randomize_rom(evt) {
         'BossOrder': option_vals["Boss_Randomization"].val,
         'EndWart': option_vals['End_with_Wart'].checked,
         'ScrambleWorld': option_vals['Scramble_Levels_in_World'].checked,
+        'ScrambleHub': option_vals['Scramble_Levels_in_Hub'].checked,
+        'ContBossKill': option_vals['Continue_after_Boss_Kill'].checked,
         'CloneBoss': option_vals['Randomize_Boss_Arenas'].checked
     }, info)
 
 
-    if (option_vals["Enemy_Randomization_early"].checked)
+    if (option_vals["Enemy_Randomization"].checked)
     {
         Math.seedrandom(rando_seed)
-        enemy_randomizer(active_levels, currentRom, mem_locs, info.meta_info)
+        enemy_randomizer(active_levels,
+            option_vals["Enemy_Scaling_Range"].val,
+            option_vals["Enemy_Max_Score_Percent"].val)
+    }
+    set_memory_location(workingRom, mem_locs,
+        'ChampionChance', [~~(option_vals["Enemy_Champion_Chance"].val * 255)], 0)
+
+    Math.seedrandom(rando_seed)
+
+    item_randomizer(active_levels, workingRom, mem_locs, info.meta_info, option_vals)
+
+    Math.seedrandom(rando_seed)
+
+    var cc = char_component
+    var my_chars = JSON.parse(JSON.stringify(info.meta_info.characters))
+    if (option_vals["Character_Randomization"].val == "Randomized_Pool"){
+        var valid_chars = char_component.preset_characters.filter(x => x != undefined)
+        my_chars = []
+        if (valid_chars.length >= 4){
+            for (var c_id in Array.range(4)){
+                var character = player_order[c_id & 0b11]
+                var new_char = JSON.parse(JSON.stringify(Array.pick_random(valid_chars).config))
+                new_char.stats_off = info.meta_info.characters[character].stats_off
+                new_char.soff = info.meta_info.characters[character].soff
+                new_char.sheet_num = info.meta_info.characters[character].sheet_num
+                new_char.ex_sheet = info.meta_info.characters[character].ex_sheet
+                my_chars.push(new_char)
+                cc.write_char_to_rom(new_char, c_id, mem_locs, workingRom)
+                cc.write_character_graphics(new_char, c_id, mem_locs, workingRom)
+            }
+        }
+        else {
+            my_chars = JSON.parse(JSON.stringify(info.meta_info.characters))
+        }
+        console.log(info.meta_info.characters.map(x => x.sheet_num))
+        console.log(my_chars.map(x => x.sheet_num))
+    }
+    if (option_vals["Random_Player_Palette"].checked){
+        for (var c_id in Array.range(4)){
+            var char_dict = my_chars[c_id]
+            var target_pal = char_dict.alt_pals[~~(Math.random() * char_dict.alt_pals.length)]
+            if (target_pal == undefined) continue
+            char_dict.pal = target_pal.pals[0].slice(0)
+            char_dict.spal = target_pal.pals[1].slice(0)
+            char_dict.dspal = target_pal.pals[2].slice(0)
+            char_dict.name = target_pal.replace_name
+            char_dict.pal_name = target_pal.pal_name
+            cc.write_char_to_rom(char_dict, c_id, mem_locs, workingRom)
+        }
     }
 
     Math.seedrandom(rando_seed)
 
-    item_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
-
-    Math.seedrandom(rando_seed)
-
-    player_randomizer(active_levels, currentRom, mem_locs, info.meta_info, option_vals)
+    player_randomizer(active_levels, workingRom, mem_locs, info.meta_info, option_vals)
 
     Math.seedrandom(rando_seed)
 
@@ -360,37 +431,37 @@ function randomize_rom(evt) {
         if (ele.checked)
             values = [ele.checked]
         var ele = $(ele)
-        set_memory_location(currentRom, mem_locs,
+        set_memory_location(workingRom, mem_locs,
             ele.data('mem_loc_name'), values, ele.data('offset'))
         return ele
     })
 
     if (option_vals['End_Game_at_any_Exit'].checked){
-        set_memory_location(currentRom, mem_locs,
+        set_memory_location(workingRom, mem_locs,
              'WinLevel', [0xFF])
     }
 
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock2', convertByTbl('seed-' + rando_seed), 3)
+    set_memory_location(workingRom, mem_locs,
+        'FunkyLittleSeedBlock6', convertByTbl('seed-' + rando_seed), 3)
 
-    set_memory_location(currentRom, mem_locs,
+    set_memory_location(workingRom, mem_locs,
+        'FunkyLittleSeedBlock2', convertByTbl(' '), 3)
+
+    set_memory_location(workingRom, mem_locs,
         'FunkyLittleSeedBlock3', convertByTbl(' '), 3)
 
-    set_memory_location(currentRom, mem_locs,
+    set_memory_location(workingRom, mem_locs,
         'FunkyLittleSeedBlock4', convertByTbl(''), 3)
 
-    set_memory_location(currentRom, mem_locs,
+    set_memory_location(workingRom, mem_locs,
         'FunkyLittleSeedBlock5', convertByTbl(''), 3)
 
-    set_memory_location(currentRom, mem_locs,
-        'FunkyLittleSeedBlock6', convertByTbl(' '), 3)
-
-    set_memory_location(currentRom, mem_locs,
+    set_memory_location(workingRom, mem_locs,
         'FunkyLittleSeedBlock7', convertByTbl(' '), 3)
     
-    set_memory_location(currentRom, mem_locs,
+    set_memory_location(workingRom, mem_locs,
         'TitleStoryText_Line01', convertByTbl(
-            fit_text('I THOUGHT ABOUT ALL THE COOL STUFF I COULD PUT HERE, BUT INSTEAD I DECIDED TO SLEEP...', 20), 16*20))
+            fit_text('I THOUGHT ABOUT ALL THE COOL STUFF I COULD PUT HERE, LIKE A MAD-LIB GAME STORY, BUT INSTEAD I DECIDED TO SLEEP...', 20), 16*20))
 
 
     for (var l in level_sets[0]){
@@ -402,9 +473,16 @@ function randomize_rom(evt) {
         }
     }
 
-    write_to_file(currentRom, level_sets[level_sets.length - 1], info.meta_info)
+    write_to_file(workingRom, level_sets[level_sets.length - 1], info.meta_info)
     
-    var blob = new Blob([currentRom])
+    var my_crc = decimalToHexString(crc32(workingRom))
+    console.log('crc32 hash of randomized ROM: ', my_crc)
+    if (option_vals['Include_CRC_Hash_on_Title'].checked) {
+        set_memory_location(workingRom, mem_locs,
+            'FunkyLittleSeedBlock7', convertByTbl('hash-' + my_crc), 3)
+    }
+
+    var blob = new Blob([workingRom])
     var url = window.URL.createObjectURL(blob)
     downloadURL(url, 'smb2-output.nes')
     setTimeout(function() {
@@ -496,10 +574,47 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     console.log('Level Randomizer')
 
     console.log(options)
-
+    
+    // get boss rooms
     var LevelStart = mem_locs['Data_StartLevel'] + 0x10
     var WinLevel = mem_locs['WinLevel'] + 0x10
 
+    var boss_rooms = []
+    for (var l of my_levels){
+        if (l != undefined){
+            var isBoss = l.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0
+            if (isBoss) boss_rooms.push(l)
+        }
+    }
+
+    if (options['BossOrder'] == 'Randomized'){
+        if (options['End_With_Wart']){
+            var wart_room = boss_rooms[boss_rooms.length - 1]
+            boss_rooms = shuffle(boss_rooms.slice(0, boss_rooms.length - 1))
+            boss_rooms.push(wart_room)
+        }
+        else boss_rooms = shuffle(boss_rooms)
+
+        if (options['CloneBoss']){
+            var new_boss_rooms = []
+            var end_wart = boss_rooms[boss_rooms.length-1]
+            while(new_boss_rooms.length < 6){
+                var index = (~~(Math.random() * 6))
+                console.log(boss_rooms[index], index)
+                var cloned = JSON.parse(JSON.stringify(boss_rooms[index]))
+                my_levels[boss_rooms[new_boss_rooms.length].i] = cloned
+                new_boss_rooms.push(cloned)
+            }
+            new_boss_rooms.push(end_wart)
+            boss_rooms = new_boss_rooms
+        }
+    }
+    var last_boss = boss_rooms[boss_rooms.length - 1]
+    my_rom[WinLevel] = last_boss.world * 3 + last_boss.level
+
+    Math.seedrandom(rando_seed)
+
+    // get level groups
     var level_groups = [] 
     Array.split([...my_levels], 10).map(x => !x.every(y => y == undefined) ? level_groups.push(x) : x) 
 
@@ -513,7 +628,8 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     var all_levels = [].concat.apply([], level_groups)
 
     if(options['ShuffleType'] == 'Door_Randomizer_V1'){
-        door_randomizer_v1(all_levels, blacklist)
+        if (options['ScrambleHub']) all_levels = shuffle(all_levels)
+        door_randomizer_v1(all_levels, blacklist, patches, options, my_rom, mem_locs)
         return all_levels
     }
     else if (options['ShuffleType'] == 'World_Order_Randomizer'){
@@ -547,8 +663,8 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
                 if(ll == undefined || rl == undefined)
                     continue
                 //if (ll.rendered == undefined) 
-                ll.rendered = render_level(ll, ll.header, ll.enemies, info.meta_info)
                 //if (rl.rendered == undefined) 
+                ll.rendered = render_level(ll, ll.header, ll.enemies, info.meta_info)
                 rl.rendered = render_level(rl, rl.header, rl.enemies, info.meta_info)
 
                 var columns = get_valid_columns(ll.rendered).filter(function(ele){return ele.space > 3})
@@ -594,40 +710,9 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
              
     }
 
-    var boss_rooms = []
-    for (var l of my_levels){
-        if (l != undefined){
-            var isBoss = l.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0
-            if (isBoss) boss_rooms.push(l)
-        }
-    }
-    
+
     Math.seedrandom(rando_seed)
 
-    if (options['BossOrder'] == 'Randomized'){
-        if (options['End_With_Wart']){
-            var wart_room = boss_rooms[boss_rooms.length - 1]
-            boss_rooms = shuffle(boss_rooms.slice(0, boss_rooms.length - 1))
-            boss_rooms.push(wart_room)
-        }
-        else boss_rooms = shuffle(boss_rooms)
-
-        if (options['CloneBoss']){
-            var new_boss_rooms = []
-            var end_wart = boss_rooms[boss_rooms.length-1]
-            while(new_boss_rooms.length < 6){
-                var index = (~~(Math.random() * 6))
-                console.log(boss_rooms[index], index)
-                var cloned = JSON.parse(JSON.stringify(boss_rooms[index]))
-                my_levels[boss_rooms[new_boss_rooms.length].i] = cloned
-                new_boss_rooms.push(cloned)
-            }
-            new_boss_rooms.push(end_wart)
-            boss_rooms = new_boss_rooms
-        }
-    }
-
-    var last_boss = boss_rooms[boss_rooms.length - 1]
 
     console.log('Stringing levels together')
     for(var n in level_groups){
@@ -714,7 +799,6 @@ function level_order_randomizer(my_levels, my_rom, mem_locs, options, info){
     my_rom[LevelStart + 1] = level_groups[0][0].room
     my_rom[LevelStart + 2] = level_groups[0][0].page
     my_rom[LevelStart + 3] = 0
-    my_rom[WinLevel] = last_boss.world * 3 + last_boss.level
 
     return all_levels
 
@@ -724,67 +808,136 @@ var ne = enemyEnum
 
 var post_enemy_changes = { }
 
+var pick_random_enemy_by_score = function (me, current_variance, max_variance, variance, upgrade = false, extra=[]) { 
+    var my_targets = this.targets.concat(this.additional).concat(extra)
+    my_targets = my_targets.filter(x => Math.abs(enemy_score[me] - enemy_score[x]) <= variance )
+    my_targets = my_targets.filter(x => max_variance >= current_variance + enemy_score[x] )
+    if (my_targets.length) return Array.pick_random(my_targets)
+    else return me
+}
 
 var shuffle_enemy_data = [
     { 
         targets: [ne.ShyguyPink, ne.ShyguyRed, ne.Tweeter, ne.Porcupo,
             ne.NinjiRunning, ne.SnifitRed, ne.SnifitPink, ne.BobOmb, ne.FryguySplit],
         additional: [ne.JarGeneratorShyguy, ne.JarGeneratorBobOmb, ne.SnifitGray, ne.NinjiJumping, ne.Birdo, ne.BeezoStraight, ne.BeezoDiving],
-        process: function (extra=[]) { return Array.pick_random(this.targets.concat(this.additional).concat(extra)) }
+        process: pick_random_enemy_by_score 
+    },
+    { 
+        targets: [ne.Birdo],
+        additional: [ne.Mouser],
+        process: pick_random_enemy_by_score 
     },
     { 
         targets: [ne.Spark1, ne.Spark2, ne.Spark3, ne.Spark4],
-        process: function () { return Array.pick_random(this.targets) }
+        additional: [],
+        process: pick_random_enemy_by_score 
     },
     { 
         targets: [ne.SnifitGray, ne.NinjiJumping, 
             ne.PanserStationaryFiresAngled, ne.PanserStationaryFiresUp],
-        process: function () { return Array.pick_random(this.targets) }
+        additional: [],
+        process: pick_random_enemy_by_score 
     },
     { 
         targets: [ne.FallingLogs],
-        additional: [ne.Trouter, ne.FallingLogs],
-        process: function () { return Array.pick_random(this.targets.concat(this.additional)) }
+        additional: [ne.Trouter, ne.FallingLogs, ne.FallingLogs],
+        process: pick_random_enemy_by_score 
     },
-    { 
-        targets: [ne.BossMouser], 
-        additional: [ne.BossPanserWalking, ne.BossMouser, ne.BossMouser],
-        process: function () { return Array.pick_random(this.targets.concat(this.additional)) } 
-    },
-
+    //{ 
+    //    targets: [ne.BossMouser], 
+    //    additional: [ne.BossPanserWalking, ne.BossMouser, ne.BossMouser],
+    //    process: function () { return Array.pick_random(this.targets.concat(this.additional)) } 
+    //},
 ]
 
-function enemy_randomizer(my_levels, my_rom, mem_locs, meta_info, my_options){
+function enemy_randomize_by_score(my_l, max_score, enemy_variance) {
+    var score = 0
+    for (var e of shuffle(my_l.enemies)){
+        for (var rule of shuffle_enemy_data){
+            if (rule.targets.includes(e.obj_type)) {
+                var prev_type = e.obj_type
+                e.obj_type = rule.process(e.obj_type, score, max_score, enemy_variance)
+                console.log(prev_type, e)
+                if(e.obj_type == prev_type) break 
+                if(e.obj_type == ne.Birdo) e.pos_y--
+                if(e.obj_type == ne.Mouser) {
+                    var my_world = my_l.world
+                    var world_bosses = [ne.Mouser, ne.Tryclyde, ne.Mouser, ne.Fryguy, ne.Clawgrip, ne.Tryclyde, ne.Wart]
+                    if (my_l.header.cust_world == 7)
+                        e.obj_type = world_bosses[my_l.world]
+                    else
+                        e.obj_type = world_bosses[my_l.header.cust_world]
+                    e.pos_y--
+                }
+                if(e.obj_type == ne.JarGeneratorShyguy || e.obj_type == ne.JarGeneratorBobOmb){
+                    my_l.objs.push( create_smb_object(objEnum.Jar_small, 
+                        e.pos_x, e.pos_y, e.pos_page, 1) )
+                    var options = [ne.Fireball, ne.Heart, ne.VegetableSmall]
+                    var attack = e.obj_type
+                    while([ne.JarGeneratorShyguy, ne.JarGeneratorBobOmb].includes(attack))
+                        attack = rule.process(0, score, max_score, enemy_variance, false, options) 
+                    my_l.hotspots.push ({
+                        pos_x: e.pos_x,
+                        pos_y: e.pos_y,
+                        pos_page: e.pos_page,
+                        contents: [attack, 0x00, 0x45]
+                    })
+                } 
+                if(e.obj_type == ne.BeezoDiving) e.pos_y = 2
+                if(prev_type == ne.BossMouser || prev_type == ne.Birdo) {
+                    my_l.enemies.push( create_smb_enemy(ne.JarGeneratorShyguy, 
+                        e.pos_y+2, e.pos_x, e.pos_page, my_l.vertical) )
+                }
+                break
+            }
+        }
+        score += enemy_score[e.obj_type] + 2
+    }
+}
+var enemy_score = [
+    0, 0, 1, 0, 1, 2, 2, 2,
+    2, 2, 3, 2, 2, 3, 2, 3,
+    3, 0, 0, 2, 2, 4, 4, 0,
+    3, 3, 5, 0, 6, 9, 0, 9,
+    3, 9, 0, 4, 5, 4, 3, 0,
+    0, 3, 0, 4, 9, 0, 1, 2,
+    1, 2, 0, 0, 0, 0, 0, 3,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 9, 0, 0, 0, 0,
+    0, 0
+]
+
+function enemy_freq(my_levels){
+    var frequency_table = Array.range(256).fill(0)
+    var frequency_dict = {}
+    for (var i in frequency_table){
+        frequency_dict[EnemyIds[i]] = frequency_table[i]
+    }
+    for (var my_l of my_levels){
+        if (my_l == undefined) continue
+        var e = my_l.enemies
+        for (var enemy of e){
+            frequency_table[enemy.obj_type] += 1
+            frequency_dict[EnemyIds[enemy.obj_type]] = frequency_table[enemy.obj_type]
+        }
+    }
+    console.log(JSON.stringify(frequency_dict, null, 2))
+    return frequency_table
+}
+
+function enemy_randomizer(my_levels, scale_range, percent_range){
+
     for (var my_l of my_levels){
         if (my_l == undefined)
             continue
-        for (var e of my_l.enemies){
-            for (var rule of shuffle_enemy_data){
-                if (rule.targets.includes(e.obj_type)) {
-                    var prev_type = e.obj_type
-                    e.obj_type = rule.process()
-                    if(e.obj_type == ne.Birdo) e.pos_y--
-                    if(e.obj_type == ne.JarGeneratorShyguy || e.obj_type == ne.JarGeneratorBobOmb){
-                        my_l.objs.push( create_smb_object(objEnum.Jar_small, 
-                        e.pos_x, e.pos_y, e.pos_page, 1) )
-                        var options = [ne.Fireball, ne.Heart, ne.VegetableSmall]
-                        var attack = rule.process(options) 
-                        while([ne.JarGeneratorShyguy, ne.JarGeneratorBobOmb].includes(attack))
-                            attack = rule.process(options) 
-                        my_l.hotspots.push ({
-                            pos_x: e.pos_x,
-                            pos_y: e.pos_y,
-                            pos_page: e.pos_page,
-                            contents: [attack, 0x00, 0x45]
-                        })
-                    } 
-                    if(e.obj_type == ne.BeezoDiving) e.pos_y = 2
-                    if(prev_type == ne.BossMouser) {
-                        my_l.enemies.push( create_smb_enemy(ne.JarGeneratorShyguy, 
-                        e.pos_y+2, e.pos_x, e.pos_page, my_l.vertical) )
-                    }
-                    break
-                }
+        else {
+            if (my_l.enemies.length) {
+                var my_score = 0
+                for (var e of my_l.enemies) my_score += enemy_score[e.obj_type] ? enemy_score[e.obj_type] + 2 : 2
+                var max_score = my_score + ~~(Math.random() * my_score * percent_range) 
+                console.log('scoring', my_score, max_score)
+                enemy_randomize_by_score(my_l, max_score, scale_range)
             }
         }
     }
@@ -841,6 +994,8 @@ var all_item_names = [
         'Bomb Thrower', 
         'Phanto Buddy', 
         'Fry Buddy', 
+        'Hammer', 
+        'Freeze Flower', 
         'Continue Up',
         'Unlock Mario', 
         'Unlock Luigi', 
@@ -862,12 +1017,12 @@ var invEnum = {}
 all_item_names.map((x,y) => invEnum[x.replaceAll(' ', '_')] = y)
 
 
-var power_up_start = 17 
-var cont_start = 22
-var lock_start = 23 
-var frag_start = 27 
-var junk_start = 28
-var crystal_start = 35
+var power_up_start = 19
+var cont_start = 24
+var lock_start = 25 
+var frag_start = 29 
+var junk_start = 31
+var crystal_start = 37
 
 var upgrade_names = all_item_names.slice(1, 14)
 
@@ -883,54 +1038,316 @@ var junk_items = all_item_names.slice(junk_start, crystal_start)
 
 var crystal_items = all_item_names.slice(crystal_start)
 
+// TODO: we can probably generate even probability another way, instead of single element grab bags,
+// but since arrays are references, should share across pools
+//
+var array_pool = function (...pools){
+    this.arrays = [...pools],
+    this.remove_from_pool = function(n) {
+        var cur_pos = 0
+        for (var a_pos in this.arrays){
+            var a = this.arrays[a_pos]
+            if (n >= cur_pos + a.length) cur_pos += a.length
+            else {
+                var result = a.splice(n - cur_pos, 1)[0]
+                if (a.length == 0) this.arrays.splice(a_pos, 1)
+                return result
+            }
+        }
+    },
+    this.has_stuff = function(){
+        return this.get_arrays_combined().length > 0
+    },
+    this.get_arrays_combined = function () {
+        return this.arrays.reduce((a, b) => a.concat(b), [])
+    },
+    this.get_from_pool = function(num) {
+        var new_inventory = []
+        var full_pool = this.get_arrays_combined()
+        for (var num of Array(num)){
+            if (this.arrays.length == 0) return new_inventory
+            if (full_pool.length == 0) return new_inventory
+            var i = ~~(Math.random() * full_pool.length)
+            new_inventory.push(this.remove_from_pool(i))
+            full_pool.splice(i, 1)
+        }
+        return new_inventory
+    }
+}
 
-function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
-    console.log('Item Randomizer')
-    var inventory = Array(parseInt(options['Mushrooms'].val)).fill(0)
+function push_level_inventory (my_l, inventory){
+    if(inventory.length > 0){
+        my_l.modifiers.push({
+            id: 'MushItems',
+            loc_l: 0x76,
+            loc_r: 0x00,
+            contents: inventory,
+            length: inventory.length,
+            repeat: false,
+            vertical: false
+        })
+    }
+}
+
+function generate_item_pools(my_levels, options, my_rom, mem_locs, meta_info){
+    // create pools for items
+    var mushrooms = Array(parseInt(options['Mushrooms'].val)).fill(0)
+    var fragments = Array(parseInt(options['Mushroom_Fragments'].val)).fill( invEnum.Mushroom_Fragment)
+    var common = Array(parseInt(options['Common_Items'].val)).fill(0).map( (x, y) => ~~(Math.random() * junk_items.length) + junk_start)
+    var powerups = Array(parseInt(options['Powerups'].val)).fill(0).map( (x, y) => ~~(Math.random() * powerup_names.length) + power_up_start)
 
     var upgrades = shuffle(Array.range(upgrade_names.length, 1))
     while (upgrades.length < options['Upgrades'].val)
         upgrades = upgrades.concat(shuffle(Array.range(upgrade_names.length, 1)))
     upgrades = upgrades.slice(0, options['Upgrades'].val)
 
-    var powerups = Array(parseInt(options['Powerups'].val)).fill(0).map(
-        (x, y) => ~~(Math.random() * powerup_names.length) + power_up_start)
-    var common = Array(parseInt(options['Common_Items'].val)).fill(0).map(
-        (x, y) => ~~(Math.random() * (junk_items.length)) + junk_start)
+    var unlocks = []
+    if(options['Add_Rescue_Items'].checked || options['Rescue_All_Characters'].checked)
+        unlocks = shuffle([...unlock_names.keys()]).map(x => x + lock_start)
 
-    if(options['Add_Rescue_Items'].checked || options['Rescue_All_Characters'].checked){
-        var unlocks = shuffle([...unlock_names.keys()]).map(x => x + lock_start)
-        inventory.unshift(...unlocks)
+    var crystals = Array(parseInt(options['Crystals'].val)).fill(invEnum.Crystals)
+
+    var complete_pool = new array_pool(mushrooms, fragments, upgrades, powerups, common, unlocks, crystals)
+    var major_pool = new array_pool(mushrooms, fragments, upgrades, unlocks)
+    var minor_pool = new array_pool(powerups, common, crystals)
+    var subspace_only_pool = new array_pool(upgrades, unlocks)
+    var overworld_pool = new array_pool(mushrooms, fragments, powerups, common, crystals)
+    var subspace_specific_items = upgrades.concat(unlocks)
+    var major_items = mushrooms.concat(fragments).concat(upgrades).concat(unlocks)
+
+    console.log('debug', mushrooms, fragments, common, powerups)
+    console.log('debug', upgrades, unlocks, crystals)
+    console.log(JSON.stringify(complete_pool.get_arrays_combined()))
+    console.log(JSON.stringify(major_pool.get_arrays_combined()))
+    console.log(JSON.stringify(minor_pool.get_arrays_combined()))
+    console.log(JSON.stringify(subspace_only_pool.get_arrays_combined()))
+    console.log(JSON.stringify(overworld_pool.get_arrays_combined()))
+
+    // Handle Boss Drops
+    var boss_levels = my_levels.filter(x => x != undefined && (x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0))
+
+    var boss_distribution = Array(boss_levels.length).fill(1)
+    var boss_inventory = []
+
+    set_memory_location(my_rom, mem_locs, 'BossMushroom', [1]) 
+    if(options["Boss_Drops"].radio == "Mushrooms_and_Fragments"){
+        var boss_pool = new array_pool(mushrooms, fragments)
+        boss_inventory = boss_pool.get_from_pool(boss_levels.length)
+    }
+    else if (options["Boss_Drops"].radio == "Major_Items"){
+        var boss_pool = new array_pool(mushrooms, fragments, unlocks, upgrades, crystals)
+        boss_inventory = boss_pool.get_from_pool(boss_levels.length)
+    }
+    else if (options["Boss_Drops"].radio == "Full_Item_Pool"){
+        var boss_pool = new array_pool(mushrooms, fragments, unlocks, upgrades, common, powerups, crystals)
+        boss_inventory = boss_pool.get_from_pool(boss_levels.length)
+    }
+    else {
+        set_memory_location(my_rom, mem_locs, 'BossMushroom', [0]) 
+        boss_distribution.fill(0)
+    }
+    while (boss_inventory.length < boss_levels.length) boss_inventory.push(invEnum.Coin)
+
+    for (var boss of boss_levels){
+        var count = boss_distribution.pop()
+        var level_inventory = boss_inventory.splice(0, count).filter(x => x != 0)
+        push_level_inventory(boss, level_inventory)
     }
 
-    Array(parseInt(options['Mushroom_Fragments'].val)).fill(invEnum.Mushroom_Fragment).map(x => inventory.push(x))
-    Array(parseInt(options['Crystals'].val)).fill(invEnum.Crystals).map(x => inventory.push(x))
-    // can't just treat crystals as is, can only have one per room
-    // consider boss pools
+    // we can only have two subspace items, plus these usually require special tiles
+    // we can only have two items that can use the mushroom flags, and we haven't expanded on that yet
+    // conclusion: only two max of either, prefer subspace items to subspace then prefer non major items to surface
+    //              if major items exist on surface, must be because there's only 0 to 1 subspace items
 
-    inventory = inventory.concat(upgrades)
-    inventory = inventory.concat(powerups)
-    inventory = inventory.concat(common)
+    var my_level_item_cnt = []
+
+    // TODO: make something a little less biased
+    var horizontal_levels = my_levels.filter(x => (x != undefined && !x.header.vertical &&
+        x.is_jar == 0 && !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0)))
+
+    if (!options['Randomize_Mushroom_Locations'].checked){
+        for (var my_l of shuffle(horizontal_levels)){
+            var i = my_l.i
+            var cnt = my_l.objs.filter(x => (x.obj_type == 43 || x.obj_type == 45)).length
+            var level_inventory = subspace_only_pool.get_from_pool(cnt)
+            if (level_inventory.length < cnt)
+                level_inventory.push(...complete_pool.get_from_pool(cnt - level_inventory.length))
+            my_level_item_cnt[i] = level_inventory
+        }
+    }
+    else{
+        for (var my_l of horizontal_levels){
+            my_l.objs = my_l.objs.filter(x => !(x.obj_type == 43 || x.obj_type == 45))
+        }
+    }
+
+    while (complete_pool.has_stuff()) {
+        for (var my_l of shuffle(my_levels).slice(0, 30)){
+            if (my_l == undefined) continue
+            var i = my_l.i
+            if (my_level_item_cnt[i] == undefined) my_level_item_cnt[i] = []
+            if (my_l.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0) continue
+            if (my_l.is_jar == 1) continue
+            if (my_l.is_jar == 2) my_level_item_cnt[i].push(...complete_pool.get_from_pool(1))
+            else if (my_l.header.vertical){
+                var fi = my_level_item_cnt[i].filter(x => major_items.includes(x)).length
+                if (fi == 2) my_level_item_cnt[i].push(...minor_pool.get_from_pool(1))
+                else my_level_item_cnt[i].push(...overworld_pool.get_from_pool(1))
+            }
+            else {
+                var si = my_level_item_cnt[i].filter(x => subspace_specific_items.includes(x)).length
+                if(si == 2) {
+                    var fi = my_level_item_cnt[i].filter(x => major_items.includes(x)).length
+                    if (fi == 2) my_level_item_cnt[i].push(...minor_pool.get_from_pool(1))
+                    else my_level_item_cnt[i].push(...overworld_pool.get_from_pool(1))
+                }
+                else {
+                    var fi = my_level_item_cnt[i].filter(x => major_items.includes(x)).length
+                    if (fi == 2) my_level_item_cnt[i].push(...minor_pool.get_from_pool(1))
+                    else my_level_item_cnt[i].push(...complete_pool.get_from_pool(1))
+                }
+            }
+        }
+    }
+
+    for (var my_l of my_levels.filter(x => x != undefined).sort((a,b) => a.i - b.i)){
+        var pool = my_level_item_cnt[my_l.i]
+        if (my_level_item_cnt[my_l.i]){
+            console.log('my inventory', my_l.i, my_level_item_cnt[my_l.i])
+            var pool = my_level_item_cnt[my_l.i].filter(function(a){
+                return subspace_specific_items.includes(a)
+            })
+            console.log('sorted by subspace', pool)
+            var pool = my_level_item_cnt[my_l.i].filter(function(a){
+                return major_items.includes(a)
+            })
+            console.log('sorted by subspace', pool)
+            var pool = my_level_item_cnt[my_l.i].sort(function(a, b){
+                return (subspace_specific_items.includes(b) - subspace_specific_items.includes(a)
+                || major_items.includes(b) - major_items.includes(a))
+            })
+            console.log('sorted by major', pool)
+        }
+    }
+
+    var item_pool = []
+    var bush_replacements = [tileEnum.Sky, tileEnum.GrassCoin, tileEnum.GrassSmallVeggie, 
+        tileEnum.GrassLargeVeggie, tileEnum.GrassShell, tileEnum.Grass1UP,
+        tileEnum.GrassPow, tileEnum.GrassBobOmb]
+
+    for (var my_l of horizontal_levels){
+        if (my_l == undefined) continue
+        var rendered = render_level(my_l, my_l.header, my_l.enemies, meta_info)
+        var columns = get_valid_columns(rendered).filter(x => 
+            rendered[x.pos_page][x.pos_y-1][x.pos_x].obj_type == 0x40 &&
+            x.space > 3)
+        if (my_level_item_cnt[my_l.i] == undefined) continue
+        var pool = my_level_item_cnt[my_l.i].sort(function(a, b){
+                return (subspace_specific_items.includes(b) - subspace_specific_items.includes(a)
+                || major_items.includes(b) - major_items.includes(a))
+            }).slice(0, 2)
+        my_level_item_cnt[my_l.i] = my_level_item_cnt[my_l.i].slice(2)
+
+        var targets = my_l.objs.filter(x => (x.obj_type == 43 || x.obj_type == 45))
+        while (pool < targets.length) pool.push(invEnum.Coin)
+
+        var isBoss = my_l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+        if (!isBoss){
+            var my_columns = Array.random_to_front(columns)
+            for (var i = targets.length; i < pool.length; i++){
+                var target = my_columns[0]
+                if (target == undefined)
+                    break
+                var lx = target.pos_x
+                var ly = target.pos_y - 1
+                var lpage = target.pos_page
+                var new_door = create_smb_object(43, lx, ly-1, lpage, 1)
+                my_l.objs.push(new_door)
+                // replcae this with a "prefab"
+                var pick_obj = Array.pick_random([...Array.range(6),  
+                    oe.Vine_extends_to_ground, oe.Red_pillar_extends_to_ground, oe.Herb_with_potion])
+                new_door = create_smb_object(pick_obj, lx, ly, lpage, 1) // rebalance this
+                my_l.objs.push(new_door)
+                my_columns = Array.random_to_front(my_columns.slice(1))
+                for (var em of my_l.enemies.filter(x => x.pos_x == lx && x.pos_page == lpage))
+                    em.pos_x = em.pos_x + (Math.random() > 0.50 ? -1 : 1)
+            }
+        }
+
+        targets = my_l.objs.filter(x => (x.obj_type == 43 || x.obj_type == 45))
+
+        for(var i in targets) targets[i].obj_type = 43 + 2*i
+
+        if (options['Autospawn_Potion_Door'].checked){
+            for (var pos of targets){
+                var height = pos.pos_y
+                my_l.enemies.push(create_smb_enemy(60, height - 1, pos.pos_x, pos.pos_page))
+            }
+        }
+
+        if(pool.length > 0){
+            my_l.modifiers.push({
+                id: 'MushItems',
+                loc_l: 0x76,
+                loc_r: 0x00,
+                contents: pool,
+                length: pool.length,
+                repeat: false,
+                vertical: false
+            })
+        }
+    }
+
+    for (var my_l of my_levels){
+        if (my_l == undefined) continue
+        var pool = my_level_item_cnt[my_l.i]
+        if (my_level_item_cnt[my_l.i]){
+            item_pool.push(...my_level_item_cnt[my_l.i])
+            if (my_l.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0){ continue }
+            var rendered = render_level(my_l, my_l.header, my_l.enemies, meta_info)
+            var my_columns = get_valid_columns(rendered).filter(x => 
+                bush_replacements.includes(rendered[x.pos_page][x.pos_y-1][x.pos_x].obj_type) &&
+                x.space > 3 && x.pos_y != 1)
+            Array.random_to_top(my_columns)
+            console.log(pool)
+            var occupied_flag = 0
+            for (var num of pool){
+                var target = my_columns.pop()
+                console.log('target', target, my_l.i, my_l.world, my_l.level, my_l.room)
+                if (target == undefined) break
+                var lx = target.pos_x
+                var ly = target.pos_y - 1
+                var lpage = target.pos_page
+                var new_door = create_smb_object(objEnum.Herb_with_coin, lx, ly, lpage, 1)
+                var flag_num = 0xff
+                // TODO: make sure this doesn't override subspace flags
+                if (major_items.includes(num)) flag_num = occupied_flag++ 
+                my_l.objs.push(new_door)
+                Array.random_to_top(my_columns)
+                var conv_obj = convert_coords_obj_to_item(lpage, ly, lx, my_l.header.vertical)
+                my_l.hotspots.push ({
+                    pos_x: conv_obj.x,
+                    pos_y: conv_obj.y,
+                    pos_page: my_l.is_jar == 1 ? 0xa : conv_obj.page,
+                    contents: [enemyEnum.Mushroom, num, flag_num]
+                })
+            }
+        }
+    }
+    console.log(item_pool.sort(function(a, b){ return a - b }).map(x => all_item_names[x]))
+}
+
+
+function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
+    console.log('Item Randomizer')
+    var inventory_set = generate_item_pools(my_levels, options, my_rom, mem_locs, meta_info)
+    return
 
     console.debug('Initial inventory', inventory.map(x => all_item_names[x]))
     
     var horizontal_levels = my_levels.filter(x => (x != undefined && !x.header.vertical &&
         x.is_jar == 0 && !(x.enemies.filter( function(ele){return ele.obj_type > 0x5C}).length > 0)))
     var mush_counts = Array(my_levels.length).fill(0)
-
-    if (!options['Randomize_Mushroom_Locations'].checked){
-        for (var my_l of horizontal_levels){
-            var l = my_l.i
-            mush_counts[l] = my_l.objs.filter(x => (x.obj_type == 43 || x.obj_type == 45)).length
-        }
-    }
-    else{
-        for (var my_l of horizontal_levels){
-            var l = my_l.i
-            mush_counts[l] = 0
-            my_l.objs = my_l.objs.filter(x => !(x.obj_type == 43 || x.obj_type == 45))
-        }
-    }
 
     var mush_sum = mush_counts.reduce( (a, b) => a + b ) 
     
@@ -977,29 +1394,26 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
 
         var targets = my_l.objs.filter(x => (x.obj_type == 43 || x.obj_type == 45))
 
-        if (!my_l.header.vertical){
-            var isBoss = my_l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-            if (!isBoss && my_l.is_jar == 0){
-                var my_columns = Array.random_to_front(columns)
-                for (var i = targets.length; i < mush_counts[my_l.i]; i++){
-                    var target = my_columns[0]
-                    if (target == undefined)
-                        break
-                    var lx = target.pos_x
-                    var ly = target.pos_y - 1
-                    var lpage = target.pos_page
-                    var new_door = create_smb_object(43, lx, ly-1, lpage, 1)
-                    my_l.objs.push(new_door)
-                    // replcae this with a "prefab"
-                    var pick_obj = Array.pick_random([...Array.range(6), oe.Small_cloud, 
-                        oe.Vine_extends_to_ground, oe.Herb_with_coin,
-                        oe.Red_pillar_extends_to_ground, oe.Herb_with_potion])
-                    new_door = create_smb_object(pick_obj, lx, ly, lpage, 1) // rebalance this
-                    my_l.objs.push(new_door)
-                    my_columns = Array.random_to_front(my_columns.slice(1))
-                    for (var em of my_l.enemies.filter(x => x.pos_x == lx && x.pos_page == lpage))
-                        em.pos_x = em.pos_x + (Math.random() > 0.50 ? -1 : 1)
-                }
+        var isBoss = my_l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
+        if (!isBoss && my_l.is_jar == 0 && !my_l.header.vertical){
+            var my_columns = Array.random_to_front(columns)
+            for (var i = targets.length; i < mush_counts[my_l.i]; i++){
+                var target = my_columns[0]
+                if (target == undefined) break
+                var lx = target.pos_x
+                var ly = target.pos_y - 1
+                var lpage = target.pos_page
+                var new_door = create_smb_object(43, lx, ly-1, lpage, 1)
+                my_l.objs.push(new_door)
+                // replcae this with a "prefab"
+                var pick_obj = Array.pick_random([...Array.range(6),  
+                    oe.Vine_extends_to_ground, oe.Herb_with_coin,
+                    oe.Red_pillar_extends_to_ground, oe.Herb_with_potion])
+                new_door = create_smb_object(pick_obj, lx, ly, lpage, 1) // rebalance this
+                my_l.objs.push(new_door)
+                my_columns = Array.random_to_front(my_columns.slice(1))
+                for (var em of my_l.enemies.filter(x => x.pos_x == lx && x.pos_page == lpage))
+                    em.pos_x = em.pos_x + (Math.random() > 0.50 ? -1 : 1)
             }
         }
 
@@ -1012,7 +1426,10 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
 
         if (options['Autospawn_Potion_Door'].checked){
             for (var pos of targets){
-                my_l.enemies.push(create_smb_enemy(60, pos.pos_y - 1, pos.pos_x, pos.pos_page))
+                var height = pos.pos_y
+                while (rendered[pos.pos_page][height][pos.pos_x].solidity == 0 && height > 15)
+                    height++
+                my_l.enemies.push(create_smb_enemy(60, height - 1, pos.pos_x, pos.pos_page))
             }
         }
 
@@ -1029,52 +1446,6 @@ function item_randomizer(my_levels, my_rom, mem_locs, meta_info, options){
             })
         }
         inventory = inventory.slice(targets.length)
-        continue
-
-        my_l.objs = my_l.objs.filter(x => !(x.obj_type >= 32 && x.obj_type < 46))
-        my_l.objs = my_l.objs.filter(x => ![0x50].includes(x.obj_type & 0xF0))
-        my_l.objs = my_l.objs.filter(x => ![0, 1, 4, 6, 7, 8].includes(x.obj_type))
-        var rendered = render_level(my_l, my_l.header, my_l.enemies, meta_info)
-        for(var page of rendered){
-            for(var y of page){
-                for(var x of y){
-                    if([0x98, 0x9a].includes(x.obj_type)) {
-                        console.log(x.owner)
-                        console.log(my_l.modifiers.findIndex(y => y.owner == x.owner))
-                    }
-                }
-            }
-        }
-
-        // remove all non-essential enemies
-        // my_l.enemies = my_l.enemies.filter(x => x.obj_type >= 0x32 || [0x12, 0x1c, 0x2d].includes(x.obj_type))
-
-        // first pass
-        for(var i = 0; i < 5; i++){
-            // function get patch
-            var my_columns = shuffle(columns)
-            var target = my_columns[0]
-            if (target == undefined)
-                continue
-            var patch_length = 3
-            var patch_spots = []
-            my_columns = my_columns.filter(x => 
-                x.pos_y == target.pos_y &&
-                x.pos_x < target.pos_x + patch_length &&
-                x.pos_x > target.pos_x - patch_length &&
-                rendered[x.pos_page][x.pos_y-1][x.pos_x].obj_type == 0x40).sort (
-                    function(a, b){
-                        return a.pos_x - a.pos_x
-                    }
-                )
-            target = my_columns[0]
-            var lx = target.pos_x
-            var ly = target.pos_y - 1
-            var lpage = target.pos_page
-            var new_door = create_smb_object(0x50 + my_columns.length, lx, ly, lpage, 1)
-            my_l.objs.push(new_door)
-
-        }
     }
     if (inventory.length > 0)
         console.error('Inventory still present', inventory.map(x => all_item_names[x]))
@@ -1093,7 +1464,6 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
     var lock_var = character_pool.reduce((a, b) => a ^ player_table[b], 0xF)
     // lord please just use react or something else why is getting form elements so confusing
     // abstract this by making form objects modify an options JSON on change rather than on commit
-    var locking = option_vals['Character_Lock'].radio
     set_memory_location(my_rom, mem_locs,
         'CharLockVar', [lock_var], 0)
     var level_sets = split_em(my_levels, 10).map(x => x.filter(y => y != undefined))
@@ -1127,17 +1497,17 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
             0, function(l, r){ return l & r })
     }
 
-    var r_header = option_vals['Character_Lock'].radio
+    var r_header = option_vals['Force_Character'].radio
     var character = 0xf
     var segments = []
-    if (r_header == 'Per World')
+    if (r_header == 'Per_World')
         segments = Array.split(my_levels, 30)
-    else if (r_header == 'Per Level')
+    else if (r_header == 'Per_Level')
         segments = Array.split(my_levels, 10)
-    else if (r_header == 'Per Room')
+    else if (r_header == 'Per_Room')
         segments = Array.split(my_levels, 1)
     else
-        console.log('No Character Locking...')
+        console.log('No Character Forcing...')
     for(var s of segments){
         character = Array.pick_random(character_pool)
         for(var l of s){
@@ -1163,6 +1533,28 @@ function player_randomizer(my_levels, my_rom, mem_locs, meta_info, option_vals){
 ////// create functions
 //
 // inverse
+
+function crop_level (old_my_l, min, max){
+    // consider modifiers/hotspots
+    var my_l = JSON.parse(JSON.stringify(old_my_l))
+    my_l.header.pages = max - min - 1
+    my_l.objs = my_l.objs.filter(x => x.pos_page >= min && x.pos_page < max)
+    my_l.enemies = my_l.enemies.filter(x => x.pos_page >= min && x.pos_page < max)
+    my_l.ptrs = my_l.ptrs.filter(x => x.pos_page >= min && x.pos_page < max)
+    my_l.objs.forEach(x => x.pos_page -= min)
+    my_l.ptrs.forEach(x => x.pos_page -= min)
+    my_l.enemies.forEach(x => x.pos_page -= min)
+
+    var target_grounds = my_l.grounds.filter(x => x.pos_page < min)
+    while (target_grounds.length){
+        last_ground = target_grounds.shift()
+        if (last_ground.ground_set) my_l.header.ground_set = last_ground.ground_set 
+        if (last_ground.ground_type) my_l.header.ground_type = last_ground.ground_type
+    }
+    my_l.grounds = my_l.grounds.filter(x => x.pos_page >= min && x.pos_page < max)
+    my_l.grounds.forEach(x => x.pos_page -= min)
+    return my_l
+}
 
 function inverse_level(my_l, all_levels){
     // needs inverse ground_set hack

@@ -119,32 +119,19 @@ var bbptext =
         [65535,65535,65535,65535,65535,65535,65535,65535],
         [0,0,0,0,0,0,0,0]]
 
-// https://stackoverflow.com/questions/11068240/what-is-the-most-efficient-way-to-parse-a-css-color-in-javascript
-function parseColor(input) {
-    if (input.substr(0,1)=="#") {
-        var collen=(input.length-1)/3
-        var fact=[17,1,0.062272][collen-1]
-        return [
-            Math.round(parseInt(input.substr(1,collen),16)*fact),
-            Math.round(parseInt(input.substr(1+collen,collen),16)*fact),
-            Math.round(parseInt(input.substr(1+2*collen,collen),16)*fact)
-        ]
-    }
-    else return input.split("(")[1].split(")")[0].split(",").map(Math.round)
-}
 
 function textify_this(div){
     for (var n in div.childNodes) {
         var node = div.childNodes[n]
         if (node.nodeType != 3) continue
-        var text = node.nodeValue
-        if (text == undefined || text.length == 0 ) continue
-        text = text.trim()
-        if (text.length == 0) continue
+        var full_text = node.nodeValue
+        if (full_text == undefined || full_text.length == 0 ) continue
+        full_text = full_text.trim()
+        if (full_text.length == 0) continue
 
         var pal_col = get_nearest_color(parseColor($(div).css('color')), NES_palette)
         var div_new = $("<text class='replaced_text'>")
-        var text_paragraphs = text.split('\n')
+        var text_paragraphs = full_text.split('\n')
         for (var p in text_paragraphs) {
             var paragraph = text_paragraphs[p]
             var text_words = paragraph.split(' ')
@@ -157,15 +144,18 @@ function textify_this(div){
 
                 if (t < text_words.length - 1) text_tiles.push(0xFB)
                 var gfx = bitmap_from_graphics([bbptext], 
-                    text_tiles, Math.min(256, text_tiles.length), [0xF,pal_col, pal_col, pal_col], true).data_url
-                var img = $("<img class='sprite_text'></img>")
-                img.attr('og-text', text)
-                img.attr('src', gfx)
+                    text_tiles, Math.min(256, text_tiles.length), [0xF,pal_col, pal_col, pal_col], true)
+
+                var gfx_data = gfx.image_data
+
+                var img = new Image(gfx_data.width, gfx_data.height)
+                img.src = gfx.data_url
                 div_new.append(img)
+
             }
             if (p < text_paragraphs.length - 1) div_new.append('</br>')
         }
-        div_new.attr('aria-label', text)
+        div_new.attr('aria-label', full_text)
         div.replaceChild(div_new[0], node)
     }
 }
@@ -321,7 +311,7 @@ function create_option(name, description, start, min=0, max=100, cl=null){
     var tag = $("<label>")
     tag.attr("title", description)
     var title_name = name
-    name = name.replaceAll(" ", "_").replaceAll("(", "").replaceAll(")", "")
+    var id_name = name.replaceAll(" ", "_").replaceAll("(", "").replaceAll(")", "")
     var type = "number"
     if (typeof start === "boolean"){
         type = "checkbox" 
@@ -336,7 +326,7 @@ function create_option(name, description, start, min=0, max=100, cl=null){
         tag.append(tag_name)
         var form = tag
 
-        tag.append((new palette_selector(name, 4)).tag)
+        tag.append((new palette_selector(id_name, 4)).tag)
         return tag
     }
     else if (Array.isArray(start) && cl == "mem_array"){
@@ -345,7 +335,7 @@ function create_option(name, description, start, min=0, max=100, cl=null){
         tag_name.append(title_name)
         tag.append(tag_name)
         tag.attr("name", title_name)
-        tag.attr("id", name)
+        tag.attr("id", id_name)
         tag.attr("class", "option_form")
         for (var index in start){
             var item = start[index]
@@ -368,17 +358,15 @@ function create_option(name, description, start, min=0, max=100, cl=null){
         tag.append(tag_name)
         var form = $("<select class='option_select' style='height: 100%'></select>")
         form.attr("size", start.length)
-        form.attr("id", name)
-        if (cl == "add_up_multi")
-            form.attr("multiple", "multiple")
-        form.attr("id", name)
+        if (cl == "add_up_multi") form.attr("multiple", "multiple")
+        form.attr("id", id_name)
         form.attr("name", title_name)
         tag.append(form)
         for (var index in start){
             var item = start[index]
             var innertag = $("<option class='option_radio'></input>")
             innertag.append(item)
-            innertag.attr("name", name)
+            innertag.attr("name", id_name)
             innertag.attr("value", index)
             form.append(innertag)
         }
@@ -390,17 +378,17 @@ function create_option(name, description, start, min=0, max=100, cl=null){
         tag_name.append(title_name)
         tag.append(tag_name)
         var form = $("<form class='option_div option_block option_form'></form>")
-        form.attr("id", name)
+        form.attr("id", id_name)
         form.attr("name", title_name)
         tag.append(form)
         for (var index in start){
             var item = start[index]
+            var item_id = item.replaceAll(" ", "_").replaceAll("(", "").replaceAll(")", "")
             var label = $("<label></label>")
             var innertag = $("<input class='option_radio' type='radio'></input>")
-            innertag.attr('value', item)
-            if (index == 0)
-                innertag.attr('checked', true)
-            innertag.attr('name', name)
+            innertag.attr('value', item_id)
+            if (index == 0) innertag.attr('checked', true)
+            innertag.attr('name', id_name)
             label.append(innertag)
             label.append(" ", item)
             form.append(label)
@@ -409,7 +397,7 @@ function create_option(name, description, start, min=0, max=100, cl=null){
     }
     var innertag = $("<input class='option'>")
     innertag.attr("type", type)
-    innertag.attr("id", name)
+    innertag.attr("id", id_name)
     if (type == "checkbox")
         innertag.attr("checked", start)
     else{
@@ -527,11 +515,11 @@ function save_options(tag, filename){
 }
 
 function downloadJSON(js_data, filename){
-    var data = new Blob([JSON.stringify(js_data)], {
+    var data = new Blob([JSON.stringify(js_data, 4)], {
         type: "application/json",
         name: filename
     })
-    var blob = new Blob([JSON.stringify(js_data)])
+    var blob = new Blob([JSON.stringify(js_data, 4)])
     var url = window.URL.createObjectURL(blob)
     downloadURL(url, filename)
 }

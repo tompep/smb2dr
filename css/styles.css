@@ -9,8 +9,7 @@
 body{
     background-color: white;
     margin: auto;
-    width: 100%;
-    max-width: 600px;
+    max-width: 720px;
 }
 
 a {
@@ -37,7 +36,7 @@ a, canvas {
     user-select: none;
 }
 
-a.button:hover { 
+a:hover { 
   background-color: yellow;
   text-decoration: none;
 }
@@ -72,6 +71,12 @@ select{
     display: block;
 }
 
+.mini_a{
+    margin: 4px;
+    padding: 4px;
+    display: inline-block;
+}
+
 #intro{
         position: absolute;
         top: 50%;
@@ -83,7 +88,7 @@ select{
 }
 
 #Mario,#Luigi,#Peach,#Toad {width:48px; height: 48px;display:inline-block;}
-.wide label { width:64px; height: 64px; display:inline-block; }
+.wide label{ width:64px; height: 64px; display:inline-block; text-align: center; }
 .bold {
     font-weight: bold;
 } 
@@ -114,7 +119,7 @@ select{
 
 .summarytext{
     padding: 10px;
-    width: 512;
+    font-size: 14px;
     border: 32px solid transparent;
     border-top: 16px solid transparent;
     border-image: url(border_page.png) 64 round;
@@ -136,6 +141,8 @@ select{
 .option, .sub_option{
     background-color: white;
     color: black;
+    margin-left: 8px;
+    margin-right: 8px;
     display: inline-block;
 }
 
@@ -167,7 +174,6 @@ select{
 .option_div{
     background-color: black;
     color: white;
-    margin: 0 auto;
     border: solid 2px;
     float: left;
 }
@@ -177,7 +183,9 @@ select{
     color: white;
     border: solid 2px;
     margin: 0 auto;
-    width: 80%;
+    text-align: justify;
+    width: fit-content;
+    min-width: 80%;
     float: none;
 }
 
@@ -192,7 +200,6 @@ select{
 
 .center {
     padding: 10px;
-    width: 100%;
     border: 32px solid transparent;
     border-image: url(border5.png) 64 round;
     color: white;
@@ -201,8 +208,8 @@ select{
     background-position: top; /* Center the image */
     background-repeat: no-repeat; /* Do not repeat the image */
     background-size: 100%; /* Resize the background image to cover the entire container */
-    text-align: center;
     text-decoration-color: #000000;
+    text-align: center;
     font-family: "system"
 }
 
@@ -216,6 +223,7 @@ input[type="number"]{
     width:48px
 }
 
-input[type="file"]{
-    margin: 0 auto
+input[type="file"], input[type="files"]{
+    margin: 4px auto;
+    display: block;
 }

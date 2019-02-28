@@ -5,6 +5,13 @@ var sheet_names = {
     "Sheet_CharMini": 0x48,
 }
 
+var ram_locs = {
+    "LevelInventory": 0x7600,
+    "ForceMusic": 0x7600,
+    "BossHealth": 0x7600,
+    "CurseChance": 0x7600,
+}
+
 
 // enum definitions (rewrite to consts)
 var BackgroundTileIds = [
@@ -412,8 +419,8 @@ var MapObjectIds = [
     "Vine",
     "Jar small",
     "Ladder 1 square",
-    "Jar generic",
     "Jar ptr",
+    "Jar generic",
     "Jar warp",
     "Locked door",
     "Door",
@@ -487,30 +494,6 @@ var MapObjectIdsExtendable = [
 
 MapObjectIdsExtendable.map((x,y) => objEnum[x] = y * 0x10)
 
-var blacklist = {
-    "0,0,5":[0,1,2],
-    "0,1,0":[3,4,5,6,7,8,9],
-    "0,1,1":[0,1,2],
-    "1,2,3":[3,4,5,6],
-    "2,0,4":[0,1],
-    "2,1,0":null,
-    "2,1,1":null,
-    "5,2,4":[0, 1, 2],
-    "6,1,2":null,
-    "6,1,4":null,
-    "6,1,6":[6, 7, 8, 9]
-}
-
-var patches = {
-    "2,0,1": [{page: [6], add: objEnum.Herb_with_rocket, target: 0}],
-    "3,2,1": [{page: [4], add: objEnum.Herb_with_rocket, target: 0}],
-    "3,2,3": [{page: [6], add: objEnum.Herb_with_rocket, target: 0}],
-    "4,0,1": [{page: [8], add: objEnum.Herb_with_rocket, target: 0}],
-    "4,1,3": [{page: [6], add: objEnum.Herb_with_rocket, target: 0}],
-    "6,0,1": [{page: [0], add: objEnum.Herb_with_rocket, target: 6}],
-    "6,0,3": [{page: [0], add: objEnum.Herb_with_rocket, target: 3}],
-}
-
 var tbl= {
     "*":0XCF,
     "0":0xD0, "1":0xD1, "2":0xD2, "3":0xD3, "4":0xD4, "5":0xD5, "6":0xD6, "7":0xD7, "8":0xD8, "9":0xD9,
@@ -534,17 +517,32 @@ function invertByTbl(bytes){
 }
 
 var ClimbableTiles = [
-    tileEnum.Tile_Vine,
-    tileEnum.Tile_VineStandable,
-    tileEnum.Tile_VineBottom,
-    tileEnum.Tile_ClimbableSky,
-    tileEnum.Tile_Chain,
-    tileEnum.Tile_Ladder,
-    tileEnum.Tile_LadderShadow,
-    tileEnum.Tile_LadderStandable,
-    tileEnum.Tile_LadderStandableShadow,
-    tileEnum.Tile_ChainStandable
+    tileEnum.Vine,
+    tileEnum.VineStandable,
+    tileEnum.VineBottom,
+    tileEnum.ClimbableSky,
+    tileEnum.Chain,
+    tileEnum.Ladder,
+    tileEnum.LadderShadow,
+    tileEnum.LadderStandable,
+    tileEnum.LadderStandableShadow,
+    tileEnum.ChainStandable
 ]
+
+var SpecialTiles = [
+    tileEnum.DiggableSand,
+    tileEnum.MushroomBlock
+]
+
+var VitalTiles = [
+    tileEnum.SubspaceMushroom1,
+    tileEnum.SubspaceMushroom2,
+    tileEnum.GrassPotion,
+    tileEnum.GrassRocket
+]
+
+
+
 
 var bankEnum = {
     "CHRBank_Mario":  0x00,

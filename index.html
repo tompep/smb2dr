@@ -10,12 +10,6 @@
         <meta name="description" content="Super Mario Brothers 2 Door Randomizer">
         <meta name="author" content="tom.p">
 
-        <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-        <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
         <link rel="stylesheet" href="css/styles.css">
 
         <script
@@ -61,8 +55,8 @@
                 </div>
                 <div>
                 New items are available in subspace or blocks!
-                <img src='css/chr000.png'></img>
                 </div>
+                <img src='css/chr000.png'></img>
                 <div>
                 <div>
                 From left to right:
@@ -101,17 +95,18 @@
             </div>
                 
             <div id="fileupload" class="main_item option_block">
-                <label><input type="file" class="input" id="files" name="file"/></label>
+                <label>Input ROM File: </label>   
+                <input type="file" class="input" id="files" name="file"/>
             </div>
 
             <div id="randomizer_body" class="main_item">
-                <label style="display: block">Seed <input type="text" class="input" id="seed"/></label>
+                <label style="display: block">Seed<input type="text" class="input" id="seed"/></label>
                 <button id="random_seed" onclick="starting_seed()">Daily Seed </button>
                 <button id="random_seed" onclick="$('#seed').val(rand_seed(Math.seedrandom()))">Random Seed </button>
                 <br/>
                 <br/>
-                <div>Preset Configurations</div>
                 <div class='option_block'>
+                    <div class='bold'>Preset Configurations</div>
                     <div id='preset_images'></div>
                     <select id="preset_game" class="a_preset" oninput="reload_options(presets[this.value].config, $('#randomizer'))">
                         <option value='-1'>Select Preset</option>
@@ -365,11 +360,11 @@ finish_page_setup()
 window.onload = function(){
 
     $('#intro').fadeOut(0)
-    $('#center').fadeIn()
-    window.scrollTo(0, 0);
+    $('#center').fadeIn(0)
     $('.main_item').fadeOut(0)
     $('#summary').fadeIn()
     $('body').append(log_component.log_div)
+    window.scrollTo(0, 0);
 
 }
 

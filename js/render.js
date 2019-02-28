@@ -360,7 +360,7 @@ function render_level(level, header, enemies, meta_info, steps=-1){
                 if (last_obj != null){
                     console.log('Ended on object', steps_taken)
                     console.log(last_obj)
-                    console.log(JSON.stringify(last_obj))
+                    console.log(JSON.stringify(last_obj, 4))
 
                 }
                 return decoded_level_data

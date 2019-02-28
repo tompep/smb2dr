@@ -339,6 +339,20 @@ var NES_palette = [
     [0,0,0]
 ]
 
+// https://stackoverflow.com/questions/11068240/what-is-the-most-efficient-way-to-parse-a-css-color-in-javascript
+function parseColor(input) {
+    if (input.substr(0,1)=="#") {
+        var collen=(input.length-1)/3
+        var fact=[17,1,0.062272][collen-1]
+        return [
+            Math.round(parseInt(input.substr(1,collen),16)*fact),
+            Math.round(parseInt(input.substr(1+collen,collen),16)*fact),
+            Math.round(parseInt(input.substr(1+2*collen,collen),16)*fact)
+        ]
+    }
+    else return input.split("(")[1].split(")")[0].split(",").map(Math.round)
+}
+
 // euclidean distance example from ?
 function colorDifference (pal1, pal2) {
     var sumOfSquares = 0
@@ -562,22 +576,18 @@ function bitmap_from_graphics(loaded_sheets, sprites, width, palette, attribute)
      *  Create temporary canvas element and draw bitmap
      */
 
-    var layer = null
-    var hash = [loaded_sheets, sprites, width, palette, attribute, layer].toString()
+    var hash = [loaded_sheets, sprites, width, palette, attribute].toString()
     if (hashed_bitmap[hash]){
         return hashed_bitmap[hash]
     }
     console.debug('no cache hit')
 
     var m_canvas = document.createElement('canvas')
-    m_canvas.width = 8 * width 
+    m_canvas.width = 8 * width
     m_canvas.height = 8 * Math.ceil(sprites.length/width)
     var m_context = m_canvas.getContext("2d")
     m_context.fillStyle='white'
     m_context.clearRect(0, 0, m_canvas.width, m_canvas.height);
-
-    if (layer)
-        m_context.putImageData(layer, 0, 0)
 
     for (var index in sprites){
         var spr_index = sprites[index]

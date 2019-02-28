@@ -53,6 +53,7 @@ function write_enemy_bytes(enemies, page_cnt, vertical){
     })
     for (var i = 0; i < page_cnt; i++){
         var enemy_by_page = converted_enemies.filter(function page_sort(p){ return p.pos_page === i })
+        enemy_by_page = enemy_by_page.sort ((a, b) => a.obj_type - b.obj_type)
         var cnt = 1 + 2 * enemy_by_page.length
         output.push(cnt)
         for (var index in enemy_by_page){
@@ -335,9 +336,9 @@ function ptr_object_to_bytes (ptr, world=-1){
     return output
 }
 
-function create_ptr_wlrp(w, l, r, p, my_page){
-    door_ptr = get_wlrp(w, l, r, p)
-    return extract_door_ptr(door_ptr.wl, door_ptr.rp, my_page)
+function create_ptr_wlrp(w, l, r, p, my_page, flags=0x0){
+    var door_ptr = get_wlrp(w, l, r, p)
+    return extract_door_ptr(flags + door_ptr.wl, door_ptr.rp, my_page)
 }
 
 // TODO: Make these functions as "objects"
@@ -381,6 +382,8 @@ function create_smb_enemy(type, y, x, page, vertical){
 // ROM byte gets
 
 function extract_door_ptr(l, r, my_page){
+    var n_l = l
+    var l = l & 0b00011111
     return {
         obj_type: 0xf5,
         dest_page: r & 0x0f,
@@ -390,9 +393,9 @@ function extract_door_ptr(l, r, my_page){
         level_room: l * 10 + (r >> 4),
         l_byte: l,
         r_byte: r,
-        continue_after:     (l & 0b10000000) == 0x80,
-        reset_pos_after:    (l & 0b01000000) == 0x40,
-        slots_after:        (l & 0b00100000) == 0x20,
+        continue_after:     (n_l & 0b10000000) == 0x80,
+        reset_pos_after:    (n_l & 0b01000000) == 0x40,
+        slots_after:        (n_l & 0b00100000) == 0x20,
         pos_page: my_page
     }
 }
@@ -756,16 +759,18 @@ function read_enemies(enemy_bytes, pages, vertical){
 function read_header(header_bytes){
     var header_json = {
         vertical:     (header_bytes[0] & 0b10000000) == 0,
-        horizontal:   (header_bytes[0] & 0b10000000) >> 7,
+        get horizontal() { return this.vertical ? 0 : 1 },
         unk1:         (header_bytes[0] & 0b01000000) >> 6,
         pala:         (header_bytes[0] & 0b00111000) >> 3,
         unk2:         (header_bytes[0] & 0b00000100) >> 2,
         palb:         (header_bytes[0] & 0b00000011) >> 0,
         unk3:         (header_bytes[1] & 0b11100000) >> 5,
+        get cust_world() { return this.unk3 },
         ground_set:    (header_bytes[1] & 0b00011111) >> 0,
         pages:        (header_bytes[2] & 0b11110000) >> 4,
         exterior_type:   (header_bytes[2] & 0b00001111) >> 0,
         unk4:         (header_bytes[3] & 0b11000000) >> 6,
+        get cust_bxcx() { return this.unk4 },
         ground_type: (header_bytes[3] & 0b00111000) >> 3,
         unk5:         (header_bytes[3] & 0b00000100) >> 2,
         music:        (header_bytes[3] & 0b00000011) >> 0
