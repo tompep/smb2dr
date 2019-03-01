@@ -515,11 +515,11 @@ function save_options(tag, filename){
 }
 
 function downloadJSON(js_data, filename){
-    var data = new Blob([JSON.stringify(js_data, 4)], {
+    var data = new Blob([JSON.stringify(js_data, null, space=4)], {
         type: "application/json",
         name: filename
     })
-    var blob = new Blob([JSON.stringify(js_data, 4)])
+    var blob = new Blob([JSON.stringify(js_data, null, space=4)])
     var url = window.URL.createObjectURL(blob)
     downloadURL(url, filename)
 }
