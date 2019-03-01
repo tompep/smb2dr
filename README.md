@@ -34,10 +34,6 @@ Visit us at the SMB2R Discord!  Join others or report bugs...
     Many options are provided for modifying game contents, gameplay goals and restrictions.
     Each option provides its own tooltip describing its purpose.
 
-    NOTE:  Options may generously consume more level data than expected;
-    If a level consumes too much data, the game will suffer unintentional consequence.
-    This will be mitigated/improved in future updates.
-
 ## Characters
     This randomizer provides a myriad of new characters along with the means to create your own!
 
@@ -83,7 +79,9 @@ Visit us at the SMB2R Discord!  Join others or report bugs...
     CODE: Verify game and character preset files and forms.
     CODE: Create a more fully fledged and accurate level editor.
     CODE: Create substitution logic for tileset graphics.
-    ASM: Expand level space to at least 512 bytes, and include custom prefabs
+    CODE: Correct all instances of shifting Y/X positions without changing page
+    ASM: Include custom prefabs
+    ASM: 
     ASM: Create custom background tiles, and custom collision data
     ASM: Create more expandable custom tables for user-generated characters, ASM, frame data, etc
 

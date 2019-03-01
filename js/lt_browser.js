@@ -106,6 +106,7 @@ function write_level_bytes(my_l, world=0){
     var grounds = my_l.grounds
 
     var output = []
+    var output_chunks = []
     var sorted = lvl.sort(function(a, b) {
         return a.layer - b.layer || a.pos_page - b.pos_page || a.pos_y - b.pos_y || a.pos_x - b.pos_x
     })
@@ -123,6 +124,7 @@ function write_level_bytes(my_l, world=0){
 
     // for each layer that isn't empty
     for (var layer = 0; layer < 10; layer++){
+        var prev_output = output.slice(0)
         var layer_objs = sorted.filter(x => x.layer === layer)
         if (layer_objs.length === 0 && layer != 0){
             break
@@ -173,6 +175,7 @@ function write_level_bytes(my_l, world=0){
                     destobj = undefined
                 }
             }
+            
 
             // at end of page, push ground objects and pointrs
             //   if objs didn't exist, lasty will be negative, add pages until correct
@@ -210,8 +213,17 @@ function write_level_bytes(my_l, world=0){
                     destobj = undefined
                 }
             }
+
+            if (output.length > 240){
+                prev_output.push(0xff)
+                output_chunks.push(prev_output)
+                output = output.slice(prev_output.length)
+            }
+
         }
     }
+
+    var prev_output = output.slice(0)
 
     if (my_l.modifiers.length){
         for(var mod of my_l.modifiers){
@@ -239,17 +251,25 @@ function write_level_bytes(my_l, world=0){
         console.debug(my_l.hotspots, output_content)
     }
 
+    if (output.length > 240){
+        prev_output.push(0xff)
+        output_chunks.push(prev_output)
+        output = output.slice(prev_output.length)
+    }
+
     if (my_l.is_jar){
         output.push(...push_modifier({
             loc_l: 0x04,
             loc_r: 0xee,
             contents: [my_l.is_jar]
         }))
-
     }
+
     output.push(0xff)
 
-    return output
+    output_chunks.push(output)
+
+    return output_chunks
 }
 
 
@@ -778,7 +798,7 @@ function read_header(header_bytes){
     return header_json
 }
 
-function write_to_file (og_rom, my_levels, my_world_metadata){
+function write_to_file (og_rom, my_levels, my_world_metadata, mem_locs){
     /*
      * Write level data to original ROM
      * Parameters: rom data, level js objects, world_metadata
@@ -793,6 +813,7 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
     var ecnt = 0xa500 + 84 + 420 - 0x8000
     var ptr_order = my_world_metadata.level_ptr_order
     var eptr_order = my_world_metadata.enemy_ptr_order
+    var bonus_cnt = 0
     for (var i = 0; i < my_levels.length + 10; i++){
         if (my_levels[i] == undefined || i >= 200){
             var new_ptr = 0x8000 + allcnt
@@ -814,15 +835,16 @@ function write_to_file (og_rom, my_levels, my_world_metadata){
             enemy_data = [1,1,1,1,1,1,1,1,1,1].concat(enemy_data)
         enemy_data.push(1)
         var level_data = write_level_bytes(my_l, ((i-(i%30))/30))
-        if (level_data.length > 255) {
-            console.error('level data too big!!  try reducing some options...')
-            alert(my_l.i + ' level data too big!!  try reducing some options...')
-            throw 'Level generated too big to store...'
-            my_l.hotspots = []
-            my_l.modifiers = my_l.modifiers.reduce((a, x) => x.id ? a.push(x) : x, [])
-            level_data = write_level_bytes(my_l, ((i-(i%30))/30))
-            header_data = write_header_bytes(my_h)
+        if (level_data.length > 1) {
+            console.log('bonus level size', my_l.i, level_data)
+            var bonus_level_data = level_data[1]
+            set_memory_location(og_rom, mem_locs, 'LevelDataPointersHi_CD', [bonus_cnt >> 8], my_l.i)
+            set_memory_location(og_rom, mem_locs, 'LevelDataPointersLo_CD', [bonus_cnt % 256], my_l.i)
+            set_memory_location(og_rom, mem_locs, 'LevelData_CD', bonus_level_data, bonus_cnt)
+            bonus_cnt += bonus_level_data.length
+
         }
+        level_data = level_data[0]
         console.debug('size of level:', level_data.length, enemy_data.length)
         // fs.writeFileSync("./levels-random/" + (((i-(i%30))/30)).toString() + "/" + i.toString() + ".json", JSON.stringify(my_l, undefined, 4))
 

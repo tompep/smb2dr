@@ -250,7 +250,7 @@ function show_level(evt) {
     var rendered = render_level(level, new_header, level.enemies, info.meta_info, step_num)
     currentRender = rendered
     var outputted_bytes = write_level_bytes(level, render_world)
-    console.log('Bytes of level:', outputted_bytes.length)
+    console.log('Bytes of level:', outputted_bytes[0].length)
 
     // fix enemy appearance
     if (vertical){

@@ -463,17 +463,7 @@ function randomize_rom(evt) {
         'TitleStoryText_Line01', convertByTbl(
             fit_text('I THOUGHT ABOUT ALL THE COOL STUFF I COULD PUT HERE, LIKE A MAD-LIB GAME STORY, BUT INSTEAD I DECIDED TO SLEEP...', 20), 16*20))
 
-
-    for (var l in level_sets[0]){
-        if (level_sets[0][l]){
-            // var len1 = write_level_bytes(level_sets[0][l])
-            var len2 = write_level_bytes(level_sets[1][l])
-            // console.debug(len1, len2)
-            // console.debug('level diff in bytes...', len1.length, len2.length, len2.length - len1.length)
-        }
-    }
-
-    write_to_file(workingRom, level_sets[level_sets.length - 1], info.meta_info)
+    write_to_file(workingRom, level_sets[level_sets.length - 1], info.meta_info, mem_locs)
     
     var my_crc = decimalToHexString(crc32(workingRom))
     console.log('crc32 hash of randomized ROM: ', my_crc)
@@ -986,7 +976,7 @@ var all_item_names = [
         'Float Boots', 
         'Master Key', 
         'Carry Jump', 
-        "Unimplemented",
+        "Warp Whistle",
         "Unimplemented",
         "Unimplemented",
         'Fire Flower', 
@@ -1024,7 +1014,7 @@ var frag_start = 29
 var junk_start = 31
 var crystal_start = 37
 
-var upgrade_names = all_item_names.slice(1, 14)
+var upgrade_names = all_item_names.slice(1, 15)
 
 var powerup_names = all_item_names.slice(power_up_start, cont_start)
 
@@ -1639,9 +1629,12 @@ function inverse_level(my_l, all_levels){
             var new_page = enemy.pos_page
             new_x = new_x % 15
         }
+        // hawkmouth and birdo changes
         if (enemy.obj_type == 0x42) enemy.obj_type = 0x43
         else if (enemy.obj_type == 0x43) enemy.obj_type = 0x42
-        else if (enemy.obj_type == 0x1c) new_x = enemy.pos_x
+        else if (enemy.obj_type == 0x1c){
+            if ([0xa, 0xb].includes(enemy.pos_x)) new_x = enemy.pos_x
+        }
         enemy.pos_x = new_x
         enemy.pos_page = new_page
     }

@@ -81,7 +81,7 @@ var character_config_form = {
                         "Float Boots",
                         "Master Key",
                         "Toss Jump",
-                        "Unimplemented1",
+                        "Warp Whistle",
                         "Unimplemented2",
                         "Unimplemented3" ,
 
@@ -718,6 +718,7 @@ var char_viewer = function (id='char_viewer') {
             characters[character].m_small = ex_small.meta
             characters[character].alt_pals = []
 
+            var char_dict = characters[character]
             var char_sheet = char_dict.sheet_num
             sprites.all_sheets[char_sheet[0]] = char_dict.my_sprites[0]
             sprites.all_sheets[char_sheet[1]] = char_dict.my_sprites[1]
