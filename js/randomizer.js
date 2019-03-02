@@ -17,7 +17,7 @@ var randomizer_config_form = {
                     "val": false, "class": "mem_location",
                     "mem_loc_name": "RescueCondition"},
                 {"name": "End Game at any Exit", "desc": "Don't require the 'final boss' to be defeated to win",
-                    "val": false}
+                    "val": false},
             ]
         }
     ],
@@ -31,7 +31,7 @@ var randomizer_config_form = {
                     "val": false},
                 {"name": "Randomize Music", "desc": "Music Randomization",
                     "val": false},
-                {"name": "Randomize World Appearance", "desc": "Prone to expensive output",
+                {"name": "Randomize World Tileset", "desc": "Prone to expensive output",
                     "val": false},
                 {"name": "Game Scale", "desc": "Number of Levels to compile together",
                     "val": "20", "max": "21"},

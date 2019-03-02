@@ -463,14 +463,14 @@ function load_options(files, tag){
 }
 
 
-function reload_options(json, tag){
+function reload_options(json, target_tag){
     // this is not xss safe I'm sure
-    var option_tags = tag.find('.option, .option_form, .option_select')
-    for (var t in Array.range(option_tags.length)) {
-        tag = option_tags[t]
+    // TODO: also just use tag names and input types, or use a lib
+    var form_tags = target_tag.find('.option, .option_form, .option_select')
+    for (var t in Array.range(form_tags.length)) {
+        var tag = form_tags[t]
         var option = json[tag.id]
-        if (option == undefined)
-            continue
+        if (option == undefined) continue
         tag.checked = option.checked
         tag.value = option.val
         if (option.radio){
