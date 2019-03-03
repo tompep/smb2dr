@@ -12,6 +12,7 @@ var ram_locs = {
     "CurseChance": 0x7600,
 }
 
+var og_unk4 = [0, 0, 0, 1, 0, 0, 3]
 
 // enum definitions (rewrite to consts)
 var BackgroundTileIds = [

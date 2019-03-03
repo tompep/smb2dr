@@ -66,6 +66,10 @@ var patches = {
     "6,0,3": [{page: [0], y_off: 2, add: objEnum.Jar_ptr, target: 3}],
 }
 
+var patch_basic = {
+    "0,0,0": [create_smb_object(objEnum.Vine_extends_to_ground, 0, 0, 2, 1)]
+}
+
 
 // TODO: Steps should be easily reversable to backtrack on bad room placements
 function door_randomizer_v1(my_levels, blacklist, patches, options, my_rom){
@@ -115,12 +119,22 @@ function door_randomizer_v1(my_levels, blacklist, patches, options, my_rom){
         }
 
         my_l.objs = my_l.objs.filter(x => !obj_remove.includes(x.obj_type))
+        my_l.enemies = my_l.enemies.filter(x => ![enemyEnum.HawkmouthBoss, enemyEnum.HawkmouthLeft, enemyEnum.HawkmouthRight].includes(x.obj_type))
         var rendered = render_level(my_l, my_l.header, my_l.enemies, info.meta_info)
         my_l.ptrs = []
         my_l.columns = get_valid_columns(rendered).filter(function(ele){return ele.space > 3})
         my_l.columns = my_l.columns.filter(x => !(x.pos_page == 0 && x.pos_x == 0 ))
         my_l.columns = my_l.columns.filter(x => !VitalTiles.includes(rendered[x.pos_page][x.pos_y - 1][x.pos_x].obj_type))
+        my_l.columns = my_l.columns.filter(x => !ClimbableTiles.includes(rendered[x.pos_page][x.pos_y - 1][x.pos_x].obj_type))
         my_l.columns = my_l.columns.filter(x => !(x.pos_page == my_l.header.pages && x.pos_x == 15 ))
+
+        var my_patches = patch_basic[String(hash)]
+        if (my_patches){
+            for (var patch of my_patches) {
+                var new_door = create_smb_object(patch.obj_type, patch.pos_x, patch.pos_y, patch.pos_page, 1)
+                my_l.objs.push(new_door)
+            }
+        }
 
         var my_patches = patches[String(hash)]
         if (my_patches){
@@ -199,8 +213,8 @@ function door_randomizer_v1(my_levels, blacklist, patches, options, my_rom){
     var LevelStart = mem_locs['Data_StartLevel'] + 0x10
     my_rom[LevelStart] = nodes_out[0].my_l.world * 3 + nodes_out[0].my_l.level
     my_rom[LevelStart + 1] = nodes_out[0].my_l.room
-    my_rom[LevelStart + 2] = nodes_out[0].my_l.page
-    my_rom[LevelStart + 3] = 0
+    my_rom[LevelStart + 2] = nodes_out[0].my_l.valid_pages[0]
+    my_rom[LevelStart + 3] = 1
 
     nodes_out = nodes_out.slice(1)
     console.log('starting candidates', candidates)
@@ -413,7 +427,6 @@ function render_connection (map, node, parent, dir, valid_pages, options){
                 if (SpecialTiles.includes(target.tile_type))
                     ll.objs.push(create_smb_object(0x90, lx, ly + 2, lpage, 1))
                 ll.objs.push(new_door)
-                if (target.tile_type)
 
                 var mod = 0x0
                 if (bosses.length) {

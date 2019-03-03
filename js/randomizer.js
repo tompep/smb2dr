@@ -6,7 +6,9 @@ var randomizer_config_form = {
         {
             "name": "Default",
             "options": [
-                {"tag": "Defeat Final Boss, and the following objectives", "options": [ ]},
+                {"tag": "Complete the following objectives, then find a level exit", "options": [ ]},
+                {"name": "Defeat Final Boss", "desc": "Require the 'final boss' room to activate a winning exit",
+                    "val": true},
                 {"name": "Collect X Crystals", "desc": "Find X amount of crystals across the game",
                     "val": 0, "class": "mem_location", "max": 20,
                     "mem_loc_name": "CrystalCondition"},
@@ -16,8 +18,6 @@ var randomizer_config_form = {
                 {"name": "Rescue All Characters", "desc": "Must leave the game with all 4 characters unlocked",
                     "val": false, "class": "mem_location",
                     "mem_loc_name": "RescueCondition"},
-                {"name": "End Game at any Exit", "desc": "Don't require the 'final boss' to be defeated to win",
-                    "val": false},
             ]
         }
     ],
@@ -25,13 +25,13 @@ var randomizer_config_form = {
         {
             "name": "Default",
             "options": [
-                {"name": "Randomize World Appearance", "desc": "Randomize palette/tiles/music (possible softlocks unknown)",
+                {"name": "Randomize World Appearance", "desc": "Randomize palette/tiles/music",
                     "val": [ "Per Similar", "Per World", "Per Level", "Per Room" ]},
                 {"name": "Randomize Palettes", "desc": "Palette Randomization",
                     "val": false},
                 {"name": "Randomize Music", "desc": "Music Randomization",
                     "val": false},
-                {"name": "Randomize World Tileset", "desc": "Prone to expensive output",
+                {"name": "Randomize World Tileset", "desc": "Randomize World Tile appearance (possible softlocks unknown)",
                     "val": false},
                 {"name": "Game Scale", "desc": "Number of Levels to compile together",
                     "val": "20", "max": "21"},
@@ -276,8 +276,24 @@ function randomize_rom(evt) {
     Math.seedrandom(rando_seed)
 
     var r_header = option_vals['Randomize_World_Appearance'].radio
+    var header_music = 0
     var segments = []
-    if (r_header == 'Per_World')
+    if (r_header == 'Per_Similar') {
+        var unique_level_headers = { }
+        for (var l of current_level_set){
+            if (l == undefined) continue
+            var hash = String([l.world, l.header.unk3, l.header.music])
+            if (unique_level_headers[hash])
+                unique_level_headers[hash].push(l)
+            else
+                unique_level_headers[hash] = [l]
+        }
+        for (var key in unique_level_headers){
+            segments.push(unique_level_headers[key])
+        }
+        console.log(segments, unique_level_headers)
+    }
+    else if (r_header == 'Per_World')
         segments = Array.split(current_level_set, 30)
     else if (r_header == 'Per_Level')
         segments = Array.split(current_level_set, 10)
@@ -288,27 +304,23 @@ function randomize_rom(evt) {
     for(var s of segments){
         var new_pal_a = ~~(Math.random() * 6)
         var new_pal_b = ~~(Math.random() * 3)
+        var new_music = ~~(Math.random() * 9)
+        var new_world_num = ~~(Math.random() * 6)
         for(var l of s){
             if (l != undefined){
                 var isBoss = l.enemies.filter(function(ele){return ele.obj_type > 0x5C}).length > 0
-                if (l.is_jar > 0 || isBoss) console.debug('do not override')
-                else randomize_header(l, info.meta_info.world_metadata)
-                l.header.pal_a = new_pal_a
-                l.header.pal_b = new_pal_a
-            }
-        }
-    }
-
-    // note: ASM likely needs to consider Stars and Subspace situations that change the music between levels
-    var r_header = option_vals['Randomize_Music'].checked
-    console.log(r_header, option_vals['Randomize_Music'])
-    if (r_header){
-        if (!segments.length) segments = Array.split(current_level_set, 1)
-        var header_music = 0
-        for(var s of segments){
-            var new_music = ~~(Math.random() * 9)
-            for(var l of s){
-                if (l != undefined){
+                if (option_vals['Randomize_World_Tileset'].checked) {
+                    if (l.is_jar > 0 || isBoss) console.debug('do not override')
+                    else { 
+                        l.header.unk3 = ~~(Math.random() * 6)
+                        l.header.unk4 = og_unk4[l.world]
+                    }
+                }
+                if (option_vals['Randomize_Palettes'].checked) {
+                    l.header.pala = new_pal_a
+                    l.header.palb = new_pal_b
+                }
+                if (option_vals['Randomize_Music'].checked) {
                     if (new_music < 8) l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [1 << new_music]}) // pipe loc
                     else l.modifiers.push({ loc_l: 0x7d, loc_r: 0x0f, contents: [0x84]}) // pipe loc
                     l.header.music = header_music
@@ -316,7 +328,6 @@ function randomize_rom(evt) {
             }
         }
     }
-
 
     Math.seedrandom(rando_seed)
 
@@ -436,7 +447,7 @@ function randomize_rom(evt) {
         return ele
     })
 
-    if (option_vals['End_Game_at_any_Exit'].checked){
+    if (!option_vals['Defeat_Final_Boss'].checked){
         set_memory_location(workingRom, mem_locs,
              'WinLevel', [0xFF])
     }
@@ -1014,7 +1025,7 @@ var frag_start = 29
 var junk_start = 31
 var crystal_start = 37
 
-var upgrade_names = all_item_names.slice(1, 15)
+var upgrade_names = all_item_names.slice(1, 14)
 
 var powerup_names = all_item_names.slice(power_up_start, cont_start)
 
@@ -1203,20 +1214,20 @@ function generate_item_pools(my_levels, options, my_rom, mem_locs, meta_info){
     for (var my_l of my_levels.filter(x => x != undefined).sort((a,b) => a.i - b.i)){
         var pool = my_level_item_cnt[my_l.i]
         if (my_level_item_cnt[my_l.i]){
-            console.log('my inventory', my_l.i, my_level_item_cnt[my_l.i])
+            console.debug('my inventory', my_l.i, my_level_item_cnt[my_l.i])
             var pool = my_level_item_cnt[my_l.i].filter(function(a){
                 return subspace_specific_items.includes(a)
             })
-            console.log('sorted by subspace', pool)
+            console.debug('sorted by subspace', pool)
             var pool = my_level_item_cnt[my_l.i].filter(function(a){
                 return major_items.includes(a)
             })
-            console.log('sorted by subspace', pool)
+            console.debug('sorted by subspace', pool)
             var pool = my_level_item_cnt[my_l.i].sort(function(a, b){
                 return (subspace_specific_items.includes(b) - subspace_specific_items.includes(a)
                 || major_items.includes(b) - major_items.includes(a))
             })
-            console.log('sorted by major', pool)
+            console.debug('sorted by major', pool)
         }
     }
 
@@ -1299,11 +1310,11 @@ function generate_item_pools(my_levels, options, my_rom, mem_locs, meta_info){
                 bush_replacements.includes(rendered[x.pos_page][x.pos_y-1][x.pos_x].obj_type) &&
                 x.space > 3 && x.pos_y != 1)
             Array.random_to_top(my_columns)
-            console.log(pool)
+            console.debug(pool)
             var occupied_flag = 0
             for (var num of pool){
                 var target = my_columns.pop()
-                console.log('target', target, my_l.i, my_l.world, my_l.level, my_l.room)
+                console.debug('target', target, my_l.i, my_l.world, my_l.level, my_l.room)
                 if (target == undefined) break
                 var lx = target.pos_x
                 var ly = target.pos_y - 1
@@ -1324,7 +1335,7 @@ function generate_item_pools(my_levels, options, my_rom, mem_locs, meta_info){
             }
         }
     }
-    console.log(item_pool.sort(function(a, b){ return a - b }).map(x => all_item_names[x]))
+    console.debug(item_pool.sort(function(a, b){ return a - b }).map(x => all_item_names[x]))
 }
 
 
@@ -1560,6 +1571,7 @@ function inverse_level(my_l, all_levels){
         if (cur_obj_type == 0x13) cur_obj_type = 0x14
         else if (cur_obj_type == 0x14) cur_obj_type = 0x13
 
+        if (cur_obj_type == objEnum.Large_red_platform_background) continue
         if (cur_obj_type > 0x30){
             var inner_type = cur_obj_type >> 4
             if (![8, 9, 10].includes(inner_type)){
@@ -1749,8 +1761,7 @@ function repair_ground_type (my_h, og_gt, og_world, new_world, world_metadata){
     var problem_tiles = [te.QuicksandSlow, te.QuicksandFast, te.Sky, te.Black, te.JumpThroughIce, te.DiggableSand]
     if (problem_tiles.every(x => !problem_tiles.includes(x))){
         if (Math.random() < 0.70) {
-            for (var tiles_num in all_tiles){
-                var tiles = all_tiles[tiles_num]
+            for (var tiles of shuffle(all_tiles)){
                 for (var i=0; i < tiles.length; i++){
                     if (is_tile_solid(tiles[i]) != is_tile_solid(og_target[i]))
                         break
@@ -1768,7 +1779,7 @@ function repair_ground_type (my_h, og_gt, og_world, new_world, world_metadata){
     var new_tiles = []
     var all_tiles = all_tiles.reduce((a, b) => a.concat(...b), [])
     for (var i = 0; i < og_target.length; i++){
-        if ([0x93, 0x40, 0x16, 0x8a, 0x8b, 0x0].includes(og_target[i])){
+        if (problem_tiles.includes(og_target[i])){
             new_tiles.push(og_target[i])
             continue
         }
@@ -1785,19 +1796,6 @@ function repair_ground_type (my_h, og_gt, og_world, new_world, world_metadata){
 }
 
 
-var og_unk4 = [0, 0, 0, 1, 0, 0, 3]
-
-function randomize_header(my_l, world_metadata, options){
-    var new_pal_a = ~~(Math.random() * 6)
-    var new_pal_b = ~~(Math.random() * 3)
-    var header_json = my_l.header
-    var world = my_l.world
-    my_l.header.pala = new_pal_a
-    my_l.header.palb = new_pal_b
-    header_json.unk3 = ~~(Math.random() * 7)
-    header_json.unk4 = og_unk4[world]
-
-}
 
 
 function equalize_header(my_l, world_metadata){
@@ -1843,7 +1841,7 @@ function equalize_header(my_l, world_metadata){
                 for (var w of brick_walls){
                     if (w === undefined)
                         continue
-                    w.obj_type = 14
+                    w.obj_type = objEnum.Red_wood_platform + 2
                 }
         }
         if (new_world == 6){

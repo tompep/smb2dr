@@ -96,7 +96,6 @@
                 
             <div id="fileupload" class="main_item option_block">
                 <label>Input ROM File: </label>   
-                <input type="file" class="input" id="files" name="file"/>
             </div>
 
             <div id="randomizer_body" class="main_item">
@@ -113,7 +112,7 @@
                     </select>
                     <button onclick="$('#option_load').trigger('click')">Load Preset </button>
                     <div class="hide_me">
-                        <input type="file" id="option_load" class="hide_me" name="files[]" multiple
+                        <input type="file" id="option_load" accept=".json,.jsn" class="hide_me" name="files[]" multiple
                             onchange="load_options(event.target.files, $('#randomizer'))"></input>
                     </div>
                     <button onclick="save_options($('#randomizer'), 'smb2dr_options.json')">Save Preset </button>
@@ -339,8 +338,10 @@ function finish_page_setup(){
 
     $('input[type=number]').on('focusout', number_cap)
 
-    $('#files').on('input', handleFileSelect);
-    $('.level_read').on('input', show_level);
+    var file_input = $('<input type="file" accept=".nes,.bin" class="input" onchange="handleFileSelect(event);"/>')
+    $('#fileupload').append(file_input)
+
+    $('.level_read').on('change', show_level);
     $('#writeJSON').click(writeJSON);
     $('#readJSON').click(readJSON);
 

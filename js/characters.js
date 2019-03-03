@@ -419,8 +419,8 @@ var char_viewer = function (id='char_viewer') {
     {
         this.my_div = $('<div id="' + this.id + '" class="main_item"></div>')
 
-        this.load_sheet = $('<input type="file" style="display: none" class="input" id="char_sheet_load" name="file"/>')
-        this.load_char = $('<input type="file" style="display: none" class="input" id="load_character" name="file" multiple/>')
+        this.load_sheet = $('<input type="file" accept=".png" style="display: none" class="input" id="char_sheet_load" name="file"/>')
+        this.load_char = $('<input type="file" accept=".json,.jsn" style="display: none" class="input" id="load_character" name="file" multiple/>')
 
         this.preset_control = $('<div class="option_block">')
         var _preset_label = $ ('<label style="display: inline-block">Preset</label>')

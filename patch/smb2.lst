@@ -3485,7 +3485,7 @@
 08003 D0 58                     	BNE loc_BANK0_805D
 08005                           
 08005 A9 01                     	LDA #HMirror
-08007 20 15 FE                  	JSR ChangeNametableMirroring
+08007 20 1E FE                  	JSR ChangeNametableMirroring
 0800A                           
 0800A AD 33 05                  	LDA CurrentLevelEntryPage
 0800D D0 04                     	BNE loc_BANK0_8013
@@ -4419,7 +4419,7 @@
 084BB D0 57                     	BNE loc_BANK0_855C
 084BD                           
 084BD A9 00                     	LDA #VMirror
-084BF 20 15 FE                  	JSR ChangeNametableMirroring
+084BF 20 1E FE                  	JSR ChangeNametableMirroring
 084C2                           
 084C2 20 70 98                  	JSR sub_BANK0_946D
 084C5                           
@@ -5737,7 +5737,7 @@
 08B7D D0 2F                     	BNE HandlePlayerState_GoingDownJar_Exit
 08B7F                           
 08B7F 85 50                     	STA PlayerState
-08B81 20 66 FA                  	JSR DoAreaReset
+08B81 20 6A FA                  	JSR DoAreaReset
 08B84                           
 08B84 68                        	PLA
 08B85 68                        	PLA
@@ -5820,7 +5820,7 @@
 08BD6 D9 C0 8B                  	CMP byte_BANK0_8B89, Y
 08BD9 D0 15                     	BNE loc_BANK0_8BB0
 08BDB                           
-08BDB 20 66 FA                  	JSR DoAreaReset
+08BDB 20 6A FA                  	JSR DoAreaReset
 08BDE                           
 08BDE                           IFDEF PLAYER_STUFF
 08BDE 20 7C E8                      JSR SetGameModeBonusChanceCustom
@@ -5935,7 +5935,7 @@
 08C45 AD F6 06                  	LDA PlayerCurrentSize
 08C48 49 01                     	EOR #$01
 08C4A 8D F6 06                  	STA PlayerCurrentSize
-08C4D 4C 48 FD                  	JMP LoadCharacterCHRBanks
+08C4D 4C 51 FD                  	JMP LoadCharacterCHRBanks
 08C50                           
 08C50                           HandlePlayerState_ChangingSize_Next:
 08C50 88                        	DEY
@@ -5948,7 +5948,7 @@
 08C5A D0 08                         BNE +
 08C5C A9 00                         LDA #$0
 08C5E 8D F6 06                      STA PlayerCurrentSize
-08C61 4C 48 FD                  	JMP LoadCharacterCHRBanks
+08C61 4C 51 FD                  	JMP LoadCharacterCHRBanks
 08C64                           +
 08C64                           ENDIF
 08C64                           
@@ -7988,7 +7988,7 @@
 09607                           +
 09607                           ENDIF
 09607 EE 27 06                  	INC DoAreaTransition
-0960A 4C 66 FA                  	JMP DoAreaReset
+0960A 4C 6A FA                  	JMP DoAreaReset
 0960D                           
 0960D                           
 0960D                           DoorTiles:
@@ -9636,7 +9636,7 @@
 0A0B5 C8                        	INY
 0A0B6 D0 FA                     	BNE InitMemoryLoop2
 0A0B8                           
-0A0B8 20 56 FD                  	JSR LoadTitleScreenCHRBanks
+0A0B8 20 5F FD                  	JSR LoadTitleScreenCHRBanks
 0A0BB                           
 0A0BB 20 6F E6                  	JSR ClearNametablesAndSprites
 0A0BE                           
@@ -10896,7 +10896,7 @@
 0AB8F 20 26 A3                  	JSR WaitForNMI_Ending_TurnOffPPU
 0AB92                           
 0AB92 A9 00                     	LDA #VMirror
-0AB94 20 15 FE                  	JSR ChangeNametableMirroring
+0AB94 20 1E FE                  	JSR ChangeNametableMirroring
 0AB97                           
 0AB97 20 6F E6                  	JSR ClearNametablesAndSprites
 0AB9A                           
@@ -10919,7 +10919,7 @@
 0ABB6 20 2E A3                  	JSR WaitForNMI_Ending
 0ABB9                           
 0ABB9 A9 01                     	LDA #HMirror
-0ABBB 20 15 FE                  	JSR ChangeNametableMirroring
+0ABBB 20 1E FE                  	JSR ChangeNametableMirroring
 0ABBE                           IFDEF PLAYER_STUFF
 0ABBE A9 31                         LDA #$31
 0ABC0 8D F9 06                      STA SpriteCHR1
@@ -11033,7 +11033,7 @@
 0AC54                           
 0AC54                           loc_BANK1_AB20:
 0AC54 A9 00                     	LDA #VMirror
-0AC56 20 15 FE                  	JSR ChangeNametableMirroring
+0AC56 20 1E FE                  	JSR ChangeNametableMirroring
 0AC59                           
 0AC59 A9 01                     	LDA #$01
 0AC5B 85 F2                     	STA byte_RAM_F2
@@ -12183,7 +12183,7 @@
 0B13B                           
 0B13B A9 00                     	LDA #$00
 0B13D 85 82                     	STA PlayerStateTimer
-0B13F 20 C3 FA                  	JSR KillPlayer
+0B13F 20 C7 FA                  	JSR KillPlayer
 0B142                           
 0B142                           loc_BANK1_BAB4:
 0B142 A0 04                     	LDY #$04
@@ -12246,7 +12246,7 @@
 0B188 99 38 04                  	STA EnemyArray_438, Y
 0B18B                           
 0B18B                           loc_BANK1_BAFD:
-0B18B 4C C3 FA                  	JMP KillPlayer
+0B18B 4C C7 FA                  	JMP KillPlayer
 0B18E                           
 0B18E                           
 0B18E                           ; ---------------------------------------------------------------------------
@@ -14118,7 +14118,7 @@
 0BA14 BD 2C B9                  	LDA CharacterExtraSheets, X
 0BA17 8D F9 06                  	STA SpriteCHR1
 0BA1A 4C 20 BA                      JMP ++
-0BA1D 20 48 FD                  +   JSR LoadCharacterCHRBanks
+0BA1D 20 51 FD                  +   JSR LoadCharacterCHRBanks
 0BA20                           ++
 0BA20 68                            PLA
 0BA21 A8                            TAY
@@ -16207,7 +16207,7 @@
 0886C 0A                        	ASL A
 0886D                           
 0886D                           loc_BANK2_87E7:
-0886D BE CF FB                  	LDX EndOfLevelDoorRowOffsets, Y
+0886D BE D3 FB                  	LDX EndOfLevelDoorRowOffsets, Y
 08870 1D 1B 72                  	ORA PPUBuffer_721B, X
 08873 9D 1B 72                  	STA PPUBuffer_721B, X
 08876 A6 12                     	LDX byte_RAM_12
@@ -16535,7 +16535,7 @@
 08A39                           
 08A39                           EnemyDestroy:
 08A39                           IFDEF PLAYER_STUFF
-08A39 4C 93 FA                      JMP AreaResetEnemyDestroy
+08A39 4C 97 FA                      JMP AreaResetEnemyDestroy
 08A3C                           ENDIF
 08A3C                           IFNDEF PLAYER_STUFF
 08A3C                           	; load raw enemy data offset so we can allow the level object to respawn
@@ -17493,7 +17493,7 @@
 08EBF 8D B4 04                  	STA HawkmouthClosing
 08EC2 A9 01                     	LDA #TransitionType_Door
 08EC4 8D 34 05                  	STA TransitionType
-08EC7 20 66 FA                  	JSR DoAreaReset
+08EC7 20 6A FA                  	JSR DoAreaReset
 08ECA                           IFDEF PLAYER_STUFF
 08ECA 20 7C E8                      JSR SetGameModeBonusChanceCustom
 08ECD AD EC 04                      LDA GameMode
@@ -17637,7 +17637,7 @@
 08F86                           
 08F86                           loc_BANK2_8E44:
 08F86 85 00                     	STA byte_RAM_0
-08F88 20 2F FC                  	JSR loc_BANKF_FAFE
+08F88 20 38 FC                  	JSR loc_BANKF_FAFE
 08F8B                           
 08F8B A2 9A                     	LDX #$9A
 08F8D A5 07                     	LDA byte_RAM_7
@@ -19898,7 +19898,7 @@
 0997F D0 09                     	BNE loc_BANK2_9741
 09981                           
 09981 8D 28 06                  	STA InSubspaceOrJar
-09984 20 66 FA                  	JSR DoAreaReset
+09984 20 6A FA                  	JSR DoAreaReset
 09987                           
 09987 4C 50 9A                  	JMP loc_BANK2_97FF
 0998A                           
@@ -19937,7 +19937,7 @@
 099B5                           
 099B5 A5 F4                     	LDA byte_RAM_F4
 099B7 48                        	PHA
-099B8 20 2F FC                  	JSR loc_BANKF_FAFE
+099B8 20 38 FC                  	JSR loc_BANKF_FAFE
 099BB                           
 099BB C4 F4                     	CPY byte_RAM_F4
 099BD 08                        	PHP
@@ -19969,7 +19969,7 @@
 099E1 85 F4                     	STA byte_RAM_F4
 099E3                           
 099E3                           loc_BANK2_979A:
-099E3 20 2F FC                  	JSR loc_BANKF_FAFE
+099E3 20 38 FC                  	JSR loc_BANKF_FAFE
 099E6                           
 099E6 C4 F4                     	CPY byte_RAM_F4
 099E8 08                        	PHP
@@ -20022,7 +20022,7 @@
 09A2C                           
 09A2C A9 00                     	LDA #$00
 09A2E 8D BD 04                  	STA DoorAnimationTimer
-09A31 20 66 FA                  	JSR DoAreaReset
+09A31 20 6A FA                  	JSR DoAreaReset
 09A34                           
 09A34 AD 34 05                  	LDA TransitionType
 09A37 C9 01                     	CMP #TransitionType_Door
@@ -20851,7 +20851,7 @@
 09D82 A9 01                     	LDA #$01
 09D84 85 03                     	STA byte_RAM_3
 09D86 85 05                     	STA byte_RAM_5
-09D88 20 2F FC                  	JSR loc_BANKF_FAFE
+09D88 20 38 FC                  	JSR loc_BANKF_FAFE
 09D8B                           
 09D8B A2 14                     	LDX #$14
 09D8D 4C EF 9E                  	JMP loc_BANK2_9C7A
@@ -21434,7 +21434,7 @@
 0A085 99 0B 02                  	STA SpriteDMAArea + $B, Y
 0A088 8A                        	TXA
 0A089 48                        	PHA
-0A08A 20 2F FC                  	JSR loc_BANKF_FAFE
+0A08A 20 38 FC                  	JSR loc_BANKF_FAFE
 0A08D                           
 0A08D 68                        	PLA
 0A08E AA                        	TAX
@@ -22077,7 +22077,7 @@
 0A39F                           loc_BANK3_A262:
 0A39F 98                        	TYA
 0A3A0 48                        	PHA
-0A3A1 20 2F FC                  	JSR loc_BANKF_FAFE
+0A3A1 20 38 FC                  	JSR loc_BANKF_FAFE
 0A3A4                           
 0A3A4 84 F4                     	STY byte_RAM_F4
 0A3A6 68                        	PLA
@@ -22633,7 +22633,7 @@
 0A652 D0 3A                     	BNE RenderSprite_Pidgit_Exit
 0A654                           
 0A654                           	; Render Pidgit's carpet
-0A654 20 2F FC                  	JSR loc_BANKF_FAFE
+0A654 20 38 FC                  	JSR loc_BANKF_FAFE
 0A657                           
 0A657                           	STY_abs byte_RAM_F4
 0A657                           	IFDEF COMPATIBILITY
@@ -22911,7 +22911,7 @@
 0A7AC 18                        	CLC
 0A7AD 79 91 A7                  	ADC byte_BANK3_A652 - 1, Y
 0A7B0 85 01                     	STA byte_RAM_1
-0A7B2 20 2F FC                  	JSR loc_BANKF_FAFE
+0A7B2 20 38 FC                  	JSR loc_BANKF_FAFE
 0A7B5                           
 0A7B5 A2 3C                     	LDX #$3C
 0A7B7 20 61 9F                  	JSR SetSpriteTiles
@@ -23782,7 +23782,7 @@
 0AC2E C6 09                     	DEC byte_RAM_9
 0AC30 F0 27                     	BEQ RenderSprite_Pokey_Exit
 0AC32                           
-0AC32 20 2F FC                  	JSR loc_BANKF_FAFE
+0AC32 20 38 FC                  	JSR loc_BANKF_FAFE
 0AC35                           
 0AC35 A6 07                     	LDX byte_RAM_7
 0AC37 AD FD 04                  	LDA PokeyTempScreenX
@@ -23847,7 +23847,7 @@
 0AC8D B4 1F                     	LDY ObjectYHi, X
 0AC8F 10 34                     	BPL EnemyBehavior_Rocket_Render
 0AC91                           
-0AC91 20 66 FA                  	JSR DoAreaReset
+0AC91 20 6A FA                  	JSR DoAreaReset
 0AC94                           
 0AC94 A9 38                     	LDA #Enemy_Rocket
 0AC96 8D AF 04                  	STA ObjectCarriedOver
@@ -24018,7 +24018,7 @@
 0AD88                           loc_BANK3_AC4B:
 0AD88 20 28 9E                  	JSR RenderSprite_DrawObject
 0AD8B                           
-0AD8B 20 2F FC                  	JSR loc_BANKF_FAFE
+0AD8B 20 38 FC                  	JSR loc_BANKF_FAFE
 0AD8E                           
 0AD8E                           	STY_abs byte_RAM_F4
 0AD8E                           	IFDEF COMPATIBILITY
@@ -24469,7 +24469,7 @@
 0AFCD 18                        	CLC
 0AFCE 69 F5                     	ADC #$F5
 0AFD0 8D 2C 04                  	STA SpriteTempScreenY
-0AFD3 20 2F FC                  	JSR loc_BANKF_FAFE
+0AFD3 20 38 FC                  	JSR loc_BANKF_FAFE
 0AFD6                           
 0AFD6                           	STY_abs byte_RAM_F4
 0AFD6                           	IFDEF COMPATIBILITY
@@ -24604,7 +24604,7 @@
 0B069                           loc_BANK3_AF03:
 0B069 20 28 9E                  	JSR RenderSprite_DrawObject
 0B06C                           
-0B06C 20 2F FC                  	JSR loc_BANKF_FAFE
+0B06C 20 38 FC                  	JSR loc_BANKF_FAFE
 0B06F                           
 0B06F A9 55                     	LDA #$55
 0B071 A6 07                     	LDX byte_RAM_7
@@ -24859,7 +24859,7 @@
 0B1C9                           IFDEF PLAYER_STUFF
 0B1C9 BD 20 76                      LDA Enemy_Champion, X
 0B1CC 85 14                     	STA PlayerXHi
-0B1CE 20 66 FA                  	JSR DoAreaReset
+0B1CE 20 6A FA                  	JSR DoAreaReset
 0B1D1 20 7C E8                      JSR SetGameModeBonusChanceCustom
 0B1D4                           ENDIF
 0B1D4 EE 27 06                  	INC DoAreaTransition
@@ -24988,7 +24988,7 @@
 0B274                           
 0B274 B5 86                     	LDA EnemyTimer, X
 0B276 85 07                     	STA byte_RAM_7
-0B278 20 2F FC                  	JSR loc_BANKF_FAFE
+0B278 20 38 FC                  	JSR loc_BANKF_FAFE
 0B27B                           
 0B27B A6 02                     	LDX byte_RAM_2
 0B27D AD 29 04                  	LDA SpriteTempScreenX
@@ -26767,7 +26767,7 @@
 0BB34 99 38 04                  	STA EnemyArray_438, Y
 0BB37                           
 0BB37                           loc_BANK3_BA5A:
-0BB37 4C C3 FA                  	JMP KillPlayer
+0BB37 4C C7 FA                  	JMP KillPlayer
 0BB3A                           
 0BB3A                           ; =============== S U B R O U T I N E =======================================
 0BB3A                           
@@ -27719,7 +27719,7 @@
 0BEBC                           AreaSecondaryRoutine_HealthBar:
 0BEBC A9 30                     	LDA #$30
 0BEBE 85 00                     	STA byte_RAM_0
-0BEC0 20 2F FC                  	JSR loc_BANKF_FAFE
+0BEC0 20 38 FC                  	JSR loc_BANKF_FAFE
 0BEC3                           
 0BEC3 AD C2 04                  	LDA PlayerHealth
 0BEC6 F0 06                     	BEQ AreaSecondaryRoutine_HealthBar_Draw
@@ -27739,7 +27739,7 @@
 0BED6 30 53                         BMI AreaSecondaryRoutine_POW
 0BED8 C9 03                         CMP #$3
 0BEDA 90 06                         BCC +
-0BEDC 20 7D FC                      JSR NewHealthRender
+0BEDC 20 86 FC                      JSR NewHealthRender
 0BEDF 4C 2B BF                      JMP AreaSecondaryRoutine_POW
 0BEE2 8A                        +   TXA
 0BEE3 C9 10                         CMP #$10
@@ -39798,7 +39798,7 @@
 09603 20 2D 96                  	JSR ReadLevelData
 09606                           
 09606                           IFDEF PLAYER_STUFF_BONUS
-09606 20 08 FB                      JSR LoadBonusLevelPtr
+09606 20 0C FB                      JSR LoadBonusLevelPtr
 09609 20 1B 96                  	JSR RestoreLevelDataCopyAddress
 0960C                               ; could just leave this as is, represents page number
 0960C                           	; LDA #$00
@@ -55493,7 +55493,7 @@
 08552                           
 08552 A0 20                     	LDY #$20
 08554                           loc_BANKA_84CC:
-08554 B9 AE FB                  	LDA EndOfLevelDoor, Y
+08554 B9 B2 FB                  	LDA EndOfLevelDoor, Y
 08557 99 1B 72                  	STA PPUBuffer_721B, Y
 0855A 88                        	DEY
 0855B 10 F7                     	BPL loc_BANKA_84CC
@@ -56590,7 +56590,7 @@
 08342 20 14 80                  	JSR sub_BANKC_8014
 08345                           
 08345 A9 00                     	LDA #VMirror
-08347 20 15 FE                  	JSR ChangeNametableMirroring
+08347 20 1E FE                  	JSR ChangeNametableMirroring
 0834A                           
 0834A 20 6F E6                  	JSR ClearNametablesAndSprites
 0834D                           
@@ -60348,7 +60348,7 @@
 0D9F4 20 76 E4                  	JSR WaitForNMI
 0D9F7                           
 0D9F7 A9 00                     	LDA #VMirror
-0D9F9 20 15 FE                  	JSR ChangeNametableMirroring
+0D9F9 20 1E FE                  	JSR ChangeNametableMirroring
 0D9FC                           
 0D9FC 20 6F E6                  	JSR ClearNametablesAndSprites
 0D9FF                           
@@ -60507,10 +60507,10 @@
 0DAAF                           	; from the character select screen
 0DAAF A9 FF                     	LDA #$FF
 0DAB1 85 FD                     	STA PPUScrollXMirror
-0DAB3 20 97 FD                  	JSR ChangeTitleCardCHR
+0DAB3 20 A0 FD                  	JSR ChangeTitleCardCHR
 0DAB6                           
 0DAB6 A9 05                     	LDA #PRGBank_A_B
-0DAB8 20 FA FD                  	JSR ChangeMappedPRGBank
+0DAB8 20 03 FE                  	JSR ChangeMappedPRGBank
 0DABB                           
 0DABB 20 D9 84                  	JSR CopyCharacterStatsAndStuff
 0DABE                           
@@ -60554,10 +60554,10 @@
 0DAF7                           
 0DAF7 20 66 E3                  	JSR DisableNMI
 0DAFA                           
-0DAFA 20 2B FD                  	JSR LoadWorldCHRBanks
+0DAFA 20 34 FD                  	JSR LoadWorldCHRBanks
 0DAFD                           
 0DAFD A9 05                     	LDA #PRGBank_A_B
-0DAFF 20 FA FD                  	JSR ChangeMappedPRGBank
+0DAFF 20 03 FE                  	JSR ChangeMappedPRGBank
 0DB02                           
 0DB02 20 D9 84                  	JSR CopyCharacterStatsAndStuff
 0DB05                           
@@ -60576,10 +60576,10 @@
 0DB0E 8D 01 20                  	STA PPUMASK
 0DB11 20 66 E3                  	JSR DisableNMI
 0DB14                           
-0DB14 20 80 FD                  	JSR LoadCharacterSelectCHRBanks
+0DB14 20 89 FD                  	JSR LoadCharacterSelectCHRBanks
 0DB17                           
 0DB17 A9 05                     	LDA #PRGBank_A_B
-0DB19 20 FA FD                  	JSR ChangeMappedPRGBank
+0DB19 20 03 FE                  	JSR ChangeMappedPRGBank
 0DB1C                           
 0DB1C                           IFDEF PLAYER_STUFF
 0DB1C 20 D8 8A                      JSR CharSelectInitialize
@@ -60594,7 +60594,7 @@
 0DB2A F0 0A                     	BEQ loc_BANKF_E2B2
 0DB2C                           
 0DB2C A9 05                     	LDA #PRGBank_A_B
-0DB2E 20 FA FD                  	JSR ChangeMappedPRGBank
+0DB2E 20 03 FE                  	JSR ChangeMappedPRGBank
 0DB31                           
 0DB31 A9 A5                     	LDA #$A5
 0DB33 8D 36 06                  	STA CharacterSelectBankSwitch
@@ -60855,7 +60855,7 @@
 0DBE1                           
 0DBE1 A9 00                     	LDA #PRGBank_0_1
 0DBE3 8D F3 06                  	STA GameMilestoneCounter
-0DBE6 20 FA FD                  	JSR ChangeMappedPRGBank
+0DBE6 20 03 FE                  	JSR ChangeMappedPRGBank
 0DBE9                           
 0DBE9 20 83 A0                  	JSR TitleScreen ; The whole title screen is a subroutine, lol
 0DBEC                           
@@ -60922,7 +60922,7 @@
 0DC43 99 31 05                  	STA CurrentLevel, Y
 0DC46 88                        	DEY
 0DC47 10 F4                         BPL Func_ContinueLevel_Replace
-0DC49 20 67 FC                      JSR WorldChangeF
+0DC49 20 70 FC                      JSR WorldChangeF
 0DC4C AC 35 06                  	LDY CurrentWorld
 0DC4F 38                        	SEC
 0DC50 F9 13 D9                  	SBC WorldStartingLevel, Y
@@ -60942,7 +60942,7 @@
 0DC63                           IFDEF PLAYER_STUFF
 0DC63                           
 0DC63 A9 05                     	LDA #PRGBank_A_B
-0DC65 20 FA FD                  	JSR ChangeMappedPRGBank
+0DC65 20 03 FE                  	JSR ChangeMappedPRGBank
 0DC68                           
 0DC68 20 E7 D9                  	JSR ResetScreenForTitleCard
 0DC6B 20 00 DA                  	JSR EnableNMI_PauseTitleCard
@@ -60970,19 +60970,19 @@
 0DC8E A9 80                     	LDA #Stack100_Transition
 0DC90 8D 00 01                  	STA StackArea
 0DC93 A9 04                     	LDA #PRGBank_8_9
-0DC95 20 FA FD                  	JSR ChangeMappedPRGBank
+0DC95 20 03 FE                  	JSR ChangeMappedPRGBank
 0DC98                           
-0DC98 20 16 FB                  	JSR GetLevelPointers
+0DC98 20 1A FB                  	JSR GetLevelPointers
 0DC9B                           
 0DC9B A9 03                     	LDA #PRGBank_6_7
-0DC9D 20 FA FD                  	JSR ChangeMappedPRGBank
+0DC9D 20 03 FE                  	JSR ChangeMappedPRGBank
 0DCA0                           
 0DCA0 20 78 95                  	JSR LoadCurrentArea
 0DCA3                           
 0DCA3 20 A4 93                  	JSR LoadCurrentPalette
 0DCA6                           
 0DCA6                           IFDEF AREA_HEADER_TILESET
-0DCA6 20 2B FD                  	JSR LoadWorldCHRBanks
+0DCA6 20 34 FD                  	JSR LoadWorldCHRBanks
 0DCA9                           ENDIF
 0DCA9                           
 0DCA9 20 85 E6                  	JSR HideAllSprites
@@ -61001,7 +61001,7 @@
 0DCBA 20 76 E4                  	JSR WaitForNMI
 0DCBD                           
 0DCBD A9 00                     	LDA #PRGBank_0_1
-0DCBF 20 FA FD                  	JSR ChangeMappedPRGBank
+0DCBF 20 03 FE                  	JSR ChangeMappedPRGBank
 0DCC2                           
 0DCC2 20 B8 84                  	JSR InitializeAreaHorizontal
 0DCC5                           
@@ -61066,7 +61066,7 @@
 0DD0E 20 76 E4                  	JSR WaitForNMI
 0DD11                           
 0DD11 A9 00                     	LDA #PRGBank_0_1
-0DD13 20 FA FD                  	JSR ChangeMappedPRGBank
+0DD13 20 03 FE                  	JSR ChangeMappedPRGBank
 0DD16                           
 0DD16 20 00 80                  	JSR InitializeAreaVertical
 0DD19                           
@@ -61161,7 +61161,7 @@
 0DD86 C9 C8                     	CMP #ControllerInput_Up | ControllerInput_B | ControllerInput_A ; Up + A + B
 0DD88 D0 03                     	BNE PauseScreenExitCheck ; Not being held! Nothing to see here
 0DD8A                           
-0DD8A 20 C3 FA                  	JSR KillPlayer ; KILL THYSELF
+0DD8A 20 C7 FA                  	JSR KillPlayer ; KILL THYSELF
 0DD8D                           
 0DD8D                           PauseScreenExitCheck:
 0DD8D A5 F5                     	LDA Player1JoypadPress
@@ -61189,10 +61189,10 @@
 0DDA8                           HidePauseScreen:
 0DDA8 20 6E E4                  	JSR WaitForNMI_TurnOffPPU
 0DDAB                           
-0DDAB 20 2B FD                  	JSR LoadWorldCHRBanks
+0DDAB 20 34 FD                  	JSR LoadWorldCHRBanks
 0DDAE                           
 0DDAE A9 03                     	LDA #PRGBank_6_7
-0DDB0 20 FA FD                  	JSR ChangeMappedPRGBank
+0DDB0 20 03 FE                  	JSR ChangeMappedPRGBank
 0DDB3                           
 0DDB3 20 A4 93                  	JSR LoadCurrentPalette
 0DDB6                           
@@ -61203,7 +61203,7 @@
 0DDBC 20 85 E6                  	JSR HideAllSprites
 0DDBF                           
 0DDBF A9 00                     	LDA #PRGBank_0_1
-0DDC1 20 FA FD                  	JSR ChangeMappedPRGBank
+0DDC1 20 03 FE                  	JSR ChangeMappedPRGBank
 0DDC4                           
 0DDC4 20 D6 81                  	JSR RestoreScreenScrollPosition
 0DDC7                           
@@ -61212,7 +61212,7 @@
 0DDCB                           
 0DDCB                           HidePauseScreen_Vertical:
 0DDCB A9 01                     	LDA #HMirror
-0DDCD 20 15 FE                  	JSR ChangeNametableMirroring
+0DDCD 20 1E FE                  	JSR ChangeNametableMirroring
 0DDD0                           
 0DDD0 20 FE 81                  	JSR sub_BANK0_81FE
 0DDD3                           
@@ -61230,7 +61230,7 @@
 0DDE4                           
 0DDE4                           HidePauseScreen_Horizontal:
 0DDE4 A9 00                     	LDA #VMirror
-0DDE6 20 15 FE                  	JSR ChangeNametableMirroring
+0DDE6 20 1E FE                  	JSR ChangeNametableMirroring
 0DDE9                           
 0DDE9 20 3D 87                  	JSR sub_BANK0_8785
 0DDEC                           
@@ -61252,7 +61252,7 @@
 0DDFD 20 6F E6                  	JSR ClearNametablesAndSprites
 0DE00                           
 0DE00 A9 03                     	LDA #PRGBank_6_7
-0DE02 20 FA FD                  	JSR ChangeMappedPRGBank
+0DE02 20 03 FE                  	JSR ChangeMappedPRGBank
 0DE05                           
 0DE05 A9 00                     	LDA #$00
 0DE07 8D 22 06                  	STA SubspaceCoins
@@ -61261,14 +61261,14 @@
 0DE0F F0 20                     	BEQ loc_BANKF_E5D4
 0DE11                           
 0DE11 A9 04                     	LDA #PRGBank_8_9
-0DE13 20 FA FD                  	JSR ChangeMappedPRGBank
+0DE13 20 03 FE                  	JSR ChangeMappedPRGBank
 0DE16                           
-0DE16 20 83 FB                  	JSR GetJarPointers
+0DE16 20 87 FB                  	JSR GetJarPointers
 0DE19                           
-0DE19 20 42 FB                  	JSR GetEnemyPointers
+0DE19 20 46 FB                  	JSR GetEnemyPointers
 0DE1C                           
 0DE1C A9 03                     	LDA #PRGBank_6_7
-0DE1E 20 FA FD                  	JSR ChangeMappedPRGBank
+0DE1E 20 03 FE                  	JSR ChangeMappedPRGBank
 0DE21                           
 0DE21 20 B9 94                  	JSR ClearSubAreaTileLayout
 0DE24                           
@@ -61290,7 +61290,7 @@
 0DE3E                           
 0DE3E                           loc_BANKF_E5E1:
 0DE3E A9 00                     	LDA #PRGBank_0_1
-0DE40 20 FA FD                  	JSR ChangeMappedPRGBank
+0DE40 20 03 FE                  	JSR ChangeMappedPRGBank
 0DE43                           
 0DE43 20 C4 86                  	JSR sub_BANK0_870C
 0DE46                           
@@ -61309,7 +61309,7 @@
 0DE59 F0 08                     	BEQ loc_BANKF_E606
 0DE5B                           
 0DE5B A9 03                     	LDA #PRGBank_6_7
-0DE5D 20 FA FD                  	JSR ChangeMappedPRGBank
+0DE5D 20 03 FE                  	JSR ChangeMappedPRGBank
 0DE60                           
 0DE60 20 A4 93                  	JSR LoadCurrentPalette
 0DE63                           
@@ -61356,7 +61356,7 @@
 0DE90 AD 19 05                  	LDA CurrentLevelAreaCopy
 0DE93 8D 32 05                  	STA CurrentLevelArea
 0DE96 A9 03                     	LDA #PRGBank_6_7
-0DE98 20 FA FD                  	JSR ChangeMappedPRGBank
+0DE98 20 03 FE                  	JSR ChangeMappedPRGBank
 0DE9B                           
 0DE9B 20 A4 93                  	JSR LoadCurrentPalette
 0DE9E                           
@@ -61377,7 +61377,7 @@
 0DEB8                           
 0DEB8                           loc_BANKF_E64C:
 0DEB8 A9 00                     	LDA #PRGBank_0_1
-0DEBA 20 FA FD                  	JSR ChangeMappedPRGBank
+0DEBA 20 03 FE                  	JSR ChangeMappedPRGBank
 0DEBD                           
 0DEBD 20 04 87                  	JSR sub_BANK0_874C
 0DEC0                           
@@ -61396,7 +61396,7 @@
 0DED1                           ; ---------------------------------------------------------------------------
 0DED1                           
 0DED1                           loc_BANKF_E665:
-0DED1 20 66 FA                  	JSR DoAreaReset
+0DED1 20 6A FA                  	JSR DoAreaReset
 0DED4                           
 0DED4 AC EC 04                  	LDY GameMode
 0DED7 A9 00                     	LDA #GameMode_InGame
@@ -61449,11 +61449,11 @@
 0DF20                           IFDEF HOT_SPOTS
 0DF20                           EnemyInit1toF:
 0DF20 A9 01                         LDA #PRGBank_2_3
-0DF22 20 FA FD                      JSR ChangeMappedPRGBank
+0DF22 20 03 FE                      JSR ChangeMappedPRGBank
 0DF25 B5 90                     	LDA ObjectType, X
 0DF27 20 1F 84                      JSR InitializeEnemy
 0DF2A A9 00                         LDA #PRGBank_0_1
-0DF2C 20 FA FD                      JSR ChangeMappedPRGBank
+0DF2C 20 03 FE                      JSR ChangeMappedPRGBank
 0DF2F 60                            RTS
 0DF30                           ENDIF
 0DF30                           
@@ -61493,10 +61493,10 @@
 0DF30                           IFDEF PLAYER_STUFF
 0DF30                           Projectile2to1:
 0DF30 A9 00                         LDA #PRGBank_0_1
-0DF32 20 FA FD                      JSR ChangeMappedPRGBank
+0DF32 20 03 FE                      JSR ChangeMappedPRGBank
 0DF35 20 A0 B5                      JSR CreateFireballStart
 0DF38 A9 01                         LDA #PRGBank_2_3
-0DF3A 20 FA FD                      JSR ChangeMappedPRGBank
+0DF3A 20 03 FE                      JSR ChangeMappedPRGBank
 0DF3D 60                            RTS
 0DF3E                           
 0DF3E                           SnapEnemy:
@@ -61564,7 +61564,7 @@
 0DF90 8D 03 06                  	STA MusicQueue2
 0DF93 20 6E E4                  	JSR WaitForNMI_TurnOffPPU
 0DF96                           
-0DF96 20 97 FD                  	JSR ChangeTitleCardCHR
+0DF96 20 A0 FD                  	JSR ChangeTitleCardCHR
 0DF99                           
 0DF99 20 6F E6                  	JSR ClearNametablesAndSprites
 0DF9C                           
@@ -61673,7 +61673,7 @@
 0E032                           
 0E032 20 F6 E3                  	JSR EnableNMI
 0E035                           
-0E035 20 97 FD                  	JSR ChangeTitleCardCHR
+0E035 20 A0 FD                  	JSR ChangeTitleCardCHR
 0E038                               
 0E038 68                            PLA
 0E039 A8                            TAY
@@ -61725,7 +61725,7 @@
 0E069 AD CD 76                      LDA WarpDestinationRam
 0E06C 8D 31 05                      STA CurrentLevel
 0E06F 8D E7 04                      STA CurrentLevel_Init
-0E072 20 67 FC                      JSR WorldChangeF
+0E072 20 70 FC                      JSR WorldChangeF
 0E075 AC 35 06                      LDY CurrentWorld
 0E078 AD CE 76                      LDA WarpDestinationRam + 1
 0E07B 8D 32 05                      STA CurrentLevelArea
@@ -61752,7 +61752,7 @@
 0E0A5                           
 0E0A5 20 F6 E3                  	JSR EnableNMI
 0E0A8                           
-0E0A8 20 97 FD                  	JSR ChangeTitleCardCHR
+0E0A8 20 A0 FD                  	JSR ChangeTitleCardCHR
 0E0AB                           
 0E0AB A9 12                     	LDA #ScreenUpdateBuffer_RAM_7194
 0E0AD 85 11                     	STA ScreenUpdateIndex
@@ -61830,14 +61830,14 @@
 0E102 20 76 E4                  	JSR WaitForNMI
 0E105                           ENDIF
 0E105                           
-0E105 20 A1 FD                  	JSR LoadBonusChanceCHRBanks
+0E105 20 AA FD                  	JSR LoadBonusChanceCHRBanks
 0E108                           
 0E108                           IFNDEF BONUS_CHANCE_RAM_CLEANUP
 0E108 20 03 E5                  	JSR CopyUnusedCoinSpriteToSpriteArea
 0E10B                           ENDIF
 0E10B                           
 0E10B A9 05                     	LDA #PRGBank_A_B
-0E10D 20 FA FD                  	JSR ChangeMappedPRGBank
+0E10D 20 03 FE                  	JSR ChangeMappedPRGBank
 0E110                           
 0E110 20 10 83                  	JSR CopyBonusChanceLayoutToRAM
 0E113                           
@@ -61926,8 +61926,8 @@
 0E195 AC 35 06                  	LDY CurrentWorld
 0E198 AD 31 05                  	LDA CurrentLevel
 0E19B                           IFDEF EXTENDED_PTR_CONTINUE:
-0E19B 20 67 FC                      JSR WorldChangeF
-0E19E 20 2B FD                      JSR LoadWorldCHRBanks
+0E19B 20 70 FC                      JSR WorldChangeF
+0E19E 20 34 FD                      JSR LoadWorldCHRBanks
 0E1A1                           ENDIF
 0E1A1 38                        	SEC
 0E1A2 F9 13 D9                  	SBC WorldStartingLevel, Y
@@ -62188,7 +62188,7 @@
 0E30B A9 06                         LDA #$6
 0E30D 8D 35 06                      STA CurrentWorld
 0E310 8D 34 06                      STA CurrentWorldTileset
-0E313 20 2B FD                      JSR LoadWorldCHRBanks
+0E313 20 34 FD                      JSR LoadWorldCHRBanks
 0E316                           ENDIF
 0E316 20 DC D9                  	JSR SetScrollXYTo0
 0E319                           
@@ -62200,7 +62200,7 @@
 0E31E 0A                        	ASL A
 0E31F 8D 07 06                  	STA SoundEffectPlaying1
 0E322 A9 00                     	LDA #PRGBank_0_1
-0E324 20 FA FD                  	JSR ChangeMappedPRGBank
+0E324 20 03 FE                  	JSR ChangeMappedPRGBank
 0E327                           
 0E327 20 47 A5                  	JSR FreeSubconsScene
 0E32A                           
@@ -62208,14 +62208,14 @@
 0E32D                           
 0E32D 20 66 E3                  	JSR DisableNMI
 0E330                           
-0E330 20 75 FD                  	JSR LoadCelebrationSceneBackgroundCHR
+0E330 20 7E FD                  	JSR LoadCelebrationSceneBackgroundCHR
 0E333                           
 0E333 20 F6 E3                  	JSR EnableNMI
 0E336                           
 0E336 20 76 E4                  	JSR WaitForNMI
 0E339                           
 0E339 A9 00                     	LDA #PRGBank_0_1
-0E33B 20 FA FD                  	JSR ChangeMappedPRGBank
+0E33B 20 03 FE                  	JSR ChangeMappedPRGBank
 0E33E                           
 0E33E EE F3 06                  	INC GameMilestoneCounter
 0E341                           
@@ -62226,14 +62226,14 @@
 0E347 20 66 E3                  	JSR DisableNMI
 0E34A                           
 0E34A                           SetupMarioSleepingScene:
-0E34A 20 AC FD                  	JSR LoadMarioSleepingCHRBanks
+0E34A 20 B5 FD                  	JSR LoadMarioSleepingCHRBanks
 0E34D                           
 0E34D 20 F6 E3                  	JSR EnableNMI
 0E350                           
 0E350 20 76 E4                  	JSR WaitForNMI
 0E353                           
 0E353 A9 06                     	LDA #PRGBank_C_D
-0E355 20 FA FD                  	JSR ChangeMappedPRGBank
+0E355 20 03 FE                  	JSR ChangeMappedPRGBank
 0E358                           
 0E358 EE F3 06                  	INC GameMilestoneCounter
 0E35B 4C 42 83                  	JMP MarioSleepingScene
@@ -62309,10 +62309,10 @@
 0E3BC                           PauseScreen_Card:
 0E3BC 20 6E E4                  	JSR WaitForNMI_TurnOffPPU
 0E3BF                           
-0E3BF 20 97 FD                  	JSR ChangeTitleCardCHR
+0E3BF 20 A0 FD                  	JSR ChangeTitleCardCHR
 0E3C2                           
 0E3C2 A9 00                     	LDA #PRGBank_0_1
-0E3C4 20 FA FD                  	JSR ChangeMappedPRGBank
+0E3C4 20 03 FE                  	JSR ChangeMappedPRGBank
 0E3C7                           
 0E3C7 20 A2 81                  	JSR StashScreenScrollPosition
 0E3CA                           
@@ -62610,7 +62610,7 @@
 0E513 8D 03 20                  	STA OAMADDR
 0E516 A9 02                     	LDA #$02
 0E518 8D 14 40                  	STA OAM_DMA ;; write OAM/sprites 
-0E51B 20 E8 FD                  	JSR ChangeCHRBanks
+0E51B 20 F1 FD                  	JSR ChangeCHRBanks
 0E51E                           
 0E51E A5 FE                     	LDA PPUMaskMirror ;; write masking
 0E520 8D 01 20                  	STA PPUMASK
@@ -62629,7 +62629,7 @@
 0E535 8D 03 20                  	STA OAMADDR
 0E538 A9 02                     	LDA #$02
 0E53A 8D 14 40                  	STA OAM_DMA
-0E53D 20 E8 FD                  	JSR ChangeCHRBanks
+0E53D 20 F1 FD                  	JSR ChangeCHRBanks
 0E540                           
 0E540 20 EB E6                  	JSR UpdatePPUFromBufferWithOptions
 0E543                           
@@ -62670,7 +62670,7 @@
 0E575 A9 02                     	LDA #$02
 0E577 8D 14 40                  	STA OAM_DMA
 0E57A                           IFNDEF PLAYER_STUFF_TOP
-0E57A 20 E8 FD                  	JSR ChangeCHRBanks
+0E57A 20 F1 FD                  	JSR ChangeCHRBanks
 0E57D                           ENDIF
 0E57D                           IFDEF PLAYER_STUFF_TOP
 0E57D                           	LDA #$80
@@ -62913,12 +62913,12 @@
 0E661                           
 0E661                           DoSoundProcessing:
 0E661 A9 02                     	LDA #PRGBank_4_5
-0E663 20 FD FD                  	JSR ChangeMappedPRGBankWithoutSaving
+0E663 20 06 FE                  	JSR ChangeMappedPRGBankWithoutSaving
 0E666                           
 0E666 20 00 80                  	JSR StartProcessingSoundQueue
 0E669                           
 0E669 AD F2 06                  	LDA MMC3PRGBankTemp
-0E66C 4C FA FD                  	JMP ChangeMappedPRGBank
+0E66C 4C 03 FE                  	JMP ChangeMappedPRGBank
 0E66F                           
 0E66F                           
 0E66F                           ClearNametablesAndSprites:
@@ -64025,7 +64025,7 @@
 0EC50                           
 0EC50                           CustomCopyChar:
 0EC50 A9 05                           LDA     #PRGBank_A_B
-0EC52 20 FA FD                        JSR     ChangeMappedPRGBank
+0EC52 20 03 FE                        JSR     ChangeMappedPRGBank
 0EC55                           CharSel:
 0EC55 A5 8F                           LDA     CurrentCharacter
 0EC57 8D 04 04                        STA PreviousCharacter
@@ -64050,7 +64050,7 @@
 0EC74                           
 0EC74                           EndCharacterSwap:
 0EC74 A9 01                           LDA     #PRGBank_2_3
-0EC76 20 FA FD                        JSR     ChangeMappedPRGBank
+0EC76 20 03 FE                        JSR     ChangeMappedPRGBank
 0EC79                               ; load carry offsets
 0EC79                           	; Copy the character-specific FINAL carrying heights into memory
 0EC79 A4 8F                     	LDY CurrentCharacter
@@ -64063,9 +64063,9 @@
 0EC8D B9 0C 80                  	LDA CarryYOffsetSmallHi, Y
 0EC90 8D 15 7F                  	STA ItemCarryYOffsetsRAM + $15
 0EC93 A9 00                           LDA     #PRGBank_0_1
-0EC95 20 FA FD                        JSR     ChangeMappedPRGBank
+0EC95 20 03 FE                        JSR     ChangeMappedPRGBank
 0EC98                           	; update chr for character
-0EC98 20 48 FD                  	JSR LoadCharacterCHRBanks
+0EC98 20 51 FD                  	JSR LoadCharacterCHRBanks
 0EC9B 60                            RTS
 0EC9C                           
 0EC9C                           CustomPalette:
@@ -64336,14 +64336,14 @@
 0EE1F                           
 0EE1F                           CustomDestroyAll:
 0EE1F A9 01                         LDA #PRGBank_2_3
-0EE21 20 FD FD                      JSR ChangeMappedPRGBankWithoutSaving
+0EE21 20 06 FE                      JSR ChangeMappedPRGBankWithoutSaving
 0EE24 A5 0E                         LDA byte_RAM_E
 0EE26 48                            PHA
 0EE27 20 58 9B                      JSR DestroyOnscreenEnemies
 0EE2A 68                            PLA
 0EE2B 85 0E                         STA byte_RAM_E
 0EE2D AD F2 06                      LDA MMC3PRGBankTemp
-0EE30 20 FA FD                      JSR ChangeMappedPRGBank
+0EE30 20 03 FE                      JSR ChangeMappedPRGBank
 0EE33 BD 20 76                      LDA MushroomEffect, X
 0EE36 AA                            TAX
 0EE37 60                            RTS
@@ -64351,11 +64351,11 @@
 0EE38                           CustomReplaceTile:
 0EE38 48                            PHA
 0EE39 A9 00                         LDA #PRGBank_0_1
-0EE3B 20 FD FD                      JSR ChangeMappedPRGBankWithoutSaving
+0EE3B 20 06 FE                      JSR ChangeMappedPRGBankWithoutSaving
 0EE3E 68                            PLA
 0EE3F 20 52 97                      JSR ReplaceTile_Bank0
 0EE42 AD F2 06                      LDA MMC3PRGBankTemp
-0EE45 20 FA FD                      JSR ChangeMappedPRGBank
+0EE45 20 03 FE                      JSR ChangeMappedPRGBank
 0EE48 60                            RTS
 0EE49                           
 0EE49                           CustomObject_PowerItem:
@@ -64947,7 +64947,7 @@
 0F1CB A9 01                     	LDA #1
 0F1CD 8D EF 7F                  	STA Debug_InMenu
 0F1D0 A9 05                     	LDA #PRGBank_A_B ; Swap to the debug/credits bank
-0F1D2 20 FA FD                  	JSR ChangeMappedPRGBank
+0F1D2 20 03 FE                  	JSR ChangeMappedPRGBank
 0F1D5                           
 0F1D5 A5 FD                     	LDA PPUScrollXMirror
 0F1D7 8D E0 7F                  	STA $7FE0
@@ -64990,7 +64990,7 @@
 0F222 A9 00                     	LDA #0
 0F224 8D EF 7F                  	STA Debug_InMenu
 0F227 68                        	PLA
-0F228 20 FA FD                  	JSR ChangeMappedPRGBank
+0F228 20 03 FE                  	JSR ChangeMappedPRGBank
 0F22B                           Debug_AlreadyIn:
 0F22B                           ; Restore the stack to the way it was (that is, undo our hijack)
 0F22B                           ; This will NOT fix anything the debug menu wiped out, like
@@ -65240,7 +65240,7 @@
 0F365 D0 08                     	BNE loc_BANKF_F115
 0F367                           
 0F367 A9 00                     	LDA #PRGBank_0_1
-0F369 20 FA FD                  	JSR ChangeMappedPRGBank
+0F369 20 03 FE                  	JSR ChangeMappedPRGBank
 0F36C                           
 0F36C 20 52 89                  	JSR HandlePlayerState
 0F36F                           
@@ -65263,7 +65263,7 @@
 0F37E D0 25                     	BNE loc_BANKF_F146
 0F380                           
 0F380 A9 00                     	LDA #PRGBank_0_1
-0F382 20 FA FD                  	JSR ChangeMappedPRGBank
+0F382 20 03 FE                  	JSR ChangeMappedPRGBank
 0F385                           
 0F385                           	; boss clear fanfare locks player movement
 0F385 AD 06 06                  	LDA MusicPlaying2
@@ -65293,7 +65293,7 @@
 0F3A5                           
 0F3A5                           loc_BANKF_F146:
 0F3A5 A9 01                     	LDA #PRGBank_2_3
-0F3A7 20 FA FD                  	JSR ChangeMappedPRGBank
+0F3A7 20 03 FE                  	JSR ChangeMappedPRGBank
 0F3AA                           
 0F3AA 20 10 80                  	JSR AreaMainRoutine
 0F3AD                           
@@ -65303,7 +65303,7 @@
 0F3B0                           	JSR AreaDebugRoutine
 0F3B0                           ENDIF
 0F3B0                           
-0F3B0 20 FB FB                  	JSR AnimateCHRRoutine
+0F3B0 20 FF FB                  	JSR AnimateCHRRoutine
 0F3B3                           
 0F3B3 20 A4 F7                  	JSR SetAreaStartPage
 0F3B6                           
@@ -65401,13 +65401,13 @@
 0F431 D0 08                     	BNE loc_BANKF_F19D
 0F433                           
 0F433 A9 00                     	LDA #PRGBank_0_1
-0F435 20 FA FD                  	JSR ChangeMappedPRGBank
+0F435 20 03 FE                  	JSR ChangeMappedPRGBank
 0F438                           
 0F438 20 52 89                  	JSR HandlePlayerState
 0F43B                           
 0F43B                           loc_BANKF_F19D:
 0F43B A9 00                     	LDA #PRGBank_0_1
-0F43D 20 FA FD                  	JSR ChangeMappedPRGBank
+0F43D 20 03 FE                  	JSR ChangeMappedPRGBank
 0F440                           
 0F440 20 83 80                  	JSR sub_BANK0_8083
 0F443                           
@@ -65591,17 +65591,17 @@
 0F527 A9 20                         LDA #SoundEffect1_EnemyHit
 0F529 8D 02 06                      STA SoundEffectQueue1
 0F52C A9 01                         LDA #PRGBank_2_3
-0F52E 20 FA FD                      JSR ChangeMappedPRGBank
+0F52E 20 03 FE                      JSR ChangeMappedPRGBank
 0F531 20 CB BA                      JSR DamagePlayerNoImmune
 0F534 A9 00                         LDA #PRGBank_0_1
-0F536 20 FA FD                      JSR ChangeMappedPRGBank
+0F536 20 03 FE                      JSR ChangeMappedPRGBank
 0F539 4C 43 F5                      JMP loc_BANKF_F254
 0F53C                           +
 0F53C                           ENDIF
 0F53C A9 00                     	LDA #$00
 0F53E 85 82                     	STA PlayerStateTimer
 0F540                           
-0F540 4C C3 FA                  	JMP KillPlayer
+0F540 4C C7 FA                  	JMP KillPlayer
 0F543                           
 0F543                           ; ---------------------------------------------------------------------------
 0F543                           
@@ -65616,7 +65616,7 @@
 0F54E C9 F0                     	CMP #$F0
 0F550 B0 39                     	BCS locret_BANKF_F297
 0F552                           
-0F552 20 66 FA                  	JSR DoAreaReset
+0F552 20 6A FA                  	JSR DoAreaReset
 0F555                           
 0F555 68                        	PLA
 0F556 68                        	PLA
@@ -65647,9 +65647,9 @@
 0F57D AD 19 05                  	LDA CurrentLevelAreaCopy
 0F580 8D 32 05                  	STA CurrentLevelArea
 0F583 A9 04                     	LDA #PRGBank_8_9
-0F585 20 FA FD                  	JSR ChangeMappedPRGBank
+0F585 20 03 FE                  	JSR ChangeMappedPRGBank
 0F588                           
-0F588 4C 42 FB                  	JMP GetEnemyPointers
+0F588 4C 46 FB                  	JMP GetEnemyPointers
 0F58B                           
 0F58B                           ; ---------------------------------------------------------------------------
 0F58B                           
@@ -66027,7 +66027,7 @@
 0F6AD C6 00                     	DEC byte_RAM_0
 0F6AF                           
 0F6AF                           loc_BANKF_F394:
-0F6AF 20 2F FC                  	JSR loc_BANKF_FAFE
+0F6AF 20 38 FC                  	JSR loc_BANKF_FAFE
 0F6B2                           
 0F6B2 A5 01                     	LDA byte_RAM_1
 0F6B4 D0 0E                     	BNE loc_BANKF_F3A6
@@ -66982,8 +66982,8 @@
 0FA02 29 1F                         AND #$1F
 0FA04 8D 31 05                  	STA CurrentLevel
 0FA07 99 1D 05                      STA AreaPointersByPage, Y
-0FA0A 20 67 FC                      JSR WorldChangeF
-0FA0D 20 2B FD                      JSR LoadWorldCHRBanks
+0FA0A 20 70 FC                      JSR WorldChangeF
+0FA0D 20 34 FD                      JSR LoadWorldCHRBanks
 0FA10 AD 35 05                      LDA CurrentLevelPage
 0FA13 0A                            ASL A
 0FA14 A8                            TAY
@@ -67025,875 +67025,882 @@
 0FA2F                           EnsureCorrectMusic:
 0FA2F                           IFDEF PLAYER_STUFF
 0FA2F AD 0F 7D                      LDA LastMusicChoice
-0FA32 F0 0F                         BEQ ++
+0FA32 F0 13                         BEQ ++
 0FA34 CD 09 06                      CMP MusicPlaying1
-0FA37 F0 2C                         BEQ EnsureCorrectMusic_Exit
+0FA37 F0 30                         BEQ EnsureCorrectMusic_Exit
 0FA39 29 7F                         AND #$7F
-0FA3B CD 06 06                      CMP MusicPlaying2
-0FA3E F0 25                         BEQ EnsureCorrectMusic_Exit
-0FA40 4C 4F FA                      JMP SetCustomMusicCorrect
-0FA43                           ++
-0FA43                           ENDIF
-0FA43                           
-0FA43 AD 44 05                  	LDA CompareMusicIndex
-0FA46 CD 45 05                  	CMP CurrentMusicIndex
-0FA49 F0 1A                     	BEQ EnsureCorrectMusic_Exit
-0FA4B                           
-0FA4B AA                        	TAX
-0FA4C 8E 45 05                  	STX CurrentMusicIndex
-0FA4F                           IFNDEF PLAYER_STUFF
-0FA4F                           	LDA StarInvincibilityTimer
-0FA4F                           	CMP #$08
-0FA4F                           	BCS EnsureCorrectMusic_Exit
+0FA3B C9 00                         CMP #$0 ;; redundant if AND sets zero
+0FA3D F0 05                         BEQ +
+0FA3F CD 06 06                      CMP MusicPlaying2
+0FA42 F0 25                         BEQ EnsureCorrectMusic_Exit
+0FA44                           +
+0FA44 4C 53 FA                      JMP SetCustomMusicCorrect
+0FA47                           ++
+0FA47                           ENDIF
+0FA47                           
+0FA47 AD 44 05                  	LDA CompareMusicIndex
+0FA4A CD 45 05                  	CMP CurrentMusicIndex
+0FA4D F0 1A                     	BEQ EnsureCorrectMusic_Exit
 0FA4F                           
-0FA4F                           	LDA LevelMusicIndexes, X
-0FA4F                           	STA MusicQueue1
-0FA4F                           ENDIF
-0FA4F                           IFDEF PLAYER_STUFF
-0FA4F                           SetCustomMusicCorrect:
-0FA4F AD E0 04                  	LDA StarInvincibilityTimer
-0FA52 C9 08                     	CMP #$08
-0FA54 B0 0F                     	BCS EnsureCorrectMusic_Exit
-0FA56                           
-0FA56 BD 47 F3                  	LDA LevelMusicIndexes, X
-0FA59 8D 00 06                  	STA MusicQueue1
-0FA5C                           
-0FA5C 20 00 F4                      JSR CustomMusicChange
-0FA5F                           
-0FA5F AD 44 05                  	LDA CompareMusicIndex
-0FA62 8D 45 05                      STA CurrentMusicIndex
-0FA65                           ENDIF
-0FA65                           
-0FA65                           EnsureCorrectMusic_Exit:
-0FA65 60                        	RTS
-0FA66                           
-0FA66                           
-0FA66                           DoAreaReset:
-0FA66 A9 00                     	LDA #$00
-0FA68 8D AE 04                  	STA AreaInitialized
-0FA6B 8D AF 04                  	STA ObjectCarriedOver
-0FA6E 8D B7 04                  	STA SubspaceTimer
-0FA71 8D B3 04                  	STA SubspaceDoorTimer
-0FA74                           IFDEF PLAYER_STUFF
-0FA74 20 2B FD                      JSR LoadWorldCHRBanks
-0FA77                           ENDIF
-0FA77                           IFDEF CONTROLLER_2_DEBUG
-0FA77                           	STA ChangeCharacterPoofTimer
-0FA77                           ENDIF
-0FA77 A2 08                     	LDX #$08
-0FA79                           
-0FA79                           DoAreaReset_EnemyLoop:
-0FA79 B5 51                     	LDA EnemyState, X
-0FA7B F0 10                     	BEQ DoAreaReset_EnemyLoopEnd
+0FA4F AA                        	TAX
+0FA50 8E 45 05                  	STX CurrentMusicIndex
+0FA53                           IFNDEF PLAYER_STUFF
+0FA53                           	LDA StarInvincibilityTimer
+0FA53                           	CMP #$08
+0FA53                           	BCS EnsureCorrectMusic_Exit
+0FA53                           
+0FA53                           	LDA LevelMusicIndexes, X
+0FA53                           	STA MusicQueue1
+0FA53                           ENDIF
+0FA53                           IFDEF PLAYER_STUFF
+0FA53                           SetCustomMusicCorrect:
+0FA53 AD E0 04                  	LDA StarInvincibilityTimer
+0FA56 C9 08                     	CMP #$08
+0FA58 B0 0F                     	BCS EnsureCorrectMusic_Exit
+0FA5A                           
+0FA5A BD 47 F3                  	LDA LevelMusicIndexes, X
+0FA5D 8D 00 06                  	STA MusicQueue1
+0FA60                           
+0FA60 20 00 F4                      JSR CustomMusicChange
+0FA63                           
+0FA63 AD 44 05                  	LDA CompareMusicIndex
+0FA66 8D 45 05                      STA CurrentMusicIndex
+0FA69                           ENDIF
+0FA69                           
+0FA69                           EnsureCorrectMusic_Exit:
+0FA69 60                        	RTS
+0FA6A                           
+0FA6A                           
+0FA6A                           DoAreaReset:
+0FA6A A9 00                     	LDA #$00
+0FA6C 8D AE 04                  	STA AreaInitialized
+0FA6F 8D AF 04                  	STA ObjectCarriedOver
+0FA72 8D B7 04                  	STA SubspaceTimer
+0FA75 8D B3 04                  	STA SubspaceDoorTimer
+0FA78                           IFDEF PLAYER_STUFF
+0FA78 20 34 FD                      JSR LoadWorldCHRBanks
+0FA7B                           ENDIF
+0FA7B                           IFDEF CONTROLLER_2_DEBUG
+0FA7B                           	STA ChangeCharacterPoofTimer
+0FA7B                           ENDIF
+0FA7B A2 08                     	LDX #$08
 0FA7D                           
-0FA7D B5 A8                     	LDA ObjectBeingCarriedTimer, X
-0FA7F F0 09                     	BEQ DoAreaReset_AfterCarryOver
+0FA7D                           DoAreaReset_EnemyLoop:
+0FA7D B5 51                     	LDA EnemyState, X
+0FA7F F0 10                     	BEQ DoAreaReset_EnemyLoopEnd
 0FA81                           
-0FA81 B5 90                     	LDA ObjectType, X
-0FA83 C9 39                     	CMP #Enemy_MushroomBlock
-0FA85 F0 03                     	BEQ DoAreaReset_AfterCarryOver
-0FA87                           
-0FA87 8D AF 04                  	STA ObjectCarriedOver
-0FA8A                           
-0FA8A                           DoAreaReset_AfterCarryOver:
-0FA8A 20 93 FA                  	JSR AreaResetEnemyDestroy
-0FA8D                           
-0FA8D                           DoAreaReset_EnemyLoopEnd:
-0FA8D CA                        	DEX
-0FA8E 10 E9                     	BPL DoAreaReset_EnemyLoop
-0FA90                           
-0FA90 A6 12                     	LDX byte_RAM_12
-0FA92 60                        	RTS
-0FA93                           
-0FA93                           ; End of function DoAreaReset
-0FA93                           
-0FA93                           ; =============== S U B R O U T I N E =======================================
-0FA93                           
-0FA93                           AreaResetEnemyDestroy:
-0FA93                           	; load raw enemy data offset so we can allow the level object to respawn
-0FA93 BC 41 04                  	LDY unk_RAM_441, X
-0FA96                           	; nothing to reset if offset is invalid
-0FA96 30 06                     	BMI AreaResetEnemyDestroy_AfterAllowRespawn
-0FA98                           
-0FA98                           	; disabling bit 7 allows the object to respawn
-0FA98 B1 CC                     	LDA (RawEnemyData), Y
-0FA9A 29 7F                     	AND #$7F
-0FA9C 91 CC                     	STA (RawEnemyData), Y
-0FA9E                           
-0FA9E                           AreaResetEnemyDestroy_AfterAllowRespawn:
-0FA9E                           IFDEF PLAYER_STUFF
-0FA9E B5 51                     	LDA EnemyState, X
-0FAA0 F0 14                         BEQ +
-0FAA2 BD 10 76                      LDA Enemy_Fireball_Hits, X
-0FAA5 10 0F                         BPL +
-0FAA7 AD F2 76                      LDA ProjectileNumber
-0FAAA 10 05                         BPL ++
-0FAAC A9 00                         LDA #$0
-0FAAE 8D F2 76                      STA ProjectileNumber
-0FAB1 F0 03                     ++  BEQ +
-0FAB3 CE F2 76                      DEC ProjectileNumber
-0FAB6                           +
-0FAB6 A9 00                         LDA #0
-0FAB8 9D 10 76                      STA Enemy_Fireball_Hits, X
-0FABB 9D 20 76                      STA Enemy_Champion, X
-0FABE                           ENDIF
-0FABE A9 00                     	LDA #EnemyState_Inactive
-0FAC0 95 51                     	STA EnemyState, X
-0FAC2 60                        	RTS
-0FAC3                           
-0FAC3                           
-0FAC3                           ; End of function AreaResetEnemyDestroy
-0FAC3                           
-0FAC3                           ; =============== S U B R O U T I N E =======================================
-0FAC3                           
-0FAC3                           KillPlayer:
-0FAC3                           IFDEF PLAYER_STUFF
-0FAC3 A9 00                         LDA #$0
-0FAC5 8D F1 76                      STA ProjectileType
-0FAC8                           ENDIF
-0FAC8 A9 07                     	LDA #PlayerState_Dying ; Mark player as dead
-0FACA 85 50                     	STA PlayerState
-0FACC A9 00                     	LDA #$00 ; Clear some variables
-0FACE 8D C2 04                  	STA PlayerHealth
-0FAD1 8D CA 04                  	STA CrouchJumpTimer
-0FAD4 8D E0 04                  	STA StarInvincibilityTimer
-0FAD7 A9 07                     	LDA #SpriteAnimation_Dead ; Set player animation to dead?
-0FAD9 85 C7                     	STA PlayerAnimationFrame
-0FADB A5 9C                     	LDA HoldingItem
-0FADD F0 1E                     	BEQ loc_BANKF_F749
-0FADF                           
-0FADF                           	; Probably something to throw away
-0FADF                           	; a held item on death
-0FADF C6 9C                     	DEC HoldingItem
-0FAE1 AC 2D 04                  	LDY ObjectBeingCarriedIndex
-0FAE4 99 2F 04                  	STA EnemyArray_42F, Y
-0FAE7 4A                        	LSR A
-0FAE8 99 A8 00                  	STA ObjectBeingCarriedTimer, Y
-0FAEB 99 3D 00                  	STA ObjectXVelocity, Y
-0FAEE A9 E0                     	LDA #$E0
-0FAF0 86 0D                     	STX byte_RAM_D
-0FAF2 B6 51                     	LDX EnemyState, Y
-0FAF4 E0 07                     	CPX #EnemyState_7
-0FAF6 F0 03                     	BEQ loc_BANKF_F747
-0FAF8                           
-0FAF8 99 47 00                  	STA ObjectYVelocity, Y
-0FAFB                           
-0FAFB                           loc_BANKF_F747:
-0FAFB A6 0D                     	LDX byte_RAM_D
-0FAFD                           
-0FAFD                           loc_BANKF_F749:
-0FAFD                           	; Set music to death jingle
-0FAFD A9 08                     	LDA #Music2_DeathJingle
-0FAFF 8D 03 06                  	STA MusicQueue2
-0FB02                           	; BUG: Setting DPCM at the same time as music
-0FB02 A9 80                     	LDA #DPCM_PlayerDeath
-0FB04 8D 01 06                  	STA DPCMQueue
-0FB07 60                        	RTS
-0FB08                           
-0FB08                           ; End of function KillPlayer
-0FB08                           
-0FB08                           ; =============== S U B R O U T I N E =======================================
-0FB08                           
-0FB08                           ; Something to do with loading levels here
-0FB08                           
-0FB08                           IFDEF PLAYER_STUFF_BONUS
-0FB08                           LoadBonusLevelPtr:
-0FB08 A9 06                     	LDA #PRGBank_C_D
-0FB0A 20 FA FD                  	JSR ChangeMappedPRGBank
-0FB0D                           
-0FB0D 20 71 94                  	JSR GetLevelPointers_CD
-0FB10                           
-0FB10 A9 03                     	LDA #PRGBank_6_7
-0FB12 20 FA FD                  	JSR ChangeMappedPRGBank
-0FB15 60                            RTS
-0FB16                           ENDIF
-0FB16                           
-0FB16                           GetLevelPointers:
-0FB16 AC 31 05                  	LDY CurrentLevel
-0FB19 B9 00 80                  	LDA LevelAreaStartIndexes, Y
-0FB1C 18                        	CLC
-0FB1D 6D 32 05                  	ADC CurrentLevelArea
-0FB20 A8                        	TAY ; Y now contains the current area or something
-0FB21                           IFDEF FLAGSET
-0FB21 8D F0 73                      STA CurrentLevelAreaIndex
-0FB24                           ENDIF
-0FB24 B9 15 80                  	LDA LevelDataPointersLo, Y
-0FB27 85 05                     	STA byte_RAM_5 ; $0005/$0006 are pointers to the level data
-0FB29 B9 E7 80                  	LDA LevelDataPointersHi, Y
-0FB2C 85 06                     	STA byte_RAM_6
-0FB2E A2 FF                     	LDX #$FF ; Set to load level data into $7800 in RAM
-0FB30 A9 78                     	LDA #$78
-0FB32 85 02                     	STA byte_RAM_2
-0FB34 A0 00                     	LDY #$00
-0FB36 84 01                     	STY byte_RAM_1
-0FB38                           
-0FB38                           CopyLevelDataToMemory:
-0FB38 B1 05                     	LDA (byte_RAM_5), Y
-0FB3A 91 01                     	STA (byte_RAM_1), Y
-0FB3C C8                        	INY
-0FB3D CA                        	DEX
-0FB3E D0 F8                     	BNE CopyLevelDataToMemory
-0FB40                           
-0FB40 91 01                     	STA (byte_RAM_1), Y
-0FB42                           
-0FB42                           ; End of function GetLevelPointers
-0FB42                           
-0FB42                           ; =============== S U B R O U T I N E =======================================
-0FB42                           
-0FB42                           GetEnemyPointers:
-0FB42 AC 31 05                  	LDY CurrentLevel
-0FB45 B9 00 A5                  	LDA EnemyPointersByLevel_HiHi, Y
-0FB48 85 01                     	STA byte_RAM_1
-0FB4A B9 15 A5                  	LDA EnemyPointersByLevel_HiLo, Y
-0FB4D 85 00                     	STA byte_RAM_0
-0FB4F B9 2A A5                  	LDA EnemyPointersByLevel_LoHi, Y
-0FB52 85 03                     	STA byte_RAM_3
-0FB54 B9 3F A5                  	LDA EnemyPointersByLevel_LoLo, Y
-0FB57 85 02                     	STA byte_RAM_2
-0FB59 AD 28 06                  	LDA InSubspaceOrJar ; Are we in a jar?
-0FB5C C9 01                     	CMP #$01
-0FB5E D0 05                     	BNE loc_BANKF_F7A0 ; No, load the area as usual
-0FB60                           
-0FB60 A0 04                     	LDY #AreaIndex_Jar
-0FB62 4C 68 FB                  	JMP loc_BANKF_F7A3
-0FB65                           
-0FB65                           ; ---------------------------------------------------------------------------
-0FB65                           
-0FB65                           loc_BANKF_F7A0:
-0FB65 AC 32 05                  	LDY CurrentLevelArea
-0FB68                           
-0FB68                           loc_BANKF_F7A3:
-0FB68 B1 00                     	LDA (byte_RAM_0), Y
-0FB6A 85 01                     	STA byte_RAM_1
-0FB6C B1 02                     	LDA (byte_RAM_2), Y
-0FB6E 85 00                     	STA byte_RAM_0
-0FB70 A2 FF                     	LDX #$FF
-0FB72 A9 7B                     	LDA #>RawEnemyDataAddr
-0FB74 85 03                     	STA byte_RAM_3
-0FB76 A0 00                     	LDY #<RawEnemyDataAddr
-0FB78 84 02                     	STY byte_RAM_2
-0FB7A                           
-0FB7A                           CopyEnemyDataToMemory:
-0FB7A B1 00                     	LDA (byte_RAM_0), Y
-0FB7C 91 02                     	STA (byte_RAM_2), Y
-0FB7E C8                        	INY
-0FB7F CA                        	DEX
-0FB80 D0 F8                     	BNE CopyEnemyDataToMemory
-0FB82                           
-0FB82 60                        	RTS
-0FB83                           
-0FB83                           ; End of function GetEnemyPointers
-0FB83                           
-0FB83                           ; =============== S U B R O U T I N E =======================================
-0FB83                           
-0FB83                           GetJarPointers:
-0FB83 AC 31 05                  	LDY CurrentLevel ; Get the area starting index for the current level
-0FB86 B9 00 80                  	LDA LevelAreaStartIndexes, Y
-0FB89 18                        	CLC
-0FB8A 69 04                     	ADC #AreaIndex_Jar
-0FB8C A8                        	TAY
-0FB8D B9 15 80                  	LDA LevelDataPointersLo, Y
-0FB90 85 05                     	STA byte_RAM_5
-0FB92 B9 E7 80                  	LDA LevelDataPointersHi, Y
-0FB95 85 06                     	STA byte_RAM_6
-0FB97 A9 7A                     	LDA #>RawJarData
-0FB99 85 02                     	STA byte_RAM_2
-0FB9B A0 00                     	LDY #<RawJarData
-0FB9D 84 01                     	STY byte_RAM_1
-0FB9F                           
-0FB9F                           CopyJarDataToMemory:
-0FB9F B1 05                     	LDA (byte_RAM_5), Y
-0FBA1 C9 FF                     	CMP #$FF ; This one actually terminates on any $FF read! Welp.
-0FBA3 F0 06                     	BEQ CopyJarDataToMemoryFinished
-0FBA5                           
-0FBA5 91 01                     	STA (byte_RAM_1), Y
-0FBA7 C8                        	INY
-0FBA8 4C 9F FB                  	JMP CopyJarDataToMemory
-0FBAB                           
-0FBAB                           ; ---------------------------------------------------------------------------
-0FBAB                           
-0FBAB                           CopyJarDataToMemoryFinished:
-0FBAB 91 01                     	STA (byte_RAM_1), Y
-0FBAD 60                        	RTS
-0FBAE                           
-0FBAE                           ; End of function GetJarPointers
-0FBAE                           
-0FBAE                           
-0FBAE                           
-0FBAE                           EndOfLevelDoor: ; PPU data
-0FBAE 22 D0 04 FC FC AD FA      	.db $22,$D0,$04,$FC,$FC,$AD,$FA
-0FBB5 22 F0 04 FC FC AC AD      	.db $22,$F0,$04,$FC,$FC,$AC,$AD
-0FBBC 23 10 06 FC FC AC AC AD.. 	.db $23,$10,$06,$FC,$FC,$AC,$AC,$AD,$FA
-0FBC5 23 30 06 FC FC AC AC AC.. 	.db $23,$30,$06,$FC,$FC,$AC,$AC,$AC,$AD
-0FBCE 00                        	.db $00
-0FBCF                           
-0FBCF                           EndOfLevelDoorRowOffsets:
-0FBCF 00                        	.db $00
-0FBD0 07                        	.db $07
-0FBD1 0E                        	.db $0E
-0FBD2 17                        	.db $17
+0FA81 B5 A8                     	LDA ObjectBeingCarriedTimer, X
+0FA83 F0 09                     	BEQ DoAreaReset_AfterCarryOver
+0FA85                           
+0FA85 B5 90                     	LDA ObjectType, X
+0FA87 C9 39                     	CMP #Enemy_MushroomBlock
+0FA89 F0 03                     	BEQ DoAreaReset_AfterCarryOver
+0FA8B                           
+0FA8B 8D AF 04                  	STA ObjectCarriedOver
+0FA8E                           
+0FA8E                           DoAreaReset_AfterCarryOver:
+0FA8E 20 97 FA                  	JSR AreaResetEnemyDestroy
+0FA91                           
+0FA91                           DoAreaReset_EnemyLoopEnd:
+0FA91 CA                        	DEX
+0FA92 10 E9                     	BPL DoAreaReset_EnemyLoop
+0FA94                           
+0FA94 A6 12                     	LDX byte_RAM_12
+0FA96 60                        	RTS
+0FA97                           
+0FA97                           ; End of function DoAreaReset
+0FA97                           
+0FA97                           ; =============== S U B R O U T I N E =======================================
+0FA97                           
+0FA97                           AreaResetEnemyDestroy:
+0FA97                           	; load raw enemy data offset so we can allow the level object to respawn
+0FA97 BC 41 04                  	LDY unk_RAM_441, X
+0FA9A                           	; nothing to reset if offset is invalid
+0FA9A 30 06                     	BMI AreaResetEnemyDestroy_AfterAllowRespawn
+0FA9C                           
+0FA9C                           	; disabling bit 7 allows the object to respawn
+0FA9C B1 CC                     	LDA (RawEnemyData), Y
+0FA9E 29 7F                     	AND #$7F
+0FAA0 91 CC                     	STA (RawEnemyData), Y
+0FAA2                           
+0FAA2                           AreaResetEnemyDestroy_AfterAllowRespawn:
+0FAA2                           IFDEF PLAYER_STUFF
+0FAA2 B5 51                     	LDA EnemyState, X
+0FAA4 F0 14                         BEQ +
+0FAA6 BD 10 76                      LDA Enemy_Fireball_Hits, X
+0FAA9 10 0F                         BPL +
+0FAAB AD F2 76                      LDA ProjectileNumber
+0FAAE 10 05                         BPL ++
+0FAB0 A9 00                         LDA #$0
+0FAB2 8D F2 76                      STA ProjectileNumber
+0FAB5 F0 03                     ++  BEQ +
+0FAB7 CE F2 76                      DEC ProjectileNumber
+0FABA                           +
+0FABA A9 00                         LDA #0
+0FABC 9D 10 76                      STA Enemy_Fireball_Hits, X
+0FABF 9D 20 76                      STA Enemy_Champion, X
+0FAC2                           ENDIF
+0FAC2 A9 00                     	LDA #EnemyState_Inactive
+0FAC4 95 51                     	STA EnemyState, X
+0FAC6 60                        	RTS
+0FAC7                           
+0FAC7                           
+0FAC7                           ; End of function AreaResetEnemyDestroy
+0FAC7                           
+0FAC7                           ; =============== S U B R O U T I N E =======================================
+0FAC7                           
+0FAC7                           KillPlayer:
+0FAC7                           IFDEF PLAYER_STUFF
+0FAC7 A9 00                         LDA #$0
+0FAC9 8D F1 76                      STA ProjectileType
+0FACC                           ENDIF
+0FACC A9 07                     	LDA #PlayerState_Dying ; Mark player as dead
+0FACE 85 50                     	STA PlayerState
+0FAD0 A9 00                     	LDA #$00 ; Clear some variables
+0FAD2 8D C2 04                  	STA PlayerHealth
+0FAD5 8D CA 04                  	STA CrouchJumpTimer
+0FAD8 8D E0 04                  	STA StarInvincibilityTimer
+0FADB A9 07                     	LDA #SpriteAnimation_Dead ; Set player animation to dead?
+0FADD 85 C7                     	STA PlayerAnimationFrame
+0FADF A5 9C                     	LDA HoldingItem
+0FAE1 F0 1E                     	BEQ loc_BANKF_F749
+0FAE3                           
+0FAE3                           	; Probably something to throw away
+0FAE3                           	; a held item on death
+0FAE3 C6 9C                     	DEC HoldingItem
+0FAE5 AC 2D 04                  	LDY ObjectBeingCarriedIndex
+0FAE8 99 2F 04                  	STA EnemyArray_42F, Y
+0FAEB 4A                        	LSR A
+0FAEC 99 A8 00                  	STA ObjectBeingCarriedTimer, Y
+0FAEF 99 3D 00                  	STA ObjectXVelocity, Y
+0FAF2 A9 E0                     	LDA #$E0
+0FAF4 86 0D                     	STX byte_RAM_D
+0FAF6 B6 51                     	LDX EnemyState, Y
+0FAF8 E0 07                     	CPX #EnemyState_7
+0FAFA F0 03                     	BEQ loc_BANKF_F747
+0FAFC                           
+0FAFC 99 47 00                  	STA ObjectYVelocity, Y
+0FAFF                           
+0FAFF                           loc_BANKF_F747:
+0FAFF A6 0D                     	LDX byte_RAM_D
+0FB01                           
+0FB01                           loc_BANKF_F749:
+0FB01                           	; Set music to death jingle
+0FB01 A9 08                     	LDA #Music2_DeathJingle
+0FB03 8D 03 06                  	STA MusicQueue2
+0FB06                           	; BUG: Setting DPCM at the same time as music
+0FB06 A9 80                     	LDA #DPCM_PlayerDeath
+0FB08 8D 01 06                  	STA DPCMQueue
+0FB0B 60                        	RTS
+0FB0C                           
+0FB0C                           ; End of function KillPlayer
+0FB0C                           
+0FB0C                           ; =============== S U B R O U T I N E =======================================
+0FB0C                           
+0FB0C                           ; Something to do with loading levels here
+0FB0C                           
+0FB0C                           IFDEF PLAYER_STUFF_BONUS
+0FB0C                           LoadBonusLevelPtr:
+0FB0C A9 06                     	LDA #PRGBank_C_D
+0FB0E 20 03 FE                  	JSR ChangeMappedPRGBank
+0FB11                           
+0FB11 20 71 94                  	JSR GetLevelPointers_CD
+0FB14                           
+0FB14 A9 03                     	LDA #PRGBank_6_7
+0FB16 20 03 FE                  	JSR ChangeMappedPRGBank
+0FB19 60                            RTS
+0FB1A                           ENDIF
+0FB1A                           
+0FB1A                           GetLevelPointers:
+0FB1A AC 31 05                  	LDY CurrentLevel
+0FB1D B9 00 80                  	LDA LevelAreaStartIndexes, Y
+0FB20 18                        	CLC
+0FB21 6D 32 05                  	ADC CurrentLevelArea
+0FB24 A8                        	TAY ; Y now contains the current area or something
+0FB25                           IFDEF FLAGSET
+0FB25 8D F0 73                      STA CurrentLevelAreaIndex
+0FB28                           ENDIF
+0FB28 B9 15 80                  	LDA LevelDataPointersLo, Y
+0FB2B 85 05                     	STA byte_RAM_5 ; $0005/$0006 are pointers to the level data
+0FB2D B9 E7 80                  	LDA LevelDataPointersHi, Y
+0FB30 85 06                     	STA byte_RAM_6
+0FB32 A2 FF                     	LDX #$FF ; Set to load level data into $7800 in RAM
+0FB34 A9 78                     	LDA #$78
+0FB36 85 02                     	STA byte_RAM_2
+0FB38 A0 00                     	LDY #$00
+0FB3A 84 01                     	STY byte_RAM_1
+0FB3C                           
+0FB3C                           CopyLevelDataToMemory:
+0FB3C B1 05                     	LDA (byte_RAM_5), Y
+0FB3E 91 01                     	STA (byte_RAM_1), Y
+0FB40 C8                        	INY
+0FB41 CA                        	DEX
+0FB42 D0 F8                     	BNE CopyLevelDataToMemory
+0FB44                           
+0FB44 91 01                     	STA (byte_RAM_1), Y
+0FB46                           
+0FB46                           ; End of function GetLevelPointers
+0FB46                           
+0FB46                           ; =============== S U B R O U T I N E =======================================
+0FB46                           
+0FB46                           GetEnemyPointers:
+0FB46 AC 31 05                  	LDY CurrentLevel
+0FB49 B9 00 A5                  	LDA EnemyPointersByLevel_HiHi, Y
+0FB4C 85 01                     	STA byte_RAM_1
+0FB4E B9 15 A5                  	LDA EnemyPointersByLevel_HiLo, Y
+0FB51 85 00                     	STA byte_RAM_0
+0FB53 B9 2A A5                  	LDA EnemyPointersByLevel_LoHi, Y
+0FB56 85 03                     	STA byte_RAM_3
+0FB58 B9 3F A5                  	LDA EnemyPointersByLevel_LoLo, Y
+0FB5B 85 02                     	STA byte_RAM_2
+0FB5D AD 28 06                  	LDA InSubspaceOrJar ; Are we in a jar?
+0FB60 C9 01                     	CMP #$01
+0FB62 D0 05                     	BNE loc_BANKF_F7A0 ; No, load the area as usual
+0FB64                           
+0FB64 A0 04                     	LDY #AreaIndex_Jar
+0FB66 4C 6C FB                  	JMP loc_BANKF_F7A3
+0FB69                           
+0FB69                           ; ---------------------------------------------------------------------------
+0FB69                           
+0FB69                           loc_BANKF_F7A0:
+0FB69 AC 32 05                  	LDY CurrentLevelArea
+0FB6C                           
+0FB6C                           loc_BANKF_F7A3:
+0FB6C B1 00                     	LDA (byte_RAM_0), Y
+0FB6E 85 01                     	STA byte_RAM_1
+0FB70 B1 02                     	LDA (byte_RAM_2), Y
+0FB72 85 00                     	STA byte_RAM_0
+0FB74 A2 FF                     	LDX #$FF
+0FB76 A9 7B                     	LDA #>RawEnemyDataAddr
+0FB78 85 03                     	STA byte_RAM_3
+0FB7A A0 00                     	LDY #<RawEnemyDataAddr
+0FB7C 84 02                     	STY byte_RAM_2
+0FB7E                           
+0FB7E                           CopyEnemyDataToMemory:
+0FB7E B1 00                     	LDA (byte_RAM_0), Y
+0FB80 91 02                     	STA (byte_RAM_2), Y
+0FB82 C8                        	INY
+0FB83 CA                        	DEX
+0FB84 D0 F8                     	BNE CopyEnemyDataToMemory
+0FB86                           
+0FB86 60                        	RTS
+0FB87                           
+0FB87                           ; End of function GetEnemyPointers
+0FB87                           
+0FB87                           ; =============== S U B R O U T I N E =======================================
+0FB87                           
+0FB87                           GetJarPointers:
+0FB87 AC 31 05                  	LDY CurrentLevel ; Get the area starting index for the current level
+0FB8A B9 00 80                  	LDA LevelAreaStartIndexes, Y
+0FB8D 18                        	CLC
+0FB8E 69 04                     	ADC #AreaIndex_Jar
+0FB90 A8                        	TAY
+0FB91 B9 15 80                  	LDA LevelDataPointersLo, Y
+0FB94 85 05                     	STA byte_RAM_5
+0FB96 B9 E7 80                  	LDA LevelDataPointersHi, Y
+0FB99 85 06                     	STA byte_RAM_6
+0FB9B A9 7A                     	LDA #>RawJarData
+0FB9D 85 02                     	STA byte_RAM_2
+0FB9F A0 00                     	LDY #<RawJarData
+0FBA1 84 01                     	STY byte_RAM_1
+0FBA3                           
+0FBA3                           CopyJarDataToMemory:
+0FBA3 B1 05                     	LDA (byte_RAM_5), Y
+0FBA5 C9 FF                     	CMP #$FF ; This one actually terminates on any $FF read! Welp.
+0FBA7 F0 06                     	BEQ CopyJarDataToMemoryFinished
+0FBA9                           
+0FBA9 91 01                     	STA (byte_RAM_1), Y
+0FBAB C8                        	INY
+0FBAC 4C A3 FB                  	JMP CopyJarDataToMemory
+0FBAF                           
+0FBAF                           ; ---------------------------------------------------------------------------
+0FBAF                           
+0FBAF                           CopyJarDataToMemoryFinished:
+0FBAF 91 01                     	STA (byte_RAM_1), Y
+0FBB1 60                        	RTS
+0FBB2                           
+0FBB2                           ; End of function GetJarPointers
+0FBB2                           
+0FBB2                           
+0FBB2                           
+0FBB2                           EndOfLevelDoor: ; PPU data
+0FBB2 22 D0 04 FC FC AD FA      	.db $22,$D0,$04,$FC,$FC,$AD,$FA
+0FBB9 22 F0 04 FC FC AC AD      	.db $22,$F0,$04,$FC,$FC,$AC,$AD
+0FBC0 23 10 06 FC FC AC AC AD.. 	.db $23,$10,$06,$FC,$FC,$AC,$AC,$AD,$FA
+0FBC9 23 30 06 FC FC AC AC AC.. 	.db $23,$30,$06,$FC,$FC,$AC,$AC,$AC,$AD
+0FBD2 00                        	.db $00
 0FBD3                           
-0FBD3                           DefaultCHRAnimationSpeed_Level:
-0FBD3 00                        	.db $00 ; 1-1
-0FBD4 00                        	.db $00 ; 1-1
-0FBD5 06                        	.db $06 ; 3-1
-0FBD6 06                        	.db $06 ; 3-1
-0FBD7 0A                        	.db $0A ; 4-2
-0FBD8 0A                        	.db $0A ; 4-2
-0FBD9 0B                        	.db $0B ; 4-3
-0FBDA 0D                        	.db $0D ; 5-2
-0FBDB 0E                        	.db $0E ; 5-3
-0FBDC 11                        	.db $11 ; 6-3
-0FBDD 11                        	.db $11 ; 6-3
-0FBDE 12                        	.db $12 ; 7-1
-0FBDF 12                        	.db $12 ; 7-1
-0FBE0 12                        	.db $12 ; 7-1
-0FBE1 12                        	.db $12 ; 7-1
-0FBE2 13                        	.db $13 ; 7-2
-0FBE3                           
-0FBE3                           DefaultCHRAnimationSpeed_Area:
-0FBE3 01                        	.db $01 ; 1-1 upward climb
-0FBE4 05                        	.db $05 ; 1-1 birdo
-0FBE5 01                        	.db $01 ; 3-1 main part
-0FBE6 03                        	.db $03 ; 3-1 sky part
-0FBE7 01                        	.db $01 ; 4-2 sky ice
-0FBE8 02                        	.db $02 ; 4-2 whales
-0FBE9 04                        	.db $04 ; 4-3 tower tops
-0FBEA 02                        	.db $02 ; 5-2 upward climb
-0FBEB 04                        	.db $04 ; 5-3 miniboss birdo
-0FBEC 03                        	.db $03 ; 6-3 upward climb
-0FBED 04                        	.db $04 ; 6-3 sky pyramid
-0FBEE 00                        	.db $00 ; 7-1 beginning area
-0FBEF 01                        	.db $01 ; 7-1 albatoss area
-0FBF0 02                        	.db $02 ; 7-1 cloud maze
-0FBF1 03                        	.db $03 ; 7-1 upward climb
-0FBF2 00                        	.db $00 ; 7-2 entrance
-0FBF3                           
-0FBF3                           BackgroundCHRAnimationSpeedByWorld:
-0FBF3 07                        	.db $07 ; World 1
-0FBF4 07                        	.db $07 ; World 2
-0FBF5 07                        	.db $07 ; World 3
-0FBF6 07                        	.db $07 ; World 4
-0FBF7 09                        	.db $09 ; World 5
-0FBF8 07                        	.db $07 ; World 6
-0FBF9 05                        	.db $05 ; World 7
-0FBFA 0B                        	.db $0B ; Default
-0FBFB                           
-0FBFB                           
-0FBFB                           ;
-0FBFB                           ; Increments the frame of the CHR animation using the world/area speed
-0FBFB                           ;
-0FBFB                           AnimateCHRRoutine:
-0FBFB CE FD 06                  	DEC BackgroundCHR2Timer
-0FBFE 10 2E                     	BPL AnimateCHRRoutine_Exit
-0FC00                           
-0FC00 A2 07                     	LDX #$07 ; default index for animation speed table
-0FC02                           
-0FC02                           	; Certain level/area combinations use a fixed animation speed.
-0FC02                           	; It seems to be used in areas that prominently feature cloud platforms.
-0FC02                           	; This loop performs the lookup to see if that should happen.
-0FC02 A0 0F                     	LDY #(DefaultCHRAnimationSpeed_Area - DefaultCHRAnimationSpeed_Level - 1)
-0FC04                           AnimateCHRRoutine_DefaultSpeedLoop:
-0FC04 AD E7 04                  	LDA CurrentLevel_Init
-0FC07 D9 D3 FB                  	CMP DefaultCHRAnimationSpeed_Level, Y
-0FC0A D0 08                     	BNE AnimateCHRRoutine_DefaultSpeedNext
-0FC0C                           
-0FC0C AD E8 04                  	LDA CurrentLevelArea_Init
-0FC0F D9 E3 FB                  	CMP DefaultCHRAnimationSpeed_Area, Y
-0FC12 F0 06                     	BEQ AnimateCHRRoutine_SetSpeed
-0FC14                           
-0FC14                           AnimateCHRRoutine_DefaultSpeedNext:
-0FC14 88                        	DEY
-0FC15 10 ED                     	BPL AnimateCHRRoutine_DefaultSpeedLoop
-0FC17                           
-0FC17 AE 34 06                  	LDX CurrentWorldTileset
-0FC1A                           
-0FC1A                           AnimateCHRRoutine_SetSpeed:
-0FC1A BD F3 FB                  	LDA BackgroundCHRAnimationSpeedByWorld, X
-0FC1D 8D FD 06                  	STA BackgroundCHR2Timer
-0FC20 AC F8 06                  	LDY BackgroundCHR2
-0FC23 C8                        	INY
-0FC24 C8                        	INY
-0FC25                           
-0FC25                           AnimatedCHRCheck:
-0FC25                           IFDEF FIX_CHR_CYCLE
-0FC25 C0 27                     	CPY #CHRBank_Animated8 + 1
-0FC27                           ENDIF
-0FC27                           IFNDEF FIX_CHR_CYCLE
-0FC27                           	; Bug: This is in the original game
-0FC27                           	; The last frame of the animation is effectively skipped because
-0FC27                           	; we immediately reset to the first frame when we hit it.
-0FC27                           	CPY #CHRBank_Animated8
-0FC27                           ENDIF
-0FC27                           
-0FC27 90 02                     	BCC AnimateCHRRoutine_SetCHR
-0FC29                           
-0FC29 A0 18                     	LDY #CHRBank_Animated1
-0FC2B                           
-0FC2B                           AnimateCHRRoutine_SetCHR:
-0FC2B 8C F8 06                  	STY BackgroundCHR2
+0FBD3                           EndOfLevelDoorRowOffsets:
+0FBD3 00                        	.db $00
+0FBD4 07                        	.db $07
+0FBD5 0E                        	.db $0E
+0FBD6 17                        	.db $17
+0FBD7                           
+0FBD7                           DefaultCHRAnimationSpeed_Level:
+0FBD7 00                        	.db $00 ; 1-1
+0FBD8 00                        	.db $00 ; 1-1
+0FBD9 06                        	.db $06 ; 3-1
+0FBDA 06                        	.db $06 ; 3-1
+0FBDB 0A                        	.db $0A ; 4-2
+0FBDC 0A                        	.db $0A ; 4-2
+0FBDD 0B                        	.db $0B ; 4-3
+0FBDE 0D                        	.db $0D ; 5-2
+0FBDF 0E                        	.db $0E ; 5-3
+0FBE0 11                        	.db $11 ; 6-3
+0FBE1 11                        	.db $11 ; 6-3
+0FBE2 12                        	.db $12 ; 7-1
+0FBE3 12                        	.db $12 ; 7-1
+0FBE4 12                        	.db $12 ; 7-1
+0FBE5 12                        	.db $12 ; 7-1
+0FBE6 13                        	.db $13 ; 7-2
+0FBE7                           
+0FBE7                           DefaultCHRAnimationSpeed_Area:
+0FBE7 01                        	.db $01 ; 1-1 upward climb
+0FBE8 05                        	.db $05 ; 1-1 birdo
+0FBE9 01                        	.db $01 ; 3-1 main part
+0FBEA 03                        	.db $03 ; 3-1 sky part
+0FBEB 01                        	.db $01 ; 4-2 sky ice
+0FBEC 02                        	.db $02 ; 4-2 whales
+0FBED 04                        	.db $04 ; 4-3 tower tops
+0FBEE 02                        	.db $02 ; 5-2 upward climb
+0FBEF 04                        	.db $04 ; 5-3 miniboss birdo
+0FBF0 03                        	.db $03 ; 6-3 upward climb
+0FBF1 04                        	.db $04 ; 6-3 sky pyramid
+0FBF2 00                        	.db $00 ; 7-1 beginning area
+0FBF3 01                        	.db $01 ; 7-1 albatoss area
+0FBF4 02                        	.db $02 ; 7-1 cloud maze
+0FBF5 03                        	.db $03 ; 7-1 upward climb
+0FBF6 00                        	.db $00 ; 7-2 entrance
+0FBF7                           
+0FBF7                           BackgroundCHRAnimationSpeedByWorld:
+0FBF7 07                        	.db $07 ; World 1
+0FBF8 07                        	.db $07 ; World 2
+0FBF9 07                        	.db $07 ; World 3
+0FBFA 07                        	.db $07 ; World 4
+0FBFB 09                        	.db $09 ; World 5
+0FBFC 07                        	.db $07 ; World 6
+0FBFD 05                        	.db $05 ; World 7
+0FBFE 0B                        	.db $0B ; Default
+0FBFF                           
+0FBFF                           
+0FBFF                           ;
+0FBFF                           ; Increments the frame of the CHR animation using the world/area speed
+0FBFF                           ;
+0FBFF                           AnimateCHRRoutine:
+0FBFF                           IFDEF PLAYER_STUFF
+0FBFF AD FF 04                      LDA StopwatchTimer
+0FC02 D0 33                         BNE AnimateCHRRoutine_Exit
+0FC04                           ENDIF
+0FC04 CE FD 06                  	DEC BackgroundCHR2Timer
+0FC07 10 2E                     	BPL AnimateCHRRoutine_Exit
+0FC09                           
+0FC09 A2 07                     	LDX #$07 ; default index for animation speed table
+0FC0B                           
+0FC0B                           	; Certain level/area combinations use a fixed animation speed.
+0FC0B                           	; It seems to be used in areas that prominently feature cloud platforms.
+0FC0B                           	; This loop performs the lookup to see if that should happen.
+0FC0B A0 0F                     	LDY #(DefaultCHRAnimationSpeed_Area - DefaultCHRAnimationSpeed_Level - 1)
+0FC0D                           AnimateCHRRoutine_DefaultSpeedLoop:
+0FC0D AD E7 04                  	LDA CurrentLevel_Init
+0FC10 D9 D7 FB                  	CMP DefaultCHRAnimationSpeed_Level, Y
+0FC13 D0 08                     	BNE AnimateCHRRoutine_DefaultSpeedNext
+0FC15                           
+0FC15 AD E8 04                  	LDA CurrentLevelArea_Init
+0FC18 D9 E7 FB                  	CMP DefaultCHRAnimationSpeed_Area, Y
+0FC1B F0 06                     	BEQ AnimateCHRRoutine_SetSpeed
+0FC1D                           
+0FC1D                           AnimateCHRRoutine_DefaultSpeedNext:
+0FC1D 88                        	DEY
+0FC1E 10 ED                     	BPL AnimateCHRRoutine_DefaultSpeedLoop
+0FC20                           
+0FC20 AE 34 06                  	LDX CurrentWorldTileset
+0FC23                           
+0FC23                           AnimateCHRRoutine_SetSpeed:
+0FC23 BD F7 FB                  	LDA BackgroundCHRAnimationSpeedByWorld, X
+0FC26 8D FD 06                  	STA BackgroundCHR2Timer
+0FC29 AC F8 06                  	LDY BackgroundCHR2
+0FC2C C8                        	INY
+0FC2D C8                        	INY
 0FC2E                           
-0FC2E                           AnimateCHRRoutine_Exit:
-0FC2E 60                        	RTS
-0FC2F                           
-0FC2F                           
-0FC2F                           ; ---------------------------------------------------------------------------
-0FC2F                           
-0FC2F                           loc_BANKF_FAFE:
-0FC2F A2 08                     	LDX #$08 ; @TODO Something to with drawing certain sprites?
-0FC31                           
-0FC31                           loc_BANKF_FB00:
-0FC31 B5 51                     	LDA EnemyState, X
-0FC33 F0 18                     	BEQ loc_BANKF_FB1C
-0FC35                           
-0FC35                           loc_BANKF_FB04:
-0FC35 CA                        	DEX
-0FC36 10 F9                     	BPL loc_BANKF_FB00
+0FC2E                           AnimatedCHRCheck:
+0FC2E                           IFDEF FIX_CHR_CYCLE
+0FC2E C0 27                     	CPY #CHRBank_Animated8 + 1
+0FC30                           ENDIF
+0FC30                           IFNDEF FIX_CHR_CYCLE
+0FC30                           	; Bug: This is in the original game
+0FC30                           	; The last frame of the animation is effectively skipped because
+0FC30                           	; we immediately reset to the first frame when we hit it.
+0FC30                           	CPY #CHRBank_Animated8
+0FC30                           ENDIF
+0FC30                           
+0FC30 90 02                     	BCC AnimateCHRRoutine_SetCHR
+0FC32                           
+0FC32 A0 18                     	LDY #CHRBank_Animated1
+0FC34                           
+0FC34                           AnimateCHRRoutine_SetCHR:
+0FC34 8C F8 06                  	STY BackgroundCHR2
+0FC37                           
+0FC37                           AnimateCHRRoutine_Exit:
+0FC37 60                        	RTS
 0FC38                           
-0FC38 A0 00                     	LDY #$00
-0FC3A B9 00 02                  	LDA SpriteDMAArea, Y
-0FC3D C9 F8                     	CMP #$F8
-0FC3F D0 07                     	BNE loc_BANKF_FB17
+0FC38                           
+0FC38                           ; ---------------------------------------------------------------------------
+0FC38                           
+0FC38                           loc_BANKF_FAFE:
+0FC38 A2 08                     	LDX #$08 ; @TODO Something to with drawing certain sprites?
+0FC3A                           
+0FC3A                           loc_BANKF_FB00:
+0FC3A B5 51                     	LDA EnemyState, X
+0FC3C F0 18                     	BEQ loc_BANKF_FB1C
+0FC3E                           
+0FC3E                           loc_BANKF_FB04:
+0FC3E CA                        	DEX
+0FC3F 10 F9                     	BPL loc_BANKF_FB00
 0FC41                           
-0FC41 B9 04 02                  	LDA SpriteDMAArea + 4, Y
-0FC44 C9 F8                     	CMP #$F8
-0FC46 F0 02                     	BEQ loc_BANKF_FB19
-0FC48                           
-0FC48                           loc_BANKF_FB17:
-0FC48 A0 10                     	LDY #$10
+0FC41 A0 00                     	LDY #$00
+0FC43 B9 00 02                  	LDA SpriteDMAArea, Y
+0FC46 C9 F8                     	CMP #$F8
+0FC48 D0 07                     	BNE loc_BANKF_FB17
 0FC4A                           
-0FC4A                           loc_BANKF_FB19:
-0FC4A A6 12                     	LDX byte_RAM_12
-0FC4C 60                        	RTS
-0FC4D                           
-0FC4D                           ; ---------------------------------------------------------------------------
-0FC4D                           
-0FC4D                           loc_BANKF_FB1C:
-0FC4D 8A                        	TXA
-0FC4E 18                        	CLC
-0FC4F 6D 00 04                  	ADC SpriteFlickerSlot
-0FC52 A8                        	TAY
-0FC53 B9 08 F8                  	LDA byte_BANKF_F4DA, Y
-0FC56 A8                        	TAY
-0FC57 B9 00 02                  	LDA SpriteDMAArea, Y
-0FC5A C9 F8                     	CMP #$F8
-0FC5C D0 D7                     	BNE loc_BANKF_FB04
-0FC5E                           
-0FC5E B9 04 02                  	LDA SpriteDMAArea + 4, Y
-0FC61 C9 F8                     	CMP #$F8
-0FC63 D0 D0                     	BNE loc_BANKF_FB04
-0FC65 F0 E3                     	BEQ loc_BANKF_FB19
+0FC4A B9 04 02                  	LDA SpriteDMAArea + 4, Y
+0FC4D C9 F8                     	CMP #$F8
+0FC4F F0 02                     	BEQ loc_BANKF_FB19
+0FC51                           
+0FC51                           loc_BANKF_FB17:
+0FC51 A0 10                     	LDY #$10
+0FC53                           
+0FC53                           loc_BANKF_FB19:
+0FC53 A6 12                     	LDX byte_RAM_12
+0FC55 60                        	RTS
+0FC56                           
+0FC56                           ; ---------------------------------------------------------------------------
+0FC56                           
+0FC56                           loc_BANKF_FB1C:
+0FC56 8A                        	TXA
+0FC57 18                        	CLC
+0FC58 6D 00 04                  	ADC SpriteFlickerSlot
+0FC5B A8                        	TAY
+0FC5C B9 08 F8                  	LDA byte_BANKF_F4DA, Y
+0FC5F A8                        	TAY
+0FC60 B9 00 02                  	LDA SpriteDMAArea, Y
+0FC63 C9 F8                     	CMP #$F8
+0FC65 D0 D7                     	BNE loc_BANKF_FB04
 0FC67                           
-0FC67                           
-0FC67                           IFDEF EXTENDED_PTR_CONTINUE: 
-0FC67                               .include "src/extras/worldchange-f.asm"
-0FC67                           WorldChangeF:
-0FC67 48                            PHA ;; after this, reload character tables
-0FC68 4E 35 06                      LSR CurrentWorld
-0FC6B 4E 35 06                      LSR CurrentWorld
-0FC6E 4E 35 06                      LSR CurrentWorld
-0FC71 38                        -   SEC
-0FC72 E9 03                         SBC #$03
-0FC74 90 05                         BCC + 
-0FC76 EE 35 06                      INC CurrentWorld
-0FC79 D0 F6                         BNE -
-0FC7B 68                        +   PLA
-0FC7C 60                            RTS
-0FC7D                           ENDIF
-0FC7D                           
-0FC7D                           IFDEF HEALTH_REVAMP
-0FC7D                               .include "src/extras/health-revamp-3.asm
-0FC7D                           NewHealthRender:
-0FC7D 98                            TYA
-0FC7E 48                            PHA
-0FC7F 8A                            TXA
-0FC80 48                            PHA
-0FC81 AD C2 04                      LDA PlayerHealth
-0FC84 F0 0E                         BEQ ++
-0FC86 AE F1 76                      LDX ProjectileType
-0FC89 BD 40 E7                  	LDA ProjectileTileHealth, X
-0FC8C 99 01 02                  	STA SpriteDMAArea + 1, Y
-0FC8F 68                            PLA
-0FC90 AA                            TAX
-0FC91 4C 9B FC                      JMP +++
-0FC94 68                        ++  PLA
-0FC95 AA                            TAX
-0FC96                           DrawHealthPip:
-0FC96 A9 BA                         LDA #$BA
-0FC98 99 01 02                      STA SpriteDMAArea+1,Y
-0FC9B                           +++
-0FC9B A9 10                         LDA #$10
-0FC9D 99 03 02                      STA SpriteDMAArea+3,Y
-0FCA0 A9 03                         LDA #3
-0FCA2 99 02 02                      STA SpriteDMAArea+2,Y
-0FCA5 A5 00                         LDA byte_RAM_0
-0FCA7 99 00 02                      STA SpriteDMAArea,Y
-0FCAA 18                            CLC
-0FCAB 69 10                         ADC #$10
-0FCAD 85 00                         STA byte_RAM_0
-0FCAF E8                            INX
-0FCB0 E6 03                         INC byte_RAM_3
-0FCB2 E6 03                         INC byte_RAM_3
-0FCB4 A5 03                         LDA byte_RAM_3
-0FCB6 C9 06                         CMP #6
-0FCB8 B0 0C                         BCS +
-0FCBA CD C3 04                      CMP PlayerMaxHealth
-0FCBD B0 07                         BCS +
-0FCBF C8                            INY
-0FCC0 C8                            INY
-0FCC1 C8                            INY
-0FCC2 C8                            INY
-0FCC3 4C 96 FC                      JMP DrawHealthPip
-0FCC6 68                        +   PLA
-0FCC7 AA                            TAX
-0FCC8 98                            TYA
-0FCC9 85 03                         STA byte_RAM_3
-0FCCB AD C2 04                      LDA PlayerHealth
-0FCCE F0 44                         BEQ EndDrawHealth
-0FCD0                           FillHealthPip:
-0FCD0 E9 10                         SBC #$10
-0FCD2 90 23                         BCC EndFillHealth
-0FCD4 A8                            TAY
-0FCD5 BD 01 02                      LDA SpriteDMAArea+1,X
-0FCD8 C9 BA                         CMP #$BA
-0FCDA D0 05                         BNE +
-0FCDC A9 B8                         LDA #$B8
-0FCDE 9D 01 02                      STA SpriteDMAArea+1,X
-0FCE1                           +
-0FCE1 DE 02 02                      DEC SpriteDMAArea+2,X
-0FCE4 DE 02 02                      DEC SpriteDMAArea+2,X
-0FCE7 98                            TYA
-0FCE8 E9 10                         SBC #$10
-0FCEA 90 0B                         BCC EndFillHealth
-0FCEC                               ;DEC SpriteDMAArea+2,X
-0FCEC                               ;SBC #$10
-0FCEC                               ;BCC EndFillHealth
-0FCEC E8                            INX
-0FCED E4 03                         CPX byte_RAM_3
-0FCEF B0 06                         BCS EndFillHealth
-0FCF1 E8                            INX
-0FCF2 E8                            INX
-0FCF3 E8                            INX
-0FCF4 4C D0 FC                      JMP FillHealthPip
-0FCF7                           EndFillHealth:
-0FCF7 AD C2 04                      LDA PlayerHealth
-0FCFA C9 8F                         CMP #$8F
-0FCFC B0 16                         BCS EndDrawHealth
-0FCFE A9 12                         LDA #$12
-0FD00 9D 03 02                      STA SpriteDMAArea+3,X
-0FD03 AC F8 06                      LDY BackgroundCHR2 
-0FD06 C0 20                         CPY #$20
-0FD08 90 0A                         BCC EndDrawHealth
-0FD0A BD 02 02                      LDA SpriteDMAArea+2,X
-0FD0D C9 03                         CMP #$3
-0FD0F D0 03                         BNE EndDrawHealth
-0FD11 DE 02 02                      DEC SpriteDMAArea+2,X
-0FD14                               ;LDA #$B8
-0FD14                               ;STA SpriteDMAArea+1,X
-0FD14                               ;DEC SpriteDMAArea+2,X
-0FD14                               ;DEC SpriteDMAArea+2,X
-0FD14                           EndDrawHealth:
-0FD14 60                            RTS
-0FD15                           ENDIF
-0FD15                           
-0FD15                           ; Unused space in the original ($FB36 - $FDFF)
-0FD15                           unusedSpace $FE00, $FF
-0FD15                           	IFDEF PRESERVE_UNUSED_SPACE
-0FD15                           		.pad $FE00, $FF
-0FD15                           	ENDIF
-0FD15                           
-0FD15                           
-0FD15                           CHRBank_WorldEnemies:
-0FD15 0C                        	.db CHRBank_EnemiesGrass
-0FD16 0D                        	.db CHRBank_EnemiesDesert
-0FD17 0C                        	.db CHRBank_EnemiesGrass
-0FD18 0E                        	.db CHRBank_EnemiesIce
-0FD19 0C                        	.db CHRBank_EnemiesGrass
-0FD1A 0D                        	.db CHRBank_EnemiesDesert
-0FD1B 0F                        	.db CHRBank_EnemiesSky
-0FD1C                           
-0FD1C                           CHRBank_WorldBossBackground:
-0FD1C 10                        	.db CHRBank_BackgroundGrass
-0FD1D 12                        	.db CHRBank_BackgroundDesert
-0FD1E 10                        	.db CHRBank_BackgroundGrass
-0FD1F 14                        	.db CHRBank_BackgroundIce
-0FD20 0A                        	.db CHRBank_BackgroundGrassClawgrip
-0FD21 12                        	.db CHRBank_BackgroundDesert
-0FD22 16                        	.db CHRBank_BackgroundSky
-0FD23                           
-0FD23                           CHRBank_CharacterSize:
-0FD23 00                        	.db CHRBank_Mario
-0FD24 04                        	.db CHRBank_MarioSmall
-0FD25 02                        	.db CHRBank_Princess
-0FD26 06                        	.db CHRBank_PrincessSmall
-0FD27 03                        	.db CHRBank_Toad
-0FD28 07                        	.db CHRBank_ToadSmall
-0FD29 01                        	.db CHRBank_Luigi
-0FD2A 05                        	.db CHRBank_LuigiSmall
-0FD2B                           
-0FD2B                           
-0FD2B                           LoadWorldCHRBanks:
-0FD2B A0 08                     	LDY #CHRBank_CommonEnemies1
-0FD2D 8C FA 06                  	STY SpriteCHR2
-0FD30 C8                        	INY
-0FD31 8C FB 06                  	STY SpriteCHR3
-0FD34 AC 34 06                  	LDY CurrentWorldTileset
-0FD37 B9 15 FD                  	LDA CHRBank_WorldEnemies, Y
-0FD3A 8D FC 06                  	STA SpriteCHR4
-0FD3D B9 1C FD                  	LDA CHRBank_WorldBossBackground, Y
-0FD40 8D F7 06                  	STA BackgroundCHR1
-0FD43 A9 18                     	LDA #CHRBank_Animated1
-0FD45 8D F8 06                  	STA BackgroundCHR2
-0FD48                           
-0FD48                           LoadCharacterCHRBanks:
-0FD48 A5 8F                     	LDA CurrentCharacter
-0FD4A 0A                        	ASL A
-0FD4B 0D F6 06                  	ORA PlayerCurrentSize
-0FD4E A8                        	TAY
-0FD4F B9 23 FD                  	LDA CHRBank_CharacterSize, Y
-0FD52 8D F9 06                  	STA SpriteCHR1
-0FD55 60                        	RTS
-0FD56                           
-0FD56                           
-0FD56                           LoadTitleScreenCHRBanks:
-0FD56                           IFDEF PLAYER_STUFF
-0FD56 A9 00                         LDA #$0
-0FD58 8D F9 06                      STA SpriteCHR1
-0FD5B A9 01                         LDA #$1
-0FD5D 8D FA 06                      STA SpriteCHR2
-0FD60 A9 02                         LDA #$2
-0FD62 8D FB 06                      STA SpriteCHR3
-0FD65 A9 03                         LDA #$3
-0FD67 8D FC 06                      STA SpriteCHR4
-0FD6A                           ENDIF
-0FD6A A9 28                     	LDA #CHRBank_TitleScreenBG1
-0FD6C 8D F7 06                  	STA BackgroundCHR1
-0FD6F A9 2A                     	LDA #CHRBank_TitleScreenBG2
-0FD71 8D F8 06                  	STA BackgroundCHR2
-0FD74 60                        	RTS
-0FD75                           
-0FD75                           
-0FD75                           LoadCelebrationSceneBackgroundCHR:
-0FD75 A9 38                     	LDA #CHRBank_CelebrationBG1
-0FD77 8D F7 06                  	STA BackgroundCHR1
-0FD7A A9 3A                     	LDA #CHRBank_CelebrationBG2
-0FD7C 8D F8 06                  	STA BackgroundCHR2
-0FD7F 60                        	RTS
-0FD80                           
-0FD80                           
-0FD80                           LoadCharacterSelectCHRBanks:
-0FD80 A9 30                     	LDA #CHRBank_CharacterSelectSprites
-0FD82 8D F9 06                  	STA SpriteCHR1
-0FD85 A9 2C                     	LDA #CHRBank_CharacterSelectBG1
-0FD87 8D F7 06                  	STA BackgroundCHR1
-0FD8A A9 2E                     	LDA #CHRBank_CharacterSelectBG2
-0FD8C 8D F8 06                  	STA BackgroundCHR2
-0FD8F 60                        	RTS
-0FD90                           
-0FD90                           
-0FD90                           TitleCardCHRBanks:
-0FD90 40                        	.db CHRBank_TitleCardGrass
-0FD91 42                        	.db CHRBank_TitleCardDesert
-0FD92 40                        	.db CHRBank_TitleCardGrass
-0FD93 44                        	.db CHRBank_TitleCardIce
-0FD94 40                        	.db CHRBank_TitleCardGrass
-0FD95 42                        	.db CHRBank_TitleCardDesert
-0FD96 46                        	.db CHRBank_TitleCardSky
-0FD97                           
-0FD97                           
-0FD97                           ChangeTitleCardCHR:
-0FD97 AC 35 06                  	LDY CurrentWorld
-0FD9A B9 90 FD                  	LDA TitleCardCHRBanks, Y
-0FD9D 8D F8 06                  	STA BackgroundCHR2
-0FDA0 60                        	RTS
-0FDA1                           
-0FDA1                           
-0FDA1                           LoadBonusChanceCHRBanks:
-0FDA1 A9 34                     	LDA #CHRBank_ChanceBG1
-0FDA3 8D F7 06                  	STA BackgroundCHR1
-0FDA6 A9 36                     	LDA #CHRBank_ChanceBG2
-0FDA8 8D F8 06                  	STA BackgroundCHR2
-0FDAB 60                        	RTS
-0FDAC                           
-0FDAC                           
-0FDAC                           LoadMarioSleepingCHRBanks:
-0FDAC A0 48                     	LDY #CHRBank_EndingSprites
-0FDAE 8C F9 06                  	STY SpriteCHR1
-0FDB1 C8                        	INY
-0FDB2 8C FA 06                  	STY SpriteCHR2
-0FDB5 A9 50                     	LDA #CHRBank_EndingBackground1
-0FDB7 8D F7 06                  	STA BackgroundCHR1
-0FDBA A9 52                     	LDA #CHRBank_EndingBackground1 + 2
-0FDBC 8D F8 06                  	STA BackgroundCHR2
-0FDBF 60                        	RTS
-0FDC0                           
-0FDC0                           
-0FDC0                           ; Unused space in the original ($FE97 - $FF4F)
-0FDC0                           unusedSpace $FF50, $FF
-0FDC0                           	IFDEF PRESERVE_UNUSED_SPACE
-0FDC0                           		.pad $FF50, $FF
-0FDC0                           	ENDIF
-0FDC0                           
-0FDC0                           
-0FDC0                           ; public RESET
-0FDC0                           ; This code is called when the NES is reset
-0FDC0                           RESET:
-0FDC0 78                        	SEI
-0FDC1 D8                        	CLD
-0FDC2 A9 00                     	LDA #PPUCtrl_Base2000 | PPUCtrl_WriteHorizontal | PPUCtrl_Sprite0000 | PPUCtrl_Background0000 | PPUCtrl_SpriteSize8x8 | PPUCtrl_NMIDisabled
-0FDC4 8D 00 20                  	STA PPUCTRL
-0FDC7 A2 FF                     	LDX #$FF ; Reset stack pointer
-0FDC9 9A                        	TXS
-0FDCA                           
-0FDCA                           RESET_VBlankLoop:
-0FDCA                           	; Wait for first VBlank
-0FDCA AD 02 20                  	LDA PPUSTATUS
-0FDCD 29 80                     	AND #PPUStatus_VBlankHit
-0FDCF F0 F9                     	BEQ RESET_VBlankLoop
-0FDD1                           
-0FDD1                           RESET_VBlank2Loop:
-0FDD1                           	; Wait for second VBlank
-0FDD1 AD 02 20                  	LDA PPUSTATUS
-0FDD4 10 FB                     	BPL RESET_VBlank2Loop
-0FDD6                           
-0FDD6                           IFDEF DEBUG
-0FDD6 A9 00                     	LDA #$00
-0FDD8 8D EF 7F                  	STA Debug_InMenu
-0FDDB                           ENDIF
-0FDDB                           
-0FDDB A9 00                     	LDA #VMirror
-0FDDD 8D 00 A0                  	STA NametableMapping
-0FDE0 A9 80                     	LDA #$80
-0FDE2 8D 01 A0                  	STA $A001
-0FDE5 4C D9 DB                  	JMP StartGame
-0FDE8                           
-0FDE8                           
-0FDE8                           IFNDEF MMC5
-0FDE8                           ;
-0FDE8                           ; Switches the current CHR banks
-0FDE8                           ;
-0FDE8                           ChangeCHRBanks:
-0FDE8 A0 05                     	LDY #$05
-0FDEA                           ChangeCHRBanks_Loop:
-0FDEA 98                        	TYA
-0FDEB 09 80                     	ORA #$80
-0FDED 8D 00 80                  	STA $8000
-0FDF0 B9 F7 06                  	LDA BackgroundCHR1, Y
-0FDF3 8D 01 80                  	STA $8001
-0FDF6 88                        	DEY
-0FDF7 10 F1                     	BPL ChangeCHRBanks_Loop
-0FDF9                           
-0FDF9 60                        	RTS
-0FDFA                           ENDIF
-0FDFA                           
-0FDFA                           IFDEF MMC5
-0FDFA                           ;
-0FDFA                           ; Switches the current CHR banks
-0FDFA                           ;
-0FDFA                           ChangeCHRBanks:
-0FDFA                           	JMP ChangeCHRBanks_MMC5
-0FDFA                           
-0FDFA                           	; Maintain location of the next subroutine
-0FDFA                           	unusedSpace $FF85, $FF
-0FDFA                           
-0FDFA                           ENDIF
-0FDFA                           
-0FDFA                           
-0FDFA                           ;
-0FDFA                           ; Calling this one will save the changed bank
-0FDFA                           ; to RAM, so if something uses the below version
-0FDFA                           ; the original bank set with this can be restored.
-0FDFA                           ;
-0FDFA                           ChangeMappedPRGBank:
-0FDFA 8D F2 06                  	STA MMC3PRGBankTemp ; See below comment.
-0FDFD                           
-0FDFD                           ;
-0FDFD                           ; Any call to this sub switches the lower two banks together, eg:
-0FDFD                           ; LDA 0 JSR Change... = Bank 0/1
-0FDFD                           ; LDA 1 JSR Change... = Bank 2/3
-0FDFD                           ; etc.
-0FDFD                           ;
-0FDFD                           ; This version changes the bank numbers without
-0FDFD                           ; saving the change to RAM, so the previous bank
-0FDFD                           ; can be recalled later (mostly for temporary switches,
-0FDFD                           ; like music handling and such)
-0FDFD                           ;
-0FDFD                           ChangeMappedPRGBankWithoutSaving:
-0FDFD 0A                        	ASL A
-0FDFE                           IFNDEF MMC5
-0FDFE 48                        	PHA
-0FDFF A9 86                     	LDA #$86
-0FE01 8D 00 80                  	STA $8000
-0FE04 68                        	PLA
-0FE05 8D 01 80                  	STA $8001 ; Change first bank
-0FE08 09 01                     	ORA #$01 ; Use the bank right after this one next
-0FE0A 48                        	PHA
-0FE0B A9 87                     	LDA #$87
-0FE0D 8D 00 80                  	STA $8000
-0FE10 68                        	PLA
-0FE11 8D 01 80                  	STA $8001 ; Change second bank
-0FE14 60                        	RTS
-0FE15                           ENDIF
-0FE15                           IFDEF MMC5
-0FE15                           	ORA #$80
-0FE15                           	STA $5114
-0FE15                           	ORA #$01
-0FE15                           	STA $5115
-0FE15                           	RTS
-0FE15                           
-0FE15                           	; Maintain location of the next subroutine
-0FE15                           	unusedSpace $FFA0, $FF
-0FE15                           
-0FE15                           ENDIF
-0FE15                           
-0FE15                           
-0FE15                           ;
-0FE15                           ; Writing to $A000 sets mirroring.
-0FE15                           ;   A = $00 for vertical
-0FE15                           ;   A = $01 for horizontal
-0FE15                           ;
-0FE15                           ChangeNametableMirroring:
-0FE15 8D 00 A0                  	STA NametableMapping
-0FE18 60                        	RTS
-0FE19                           
-0FE19                           
-0FE19                           ; Unused space in the original ($FFA4 - $FFEA)
-0FE19                           unusedSpace $FFEB, $FF
-0FE19                           	IFDEF PRESERVE_UNUSED_SPACE
-0FE19                           		.pad $FFEB, $FF
-0FE19                           	ENDIF
-0FE19                           
-0FE19                           ; Technically you can delete the stuff from here to the vector table as well,
-0FE19                           ; but because it looks slightly less like unused space it isn't being removed.
-0FE19                           
-0FE19                           ; Not used; leftover part of FamicomBox cart title?
-0FE19                           UnusedTextZELDA:
-0FE19 5A 45 4C 44 41            	.db 'ZELDA'
+0FC67 B9 04 02                  	LDA SpriteDMAArea + 4, Y
+0FC6A C9 F8                     	CMP #$F8
+0FC6C D0 D0                     	BNE loc_BANKF_FB04
+0FC6E F0 E3                     	BEQ loc_BANKF_FB19
+0FC70                           
+0FC70                           
+0FC70                           IFDEF EXTENDED_PTR_CONTINUE: 
+0FC70                               .include "src/extras/worldchange-f.asm"
+0FC70                           WorldChangeF:
+0FC70 48                            PHA ;; after this, reload character tables
+0FC71 4E 35 06                      LSR CurrentWorld
+0FC74 4E 35 06                      LSR CurrentWorld
+0FC77 4E 35 06                      LSR CurrentWorld
+0FC7A 38                        -   SEC
+0FC7B E9 03                         SBC #$03
+0FC7D 90 05                         BCC + 
+0FC7F EE 35 06                      INC CurrentWorld
+0FC82 D0 F6                         BNE -
+0FC84 68                        +   PLA
+0FC85 60                            RTS
+0FC86                           ENDIF
+0FC86                           
+0FC86                           IFDEF HEALTH_REVAMP
+0FC86                               .include "src/extras/health-revamp-3.asm
+0FC86                           NewHealthRender:
+0FC86 98                            TYA
+0FC87 48                            PHA
+0FC88 8A                            TXA
+0FC89 48                            PHA
+0FC8A AD C2 04                      LDA PlayerHealth
+0FC8D F0 0E                         BEQ ++
+0FC8F AE F1 76                      LDX ProjectileType
+0FC92 BD 40 E7                  	LDA ProjectileTileHealth, X
+0FC95 99 01 02                  	STA SpriteDMAArea + 1, Y
+0FC98 68                            PLA
+0FC99 AA                            TAX
+0FC9A 4C A4 FC                      JMP +++
+0FC9D 68                        ++  PLA
+0FC9E AA                            TAX
+0FC9F                           DrawHealthPip:
+0FC9F A9 BA                         LDA #$BA
+0FCA1 99 01 02                      STA SpriteDMAArea+1,Y
+0FCA4                           +++
+0FCA4 A9 10                         LDA #$10
+0FCA6 99 03 02                      STA SpriteDMAArea+3,Y
+0FCA9 A9 03                         LDA #3
+0FCAB 99 02 02                      STA SpriteDMAArea+2,Y
+0FCAE A5 00                         LDA byte_RAM_0
+0FCB0 99 00 02                      STA SpriteDMAArea,Y
+0FCB3 18                            CLC
+0FCB4 69 10                         ADC #$10
+0FCB6 85 00                         STA byte_RAM_0
+0FCB8 E8                            INX
+0FCB9 E6 03                         INC byte_RAM_3
+0FCBB E6 03                         INC byte_RAM_3
+0FCBD A5 03                         LDA byte_RAM_3
+0FCBF C9 06                         CMP #6
+0FCC1 B0 0C                         BCS +
+0FCC3 CD C3 04                      CMP PlayerMaxHealth
+0FCC6 B0 07                         BCS +
+0FCC8 C8                            INY
+0FCC9 C8                            INY
+0FCCA C8                            INY
+0FCCB C8                            INY
+0FCCC 4C 9F FC                      JMP DrawHealthPip
+0FCCF 68                        +   PLA
+0FCD0 AA                            TAX
+0FCD1 98                            TYA
+0FCD2 85 03                         STA byte_RAM_3
+0FCD4 AD C2 04                      LDA PlayerHealth
+0FCD7 F0 44                         BEQ EndDrawHealth
+0FCD9                           FillHealthPip:
+0FCD9 E9 10                         SBC #$10
+0FCDB 90 23                         BCC EndFillHealth
+0FCDD A8                            TAY
+0FCDE BD 01 02                      LDA SpriteDMAArea+1,X
+0FCE1 C9 BA                         CMP #$BA
+0FCE3 D0 05                         BNE +
+0FCE5 A9 B8                         LDA #$B8
+0FCE7 9D 01 02                      STA SpriteDMAArea+1,X
+0FCEA                           +
+0FCEA DE 02 02                      DEC SpriteDMAArea+2,X
+0FCED DE 02 02                      DEC SpriteDMAArea+2,X
+0FCF0 98                            TYA
+0FCF1 E9 10                         SBC #$10
+0FCF3 90 0B                         BCC EndFillHealth
+0FCF5                               ;DEC SpriteDMAArea+2,X
+0FCF5                               ;SBC #$10
+0FCF5                               ;BCC EndFillHealth
+0FCF5 E8                            INX
+0FCF6 E4 03                         CPX byte_RAM_3
+0FCF8 B0 06                         BCS EndFillHealth
+0FCFA E8                            INX
+0FCFB E8                            INX
+0FCFC E8                            INX
+0FCFD 4C D9 FC                      JMP FillHealthPip
+0FD00                           EndFillHealth:
+0FD00 AD C2 04                      LDA PlayerHealth
+0FD03 C9 8F                         CMP #$8F
+0FD05 B0 16                         BCS EndDrawHealth
+0FD07 A9 12                         LDA #$12
+0FD09 9D 03 02                      STA SpriteDMAArea+3,X
+0FD0C AC F8 06                      LDY BackgroundCHR2 
+0FD0F C0 20                         CPY #$20
+0FD11 90 0A                         BCC EndDrawHealth
+0FD13 BD 02 02                      LDA SpriteDMAArea+2,X
+0FD16 C9 03                         CMP #$3
+0FD18 D0 03                         BNE EndDrawHealth
+0FD1A DE 02 02                      DEC SpriteDMAArea+2,X
+0FD1D                               ;LDA #$B8
+0FD1D                               ;STA SpriteDMAArea+1,X
+0FD1D                               ;DEC SpriteDMAArea+2,X
+0FD1D                               ;DEC SpriteDMAArea+2,X
+0FD1D                           EndDrawHealth:
+0FD1D 60                            RTS
+0FD1E                           ENDIF
+0FD1E                           
+0FD1E                           ; Unused space in the original ($FB36 - $FDFF)
+0FD1E                           unusedSpace $FE00, $FF
+0FD1E                           	IFDEF PRESERVE_UNUSED_SPACE
+0FD1E                           		.pad $FE00, $FF
+0FD1E                           	ENDIF
+0FD1E                           
+0FD1E                           
+0FD1E                           CHRBank_WorldEnemies:
+0FD1E 0C                        	.db CHRBank_EnemiesGrass
+0FD1F 0D                        	.db CHRBank_EnemiesDesert
+0FD20 0C                        	.db CHRBank_EnemiesGrass
+0FD21 0E                        	.db CHRBank_EnemiesIce
+0FD22 0C                        	.db CHRBank_EnemiesGrass
+0FD23 0D                        	.db CHRBank_EnemiesDesert
+0FD24 0F                        	.db CHRBank_EnemiesSky
+0FD25                           
+0FD25                           CHRBank_WorldBossBackground:
+0FD25 10                        	.db CHRBank_BackgroundGrass
+0FD26 12                        	.db CHRBank_BackgroundDesert
+0FD27 10                        	.db CHRBank_BackgroundGrass
+0FD28 14                        	.db CHRBank_BackgroundIce
+0FD29 0A                        	.db CHRBank_BackgroundGrassClawgrip
+0FD2A 12                        	.db CHRBank_BackgroundDesert
+0FD2B 16                        	.db CHRBank_BackgroundSky
+0FD2C                           
+0FD2C                           CHRBank_CharacterSize:
+0FD2C 00                        	.db CHRBank_Mario
+0FD2D 04                        	.db CHRBank_MarioSmall
+0FD2E 02                        	.db CHRBank_Princess
+0FD2F 06                        	.db CHRBank_PrincessSmall
+0FD30 03                        	.db CHRBank_Toad
+0FD31 07                        	.db CHRBank_ToadSmall
+0FD32 01                        	.db CHRBank_Luigi
+0FD33 05                        	.db CHRBank_LuigiSmall
+0FD34                           
+0FD34                           
+0FD34                           LoadWorldCHRBanks:
+0FD34 A0 08                     	LDY #CHRBank_CommonEnemies1
+0FD36 8C FA 06                  	STY SpriteCHR2
+0FD39 C8                        	INY
+0FD3A 8C FB 06                  	STY SpriteCHR3
+0FD3D AC 34 06                  	LDY CurrentWorldTileset
+0FD40 B9 1E FD                  	LDA CHRBank_WorldEnemies, Y
+0FD43 8D FC 06                  	STA SpriteCHR4
+0FD46 B9 25 FD                  	LDA CHRBank_WorldBossBackground, Y
+0FD49 8D F7 06                  	STA BackgroundCHR1
+0FD4C A9 18                     	LDA #CHRBank_Animated1
+0FD4E 8D F8 06                  	STA BackgroundCHR2
+0FD51                           
+0FD51                           LoadCharacterCHRBanks:
+0FD51 A5 8F                     	LDA CurrentCharacter
+0FD53 0A                        	ASL A
+0FD54 0D F6 06                  	ORA PlayerCurrentSize
+0FD57 A8                        	TAY
+0FD58 B9 2C FD                  	LDA CHRBank_CharacterSize, Y
+0FD5B 8D F9 06                  	STA SpriteCHR1
+0FD5E 60                        	RTS
+0FD5F                           
+0FD5F                           
+0FD5F                           LoadTitleScreenCHRBanks:
+0FD5F                           IFDEF PLAYER_STUFF
+0FD5F A9 00                         LDA #$0
+0FD61 8D F9 06                      STA SpriteCHR1
+0FD64 A9 01                         LDA #$1
+0FD66 8D FA 06                      STA SpriteCHR2
+0FD69 A9 02                         LDA #$2
+0FD6B 8D FB 06                      STA SpriteCHR3
+0FD6E A9 03                         LDA #$3
+0FD70 8D FC 06                      STA SpriteCHR4
+0FD73                           ENDIF
+0FD73 A9 28                     	LDA #CHRBank_TitleScreenBG1
+0FD75 8D F7 06                  	STA BackgroundCHR1
+0FD78 A9 2A                     	LDA #CHRBank_TitleScreenBG2
+0FD7A 8D F8 06                  	STA BackgroundCHR2
+0FD7D 60                        	RTS
+0FD7E                           
+0FD7E                           
+0FD7E                           LoadCelebrationSceneBackgroundCHR:
+0FD7E A9 38                     	LDA #CHRBank_CelebrationBG1
+0FD80 8D F7 06                  	STA BackgroundCHR1
+0FD83 A9 3A                     	LDA #CHRBank_CelebrationBG2
+0FD85 8D F8 06                  	STA BackgroundCHR2
+0FD88 60                        	RTS
+0FD89                           
+0FD89                           
+0FD89                           LoadCharacterSelectCHRBanks:
+0FD89 A9 30                     	LDA #CHRBank_CharacterSelectSprites
+0FD8B 8D F9 06                  	STA SpriteCHR1
+0FD8E A9 2C                     	LDA #CHRBank_CharacterSelectBG1
+0FD90 8D F7 06                  	STA BackgroundCHR1
+0FD93 A9 2E                     	LDA #CHRBank_CharacterSelectBG2
+0FD95 8D F8 06                  	STA BackgroundCHR2
+0FD98 60                        	RTS
+0FD99                           
+0FD99                           
+0FD99                           TitleCardCHRBanks:
+0FD99 40                        	.db CHRBank_TitleCardGrass
+0FD9A 42                        	.db CHRBank_TitleCardDesert
+0FD9B 40                        	.db CHRBank_TitleCardGrass
+0FD9C 44                        	.db CHRBank_TitleCardIce
+0FD9D 40                        	.db CHRBank_TitleCardGrass
+0FD9E 42                        	.db CHRBank_TitleCardDesert
+0FD9F 46                        	.db CHRBank_TitleCardSky
+0FDA0                           
+0FDA0                           
+0FDA0                           ChangeTitleCardCHR:
+0FDA0 AC 35 06                  	LDY CurrentWorld
+0FDA3 B9 99 FD                  	LDA TitleCardCHRBanks, Y
+0FDA6 8D F8 06                  	STA BackgroundCHR2
+0FDA9 60                        	RTS
+0FDAA                           
+0FDAA                           
+0FDAA                           LoadBonusChanceCHRBanks:
+0FDAA A9 34                     	LDA #CHRBank_ChanceBG1
+0FDAC 8D F7 06                  	STA BackgroundCHR1
+0FDAF A9 36                     	LDA #CHRBank_ChanceBG2
+0FDB1 8D F8 06                  	STA BackgroundCHR2
+0FDB4 60                        	RTS
+0FDB5                           
+0FDB5                           
+0FDB5                           LoadMarioSleepingCHRBanks:
+0FDB5 A0 48                     	LDY #CHRBank_EndingSprites
+0FDB7 8C F9 06                  	STY SpriteCHR1
+0FDBA C8                        	INY
+0FDBB 8C FA 06                  	STY SpriteCHR2
+0FDBE A9 50                     	LDA #CHRBank_EndingBackground1
+0FDC0 8D F7 06                  	STA BackgroundCHR1
+0FDC3 A9 52                     	LDA #CHRBank_EndingBackground1 + 2
+0FDC5 8D F8 06                  	STA BackgroundCHR2
+0FDC8 60                        	RTS
+0FDC9                           
+0FDC9                           
+0FDC9                           ; Unused space in the original ($FE97 - $FF4F)
+0FDC9                           unusedSpace $FF50, $FF
+0FDC9                           	IFDEF PRESERVE_UNUSED_SPACE
+0FDC9                           		.pad $FF50, $FF
+0FDC9                           	ENDIF
+0FDC9                           
+0FDC9                           
+0FDC9                           ; public RESET
+0FDC9                           ; This code is called when the NES is reset
+0FDC9                           RESET:
+0FDC9 78                        	SEI
+0FDCA D8                        	CLD
+0FDCB A9 00                     	LDA #PPUCtrl_Base2000 | PPUCtrl_WriteHorizontal | PPUCtrl_Sprite0000 | PPUCtrl_Background0000 | PPUCtrl_SpriteSize8x8 | PPUCtrl_NMIDisabled
+0FDCD 8D 00 20                  	STA PPUCTRL
+0FDD0 A2 FF                     	LDX #$FF ; Reset stack pointer
+0FDD2 9A                        	TXS
+0FDD3                           
+0FDD3                           RESET_VBlankLoop:
+0FDD3                           	; Wait for first VBlank
+0FDD3 AD 02 20                  	LDA PPUSTATUS
+0FDD6 29 80                     	AND #PPUStatus_VBlankHit
+0FDD8 F0 F9                     	BEQ RESET_VBlankLoop
+0FDDA                           
+0FDDA                           RESET_VBlank2Loop:
+0FDDA                           	; Wait for second VBlank
+0FDDA AD 02 20                  	LDA PPUSTATUS
+0FDDD 10 FB                     	BPL RESET_VBlank2Loop
+0FDDF                           
+0FDDF                           IFDEF DEBUG
+0FDDF A9 00                     	LDA #$00
+0FDE1 8D EF 7F                  	STA Debug_InMenu
+0FDE4                           ENDIF
+0FDE4                           
+0FDE4 A9 00                     	LDA #VMirror
+0FDE6 8D 00 A0                  	STA NametableMapping
+0FDE9 A9 80                     	LDA #$80
+0FDEB 8D 01 A0                  	STA $A001
+0FDEE 4C D9 DB                  	JMP StartGame
+0FDF1                           
+0FDF1                           
+0FDF1                           IFNDEF MMC5
+0FDF1                           ;
+0FDF1                           ; Switches the current CHR banks
+0FDF1                           ;
+0FDF1                           ChangeCHRBanks:
+0FDF1 A0 05                     	LDY #$05
+0FDF3                           ChangeCHRBanks_Loop:
+0FDF3 98                        	TYA
+0FDF4 09 80                     	ORA #$80
+0FDF6 8D 00 80                  	STA $8000
+0FDF9 B9 F7 06                  	LDA BackgroundCHR1, Y
+0FDFC 8D 01 80                  	STA $8001
+0FDFF 88                        	DEY
+0FE00 10 F1                     	BPL ChangeCHRBanks_Loop
+0FE02                           
+0FE02 60                        	RTS
+0FE03                           ENDIF
+0FE03                           
+0FE03                           IFDEF MMC5
+0FE03                           ;
+0FE03                           ; Switches the current CHR banks
+0FE03                           ;
+0FE03                           ChangeCHRBanks:
+0FE03                           	JMP ChangeCHRBanks_MMC5
+0FE03                           
+0FE03                           	; Maintain location of the next subroutine
+0FE03                           	unusedSpace $FF85, $FF
+0FE03                           
+0FE03                           ENDIF
+0FE03                           
+0FE03                           
+0FE03                           ;
+0FE03                           ; Calling this one will save the changed bank
+0FE03                           ; to RAM, so if something uses the below version
+0FE03                           ; the original bank set with this can be restored.
+0FE03                           ;
+0FE03                           ChangeMappedPRGBank:
+0FE03 8D F2 06                  	STA MMC3PRGBankTemp ; See below comment.
+0FE06                           
+0FE06                           ;
+0FE06                           ; Any call to this sub switches the lower two banks together, eg:
+0FE06                           ; LDA 0 JSR Change... = Bank 0/1
+0FE06                           ; LDA 1 JSR Change... = Bank 2/3
+0FE06                           ; etc.
+0FE06                           ;
+0FE06                           ; This version changes the bank numbers without
+0FE06                           ; saving the change to RAM, so the previous bank
+0FE06                           ; can be recalled later (mostly for temporary switches,
+0FE06                           ; like music handling and such)
+0FE06                           ;
+0FE06                           ChangeMappedPRGBankWithoutSaving:
+0FE06 0A                        	ASL A
+0FE07                           IFNDEF MMC5
+0FE07 48                        	PHA
+0FE08 A9 86                     	LDA #$86
+0FE0A 8D 00 80                  	STA $8000
+0FE0D 68                        	PLA
+0FE0E 8D 01 80                  	STA $8001 ; Change first bank
+0FE11 09 01                     	ORA #$01 ; Use the bank right after this one next
+0FE13 48                        	PHA
+0FE14 A9 87                     	LDA #$87
+0FE16 8D 00 80                  	STA $8000
+0FE19 68                        	PLA
+0FE1A 8D 01 80                  	STA $8001 ; Change second bank
+0FE1D 60                        	RTS
+0FE1E                           ENDIF
+0FE1E                           IFDEF MMC5
+0FE1E                           	ORA #$80
+0FE1E                           	STA $5114
+0FE1E                           	ORA #$01
+0FE1E                           	STA $5115
+0FE1E                           	RTS
 0FE1E                           
-0FE1E                           ; Note that this is NOT CODE.
-0FE1E                           ; If the NES actually hits a BRK, the game will probably just explode.
-0FE1E                           ; If you wanted, you could write  some sort of crash handler though.
-0FE1E                           IRQ:
-0FE1E                           IFNDEF PLAYER_STUFF_IRQ
-0FE1E DF                        	.db $DF
-0FE1F E6                        	.db $E6
-0FE20 00                        	.db $00
-0FE21 00                        	.db $00
-0FE22 38                        	.db $38
-0FE23 04                        	.db $04
-0FE24 01                        	.db $01
-0FE25 04                        	.db $04
-0FE26 01                        	.db $01
-0FE27 BE                        	.db $BE
-0FE28                           ENDIF
-0FE28                           IFDEF PLAYER_STUFF_IRQ
-0FE28                           	PHP ; store current processor state
-0FE28                               PHA
-0FE28                               JSR IRQ_Start
-0FE28                           ENDIF
-0FE28                           
-0FE28                           ; Ensure our vectors are always here
-0FE28 FF FF FF FF FF FF FF FF.. 	.pad $FFFA, $FF
+0FE1E                           	; Maintain location of the next subroutine
+0FE1E                           	unusedSpace $FFA0, $FF
+0FE1E                           
+0FE1E                           ENDIF
+0FE1E                           
+0FE1E                           
+0FE1E                           ;
+0FE1E                           ; Writing to $A000 sets mirroring.
+0FE1E                           ;   A = $00 for vertical
+0FE1E                           ;   A = $01 for horizontal
+0FE1E                           ;
+0FE1E                           ChangeNametableMirroring:
+0FE1E 8D 00 A0                  	STA NametableMapping
+0FE21 60                        	RTS
+0FE22                           
+0FE22                           
+0FE22                           ; Unused space in the original ($FFA4 - $FFEA)
+0FE22                           unusedSpace $FFEB, $FF
+0FE22                           	IFDEF PRESERVE_UNUSED_SPACE
+0FE22                           		.pad $FFEB, $FF
+0FE22                           	ENDIF
+0FE22                           
+0FE22                           ; Technically you can delete the stuff from here to the vector table as well,
+0FE22                           ; but because it looks slightly less like unused space it isn't being removed.
+0FE22                           
+0FE22                           ; Not used; leftover part of FamicomBox cart title?
+0FE22                           UnusedTextZELDA:
+0FE22 5A 45 4C 44 41            	.db 'ZELDA'
+0FE27                           
+0FE27                           ; Note that this is NOT CODE.
+0FE27                           ; If the NES actually hits a BRK, the game will probably just explode.
+0FE27                           ; If you wanted, you could write  some sort of crash handler though.
+0FE27                           IRQ:
+0FE27                           IFNDEF PLAYER_STUFF_IRQ
+0FE27 DF                        	.db $DF
+0FE28 E6                        	.db $E6
+0FE29 00                        	.db $00
+0FE2A 00                        	.db $00
+0FE2B 38                        	.db $38
+0FE2C 04                        	.db $04
+0FE2D 01                        	.db $01
+0FE2E 04                        	.db $04
+0FE2F 01                        	.db $01
+0FE30 BE                        	.db $BE
+0FE31                           ENDIF
+0FE31                           IFDEF PLAYER_STUFF_IRQ
+0FE31                           	PHP ; store current processor state
+0FE31                               PHA
+0FE31                               JSR IRQ_Start
+0FE31                           ENDIF
+0FE31                           
+0FE31                           ; Ensure our vectors are always here
+0FE31 FF FF FF FF FF FF FF FF.. 	.pad $FFFA, $FF
 0FFFA                           
 0FFFA                           ; Vectors for the NES CPU. These should ALWAYS be at $FFFA!
 0FFFA                           ; Add a .pad or .base before here if you change code above.
@@ -67903,12 +67910,12 @@
 0FFFA                           NESVectorTables:
 0FFFA 60 E5                     	.dw NMI
 0FFFC                           IFNDEF MMC5
-0FFFC C0 FD                     	.dw RESET
+0FFFC C9 FD                     	.dw RESET
 0FFFE                           ENDIF
 0FFFE                           IFDEF MMC5
 0FFFE                           	.dw RESET_MMC5
 0FFFE                           ENDIF
-0FFFE 1E FE                     	.dw IRQ
+0FFFE 27 FE                     	.dw IRQ
 10000                           
 10000                           
 10000                           ; -----------------------------------------

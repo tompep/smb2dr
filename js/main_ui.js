@@ -449,7 +449,7 @@ function load_options(files, tag){
         console.log('Loading config...')
         var result = JSON.parse(e.target.result);
         var my_name = file.name.replace('.json', '')
-        $('#preset_game').append('<option value="' + presets.length - 1 + '">' + my_name + '</option>')
+        $('#preset_game').append('<option value="' + presets.length + '">' + my_name + '</option>')
         presets.push({'name': my_name, 'config': result})
         reload_options(result, tag)
     }
