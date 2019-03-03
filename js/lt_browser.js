@@ -124,7 +124,6 @@ function write_level_bytes(my_l, world=0){
 
     // for each layer that isn't empty
     for (var layer = 0; layer < 10; layer++){
-        var prev_output = output.slice(0)
         var layer_objs = sorted.filter(x => x.layer === layer)
         if (layer_objs.length === 0 && layer != 0){
             break
@@ -134,6 +133,7 @@ function write_level_bytes(my_l, world=0){
         var lasty = 15
         // for each page, get objs
         for (var i = 0; i < 10; i++){
+            var prev_output = output.slice(0)
             var page_objs = layer_objs.filter(x => x.pos_page === i)
             var destobj = ptrs.filter(x => x != undefined && x.pos_page === i)
             var grouobjs = sorted_ground.filter(x => x.pos_page === i)
@@ -215,9 +215,10 @@ function write_level_bytes(my_l, world=0){
             }
 
             if (output.length > 240){
-                prev_output.push(0xff)
+                console.error(prev_output.length, layer, i)
                 output_chunks.push(prev_output)
                 output = output.slice(prev_output.length)
+            prev_output.push(0xff)
             }
 
         }
@@ -232,7 +233,7 @@ function write_level_bytes(my_l, world=0){
     }
 
     if (my_l.hotspots.length){
-        var output_hot = ['0xf9', '0x76', '0xa0']
+        var output_hot = [0xf9, 0x76, 0xa0]
         var output_content = []
         for(var mod of my_l.hotspots){
             var pos_page = mod.pos_page
@@ -252,9 +253,10 @@ function write_level_bytes(my_l, world=0){
     }
 
     if (output.length > 240){
-        prev_output.push(0xff)
+        console.error(prev_output.length)
         output_chunks.push(prev_output)
         output = output.slice(prev_output.length)
+        prev_output.push(0xff)
     }
 
     if (my_l.is_jar){
@@ -813,7 +815,9 @@ function write_to_file (og_rom, my_levels, my_world_metadata, mem_locs){
     var ecnt = 0xa500 + 84 + 420 - 0x8000
     var ptr_order = my_world_metadata.level_ptr_order
     var eptr_order = my_world_metadata.enemy_ptr_order
-    var bonus_cnt = 0
+
+    var bonus_cnt = (mem_locs['LevelData_CD'] + 0x10) % 0x2000
+    var bonus_start = bonus_cnt
     for (var i = 0; i < my_levels.length + 10; i++){
         if (my_levels[i] == undefined || i >= 200){
             var new_ptr = 0x8000 + allcnt
@@ -838,9 +842,11 @@ function write_to_file (og_rom, my_levels, my_world_metadata, mem_locs){
         if (level_data.length > 1) {
             console.log('bonus level size', my_l.i, level_data)
             var bonus_level_data = level_data[1]
+
             set_memory_location(og_rom, mem_locs, 'LevelDataPointersHi_CD', [bonus_cnt >> 8], my_l.i)
             set_memory_location(og_rom, mem_locs, 'LevelDataPointersLo_CD', [bonus_cnt % 256], my_l.i)
-            set_memory_location(og_rom, mem_locs, 'LevelData_CD', bonus_level_data, bonus_cnt)
+            set_memory_location(og_rom, mem_locs, 'LevelData_CD', bonus_level_data, bonus_cnt - bonus_start)
+
             bonus_cnt += bonus_level_data.length
 
         }
